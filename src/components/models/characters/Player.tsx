@@ -4,15 +4,12 @@ Command: npx gltfjsx@6.2.10 ./public/character-human.glb -t
 */
 
 import * as THREE from 'three';
-import React, { useRef, useState } from 'react';
-import { useGLTF, useKeyboardControls } from '@react-three/drei';
+import React, { useRef } from 'react';
+import { useGLTF } from '@react-three/drei';
 import { GLTF } from 'three-stdlib';
-import Camera from './Camera';
-import { useGameContext } from './context/GameContext';
 import { useFrame } from '@react-three/fiber';
 import { Group } from 'three';
-import { Controls } from './types/GameTypes';
-import { MathUtils } from 'three/src/math/MathUtils';
+import { GameState, useStore } from '@/stores/useStore';
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -38,44 +35,19 @@ type GLTFResult = GLTF & {
   };
 };
 
-export function CharacterHuman(props: JSX.IntrinsicElements['group']) {
-  const human = useRef<Group>();
-  const { playerData, adjustPlayer } = useGameContext();
-  const [lastRotation, SetLastRotation] = useState(0);
-  const [, get] = useKeyboardControls();
-  const { forward } = get();
+export function Player(props: JSX.IntrinsicElements['group']) {
+  const human = useRef<Group>(null);
 
-  const forwardPressed = useKeyboardControls<Controls>(
-    (state) => state.forward
-  );
-  const rightPressed = useKeyboardControls<Controls>((state) => state.right);
-  const leftPressed = useKeyboardControls<Controls>((state) => state.left);
-  const downPressed = useKeyboardControls<Controls>((state) => state.back);
-
-  console.log(forward);
-
-  if (forwardPressed) {
-    adjustPlayer(0, -1);
-    //SetLastRotation(MathUtils.degToRad(0));
-  } else if (downPressed) {
-    adjustPlayer(0, 1);
-    //SetLastRotation(MathUtils.degToRad(180));
-  } else if (rightPressed) {
-    adjustPlayer(1, 0);
-    //SetLastRotation(MathUtils.degToRad(90));
-  } else if (leftPressed) {
-    adjustPlayer(-1, 0);
-    //SetLastRotation(MathUtils.degToRad(270));
-  }
+  const playerPosition = useStore((store: GameState) => store.playerPosition);
+  const playerRotation = useStore((store: GameState) => store.playerRotation);
 
   useFrame(() => {
+    if (!playerPosition) return;
     if (human.current) {
-      human.current.position.x = playerData?.x || 0;
+      human.current.position.x = playerPosition?.x || 0;
       human.current.position.y = 0;
-      human.current.position.z = playerData?.y || 0;
-      //[playerData?.x || 0, 0, playerData?.y || 0];
-
-      human.current.rotation.z = lastRotation;
+      human.current.position.z = playerPosition?.y || 0;
+      human.current.rotation.y = playerRotation;
     }
   });
 

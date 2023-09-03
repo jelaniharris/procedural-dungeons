@@ -1,5 +1,11 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+## Attributions
+
+[https://opengameart.org/content/plingy-coin](Plingy Coin by Fupi)
+[https://opengameart.org/content/foot-walking-step-sounds-on-stone-water-snow-wood-and-dirt](Footstep sounds by Jute)
+[https://opengameart.org/content/loopable-dungeon-ambience](Ambient Dungeon Sound by JaggedStone)
+
 ## Getting Started
 
 First, run the development server:

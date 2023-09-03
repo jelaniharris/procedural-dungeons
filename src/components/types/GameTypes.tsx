@@ -1,3 +1,5 @@
+import Point2D from '../../utils/Point2D';
+
 export enum TileType {
   TILE_NONE,
   TILE_FLOOR,
@@ -7,6 +9,7 @@ export enum TileType {
 }
 
 export enum ItemType {
+  ITEM_NONE,
   ITEM_COIN,
   ITEM_CHEST,
 }
@@ -19,6 +22,20 @@ export enum WallType {
   WALL_ENCASED,
 }
 
+export type Item = {
+  id: number;
+  type: ItemType;
+  rotates: boolean;
+  position: Point2D;
+  name?: string;
+};
+
+export type ItemLocationType = {
+  type: ItemType;
+  ref?: React.ReactNode;
+  id?: number;
+};
+
 export type PlayerType = {
   x: number;
   y: number;
@@ -28,7 +45,6 @@ export type WorldDataType = {
   numRows: number;
   numCols: number;
   tiles: (TileType | null)[][];
-  items: (ItemType | null)[][];
 };
 
 export enum Controls {
