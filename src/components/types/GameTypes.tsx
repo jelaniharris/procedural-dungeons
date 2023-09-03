@@ -6,6 +6,7 @@ export enum TileType {
   TILE_DIRT,
   TILE_WALL,
   TILE_WALL_EDGE,
+  TILE_EXIT,
 }
 
 export enum ItemType {
@@ -20,6 +21,12 @@ export enum WallType {
   WALL_TWO_SIDED,
   WALL_TRI_SIDED,
   WALL_ENCASED,
+}
+
+export enum LocationActionType {
+  NOTHING,
+  COLLECTED_ITEM,
+  AT_EXIT,
 }
 
 export type Item = {

@@ -16,9 +16,10 @@ import { GameState, playAudio, useStore } from '@/stores/useStore';
 import { FollowCamera } from '../FollowCamera';
 import { ShowItems } from '@/app/ShowItems';
 import { AmbientSound } from '../AmbientSound';
-import { Controls } from '../types/GameTypes';
+import { Controls, LocationActionType } from '../types/GameTypes';
 const DungeonScene = () => {
   const startGame = useStore((state: GameState) => state.startGame);
+  const advanceStage = useStore((state: GameState) => state.advanceStage);
   const checkPlayerLocation = useStore(
     (state: GameState) => state.checkPlayerLocation
   );
@@ -48,7 +49,19 @@ const DungeonScene = () => {
       playAudio('stepstone_1.wav', 0.2);
     }
     console.log(`Player action happened: ${moved}`);
-    checkPlayerLocation();
+    const locationAction = checkPlayerLocation();
+    switch (locationAction) {
+      case LocationActionType.COLLECTED_ITEM:
+        playAudio('coin.wav');
+        break;
+      case LocationActionType.AT_EXIT:
+        console.log('AT EXIT');
+        advanceStage();
+        break;
+      case LocationActionType.NOTHING:
+      default:
+        break;
+    }
   };
 
   return (

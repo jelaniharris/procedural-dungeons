@@ -1,11 +1,13 @@
 import Dirt from '@/components/models/Dirt';
 import Floor from '@/components/models/Floor';
+import { Stairs } from '@/components/models/Stairs';
 import { ThreeSidedWall } from '@/components/models/Three-Sided-Wall';
 import Wall from '@/components/models/Wall';
 import WallHalf from '@/components/models/WallHalf';
 import { WallNarrow } from '@/components/models/WallNarrow';
 import { TileType, WallType } from '@/components/types/GameTypes';
 import { useStore } from '@/stores/useStore';
+import { MathUtils } from 'three';
 import { shallow } from 'zustand/shallow';
 
 export const ShowEnvironment = () => {
@@ -86,6 +88,15 @@ export const ShowEnvironment = () => {
               );
               break;
           }
+          break;
+        case TileType.TILE_EXIT:
+          tile = (
+            <Stairs
+              key={`${x}-${y}`}
+              rotation={[0, MathUtils.degToRad(180), 0]}
+              position={[tileXPos, 0, tileYPos]}
+            />
+          );
           break;
         case TileType.TILE_NONE:
         default:

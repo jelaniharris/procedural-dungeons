@@ -3,14 +3,16 @@ import { StateCreator } from 'zustand';
 import { MapSlice } from './mapSlice';
 import { playAudio } from './useStore';
 import { MathUtils } from 'three/src/Three';
+import { LocationActionType, TileType } from '@/components/types/GameTypes';
 
 export interface PlayerSlice {
   playerPosition: Point2D;
   playerRotation: number;
   score: number;
   adjustPlayer: (xOffset: number, yOffset: number) => boolean;
-  checkPlayerLocation: () => void;
+  checkPlayerLocation: () => LocationActionType;
   addScore: (score: number) => void;
+  isPlayerAtExit: () => boolean;
 }
 
 export const createPlayerSlice: StateCreator<
@@ -60,6 +62,18 @@ export const createPlayerSlice: StateCreator<
   addScore(amount: number) {
     set((store) => ({ score: store.score + amount }));
   },
+  isPlayerAtExit() {
+    const currentMapData = get().mapData;
+    const currentPlayerData = get().playerPosition;
+
+    if (
+      currentMapData[currentPlayerData.x][currentPlayerData.y] ==
+      TileType.TILE_EXIT
+    ) {
+      return true;
+    }
+    return false;
+  },
   checkPlayerLocation() {
     // Check for item at location
     const getItemPosition = get().getItemPosition;
@@ -67,6 +81,11 @@ export const createPlayerSlice: StateCreator<
     const addScore = get().addScore;
     const items = get().items;
     const getItemPositionOnGrid = get().getItemPositionOnGrid;
+    const isPlayerAtExit = get().isPlayerAtExit;
+
+    if (isPlayerAtExit()) {
+      return LocationActionType.AT_EXIT;
+    }
 
     const itemAtLocation = getItemPosition(
       currentPlayerData.x,
@@ -87,7 +106,10 @@ export const createPlayerSlice: StateCreator<
         getItemPositionOnGrid(currentPlayerData.x, currentPlayerData.y)
       ];
       set({ items: oldItems });
-      playAudio('coin.wav');
+
+      return LocationActionType.COLLECTED_ITEM;
     }
+
+    return LocationActionType.NOTHING;
   },
 });

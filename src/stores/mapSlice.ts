@@ -9,6 +9,7 @@ import { StageSlice } from './stageSlice';
 import Point2D from '@/utils/Point2D';
 import shuffle from 'lodash/shuffle';
 import { createRef } from 'react';
+import { PlayerSlice } from './playerSlice';
 
 export interface MapSlice {
   mapData: (TileType | null)[][];
@@ -22,6 +23,10 @@ export interface MapSlice {
     y: number
   ) => { rotation: number; wallType: WallType };
   generateMap: (mapData: (TileType | null)[][]) => (TileType | null)[][];
+  getEmptyTiles: () => Point2D[];
+  generateExit: () => void;
+  generatePlayerPosition: () => void;
+  resetMap: () => void;
   // Items
   items: Item[];
   itemIndex: number;
@@ -37,22 +42,28 @@ export interface MapSlice {
 const allItemRefs = createRef<any[]>() as React.MutableRefObject<any[]>;
 
 export const createMapSlice: StateCreator<
-  MapSlice & StageSlice,
+  MapSlice & StageSlice & PlayerSlice,
   [],
   [],
   MapSlice
 > = (set, get) => ({
   mapData: [],
-  numRows: 15,
-  numCols: 15,
+  numRows: 5,
+  numCols: 5,
   items: [],
   itemIndex: 0,
   itemsRefs: allItemRefs,
   resetStage: () => {
-    const mapNumRows = get().numRows;
-    const mapNumCols = get().numCols;
     const currentMapData = get().mapData;
     const generateItems = get().generateItems;
+    const generateExit = get().generateExit;
+    const generatePlayerPosition = get().generatePlayerPosition;
+    const resetMap = get().resetMap;
+
+    resetMap();
+
+    const mapNumRows = get().numRows;
+    const mapNumCols = get().numCols;
 
     for (let y = 0; y < mapNumRows; y++) {
       for (let x = 0; x < mapNumCols; x++) {
@@ -77,6 +88,29 @@ export const createMapSlice: StateCreator<
       mapData: currentMapData,
     });
     generateItems();
+    generatePlayerPosition();
+    generateExit();
+  },
+  resetMap: () => {
+    const mapNumRows = 15 + 5 * get().currentLevel;
+    const mapNumCols = 15 + 5 * get().currentLevel;
+
+    const newMap: (TileType | null)[][] = [];
+
+    for (let y = 0; y < mapNumRows; y++) {
+      for (let x = 0; x < mapNumCols; x++) {
+        if (!newMap[x]) {
+          newMap[x] = [];
+        }
+        newMap[x][y] = TileType.TILE_NONE;
+      }
+    }
+
+    set({
+      mapData: newMap,
+      numRows: mapNumRows,
+      numCols: mapNumCols,
+    });
   },
   getTilePosition: (x: number, y: number) => {
     const mapNumRows = get().numRows;
@@ -228,25 +262,83 @@ export const createMapSlice: StateCreator<
   resetItems() {
     set({ items: [] });
   },
-  generateItems() {
+  getEmptyTiles() {
     const mapNumRows = get().numRows;
     const mapNumCols = get().numCols;
     const currentMapData = get().mapData;
-    const currentLevel = get().currentLevel;
     const isBlockWallOrNull = get().isBlockWallOrNull;
-    const getItemPositionOnGrid = get().getItemPositionOnGrid;
-    const itemIndex = get().itemIndex;
+    const getItemPosition = get().getItemPosition;
 
-    let numberItems = 10 + 2 + currentLevel;
-    let emptySpots = [];
+    const emptySpots = [];
 
     for (let y = 0; y < mapNumRows; y++) {
       for (let x = 0; x < mapNumCols; x++) {
-        if (!isBlockWallOrNull(currentMapData[x][y])) {
+        if (
+          !isBlockWallOrNull(currentMapData[x][y]) &&
+          currentMapData[x][y] != TileType.TILE_EXIT &&
+          !getItemPosition(x, y)
+        ) {
           emptySpots.push(new Point2D(x, y));
         }
       }
     }
+
+    return emptySpots;
+  },
+  generatePlayerPosition() {
+    //const currentMapData = get().mapData;
+    let emptySpots = get().getEmptyTiles();
+    emptySpots = shuffle(emptySpots);
+    //const currentPlayerPosition = get().playerPosition;
+
+    let position = null;
+    while (emptySpots.length != 0 && position == null) {
+      const point = emptySpots.shift();
+
+      if (!point) {
+        break;
+      }
+
+      position = point;
+      console.log('Player set to ', point.x, ',', point.y);
+
+      //currentMapData[point.x][point.y] = TileType.TILE_EXIT;
+    }
+    if (position) {
+      set({
+        playerPosition: position,
+      });
+      return true;
+    }
+
+    return false;
+  },
+  generateExit() {
+    const currentMapData = get().mapData;
+    let emptySpots = get().getEmptyTiles();
+    emptySpots = shuffle(emptySpots);
+
+    let validSpot = false;
+    while (emptySpots.length != 0 && validSpot == false) {
+      const point = emptySpots.shift();
+
+      if (!point) {
+        break;
+      }
+
+      console.log('Point ', point.x, ',', point.y);
+
+      currentMapData[point.x][point.y] = TileType.TILE_EXIT;
+      validSpot = true;
+    }
+  },
+  generateItems() {
+    const currentLevel = get().currentLevel;
+    const getItemPositionOnGrid = get().getItemPositionOnGrid;
+    const itemIndex = get().itemIndex;
+
+    let numberItems = 10 + 2 + currentLevel;
+    let emptySpots = get().getEmptyTiles();
 
     console.debug(`[generateItems] Found ${emptySpots.length} empty spots`);
 
@@ -302,11 +394,6 @@ export const createMapSlice: StateCreator<
     });
 
     console.debug(`[generateItems] Generated ${newItemIndex + 1} items`);
-
-    // Set as new items
-    //setItems(newItemData);
-    // Update item index
-    //setItemIndex(newItemIndex);
   },
   getItemPositionOnGrid(x: number, y: number) {
     const mapNumRows = get().numRows;
