@@ -1,7 +1,6 @@
 import Point2D from '@/utils/Point2D';
 import { StateCreator } from 'zustand';
 import { MapSlice } from './mapSlice';
-import { playAudio } from './useStore';
 import { MathUtils } from 'three/src/Three';
 import { LocationActionType, TileType } from '@/components/types/GameTypes';
 

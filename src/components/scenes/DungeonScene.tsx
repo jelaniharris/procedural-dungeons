@@ -17,9 +17,11 @@ import { FollowCamera } from '../FollowCamera';
 import { ShowItems } from '@/app/ShowItems';
 import { AmbientSound } from '../AmbientSound';
 import { Controls, LocationActionType } from '../types/GameTypes';
+import { ShowEnemies } from '@/app/ShowEnemies';
 const DungeonScene = () => {
   const startGame = useStore((state: GameState) => state.startGame);
   const advanceStage = useStore((state: GameState) => state.advanceStage);
+  const aiMove = useStore((state: GameState) => state.aiMove);
   const checkPlayerLocation = useStore(
     (state: GameState) => state.checkPlayerLocation
   );
@@ -62,6 +64,7 @@ const DungeonScene = () => {
       default:
         break;
     }
+    aiMove();
   };
 
   return (
@@ -84,6 +87,7 @@ const DungeonScene = () => {
           <ShowEnvironment />
           <CharacterController movementCallback={playerAction} />
           <ShowItems />
+          <ShowEnemies />
         </Suspense>
       </Canvas>
     </KeyboardControls>

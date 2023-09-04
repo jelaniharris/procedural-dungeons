@@ -1,6 +1,8 @@
 import {
+  Direction,
   Item,
   ItemType,
+  POSITION_OFFSETS,
   TileType,
   WallType,
 } from '@/components/types/GameTypes';
@@ -10,6 +12,7 @@ import Point2D from '@/utils/Point2D';
 import shuffle from 'lodash/shuffle';
 import { createRef } from 'react';
 import { PlayerSlice } from './playerSlice';
+import { EnemySlice } from './enemySlice';
 
 export interface MapSlice {
   mapData: (TileType | null)[][];
@@ -17,6 +20,7 @@ export interface MapSlice {
   numCols: number;
   resetStage: () => void;
   getTilePosition: (x: number, y: number) => TileType | null;
+  determineValidDirections: (point: Point2D) => Direction[];
   isBlockWallOrNull: (e: TileType | null) => boolean;
   determineWallType: (
     x: number,
@@ -42,7 +46,7 @@ export interface MapSlice {
 const allItemRefs = createRef<any[]>() as React.MutableRefObject<any[]>;
 
 export const createMapSlice: StateCreator<
-  MapSlice & StageSlice & PlayerSlice,
+  MapSlice & StageSlice & PlayerSlice & EnemySlice,
   [],
   [],
   MapSlice
@@ -59,6 +63,7 @@ export const createMapSlice: StateCreator<
     const generateExit = get().generateExit;
     const generatePlayerPosition = get().generatePlayerPosition;
     const resetMap = get().resetMap;
+    const generateEnemies = get().generateEnemies;
 
     resetMap();
 
@@ -90,6 +95,7 @@ export const createMapSlice: StateCreator<
     generateItems();
     generatePlayerPosition();
     generateExit();
+    generateEnemies();
   },
   resetMap: () => {
     const mapNumRows = 15 + 5 * get().currentLevel;
@@ -128,6 +134,30 @@ export const createMapSlice: StateCreator<
   },
   isBlockWallOrNull: (e: TileType | null) => {
     return e == null || e == TileType.TILE_WALL || e == TileType.TILE_WALL_EDGE;
+  },
+  determineValidDirections: (point: Point2D) => {
+    const getTilePosition = get().getTilePosition;
+    const isBlockWallOrNull = get().isBlockWallOrNull;
+
+    const validDirections: Direction[] = [];
+
+    for (const posOff of POSITION_OFFSETS) {
+      const dirTile = getTilePosition(
+        point.x + posOff.position.x,
+        point.y + posOff.position.y
+      );
+      if (!dirTile) {
+        continue;
+      }
+
+      if (!isBlockWallOrNull(dirTile)) {
+        validDirections.push(posOff.direction);
+      }
+    }
+
+    console.log(validDirections);
+
+    return validDirections;
   },
   determineWallType: (x: number, y: number) => {
     let rotation = 0;
@@ -234,15 +264,16 @@ export const createMapSlice: StateCreator<
         ) {
           continue;
         }
-        const rand = Math.floor(Math.random() * 3);
+        const rand = Math.floor(Math.random() * 4);
         let tileType: TileType = TileType.TILE_NONE;
 
         switch (rand) {
           case 0:
           case 1:
+          case 2:
             tileType = TileType.TILE_FLOOR;
             break;
-          case 2:
+
           case 3:
             tileType = TileType.TILE_WALL;
             break;

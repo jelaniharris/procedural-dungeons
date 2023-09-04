@@ -23,6 +23,58 @@ export enum WallType {
   WALL_ENCASED,
 }
 
+export enum EnemyType {
+  ENEMY_ORC,
+}
+
+export enum EnemyStatus {
+  STATUS_NONE,
+  STATUS_ROAMING,
+  STATUS_HUNTING,
+}
+
+export enum Direction {
+  DIR_NORTH,
+  DIR_EAST,
+  DIR_SOUTH,
+  DIR_WEST,
+}
+
+export const DIRECTIONS = [
+  Direction.DIR_NORTH,
+  Direction.DIR_EAST,
+  Direction.DIR_EAST,
+  Direction.DIR_WEST,
+];
+
+export const POSITION_OFFSETS = [
+  {
+    direction: Direction.DIR_NORTH,
+    position: new Point2D(0, -1),
+  },
+  {
+    direction: Direction.DIR_EAST,
+    position: new Point2D(1, 0),
+  },
+  {
+    direction: Direction.DIR_SOUTH,
+    position: new Point2D(0, 1),
+  },
+  {
+    direction: Direction.DIR_WEST,
+    position: new Point2D(-1, 0),
+  },
+];
+
+export type Enemy = {
+  id: number;
+  type: EnemyType;
+  position: Point2D;
+  name?: string;
+  status: EnemyStatus;
+  nextDirection: Point2D;
+};
+
 export enum LocationActionType {
   NOTHING,
   COLLECTED_ITEM,
