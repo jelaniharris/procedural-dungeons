@@ -1,7 +1,6 @@
 import { Orc } from '@/components/models/characters/Character-orc';
 import { GameState, useStore } from '@/stores/useStore';
 import { useRef } from 'react';
-import { shallow } from 'zustand/shallow';
 
 export const ShowEnemies = () => {
   const { enemies } = useStore((store: GameState) => ({
@@ -10,8 +9,6 @@ export const ShowEnemies = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const enemiesRef = useRef<any[]>([]);
-
-  console.log('Showing enemies');
 
   const worldEnemies: JSX.Element[] = [];
   if (!enemies) {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ThreeElements, extend } from '@react-three/fiber';
+import { ThreeElements } from '@react-three/fiber';
 import { useSpring } from 'react-spring';
 import { Mesh } from 'three';
 

@@ -27,7 +27,6 @@ export const useStore = create<GameState>((set, get, other) => ({
   ...createPlayerSlice(set, get, other),
   ...createEnemySlice(set, get, other),
   startGame: () => {
-    console.log('Starting game');
     set((state) => ({ ...state, currentLevel: 1 }));
     get().resetStage();
   },

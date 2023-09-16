@@ -1,6 +1,6 @@
 import { Clone, useGLTF } from '@react-three/drei';
 import { Item as ItemType } from '../types/GameTypes';
-import { forwardRef, useMemo, useRef, useImperativeHandle } from 'react';
+import { forwardRef, useRef, useImperativeHandle } from 'react';
 import { useFrame } from '@react-three/fiber';
 
 export type ItemProps = {

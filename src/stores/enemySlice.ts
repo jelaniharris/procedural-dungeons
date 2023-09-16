@@ -1,5 +1,4 @@
 import {
-  DIRECTIONS,
   Direction,
   Enemy,
   EnemyStatus,

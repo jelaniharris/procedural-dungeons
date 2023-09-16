@@ -1,5 +1,4 @@
-import { useFrame, useThree } from '@react-three/fiber';
-import { useGameContext } from './context/GameContext';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import { useRef } from 'react';
