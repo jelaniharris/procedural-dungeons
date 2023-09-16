@@ -2,6 +2,7 @@ import { Clone, useGLTF } from '@react-three/drei';
 import { Item as ItemType } from '../types/GameTypes';
 import { forwardRef, useRef, useImperativeHandle } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { Group } from 'three';
 
 export type ItemProps = {
   item: ItemType;
@@ -12,7 +13,7 @@ export const Item = forwardRef(function Item(props: ItemProps, forwardedRef) {
   const { scene } = useGLTF(`/models/items/${name}.glb`);
   //const copiedScene = useMemo(() => scene.clone(), [scene]);
   //const myRef = useRef(null);
-  const myRef = useRef(null);
+  const myRef = useRef<Group>(null);
 
   useImperativeHandle(forwardedRef, () => myRef.current);
 

@@ -41,7 +41,7 @@ export const Orc = forwardRef(function Orc(
   forwardedRef
 ) {
   //const orc = useRef<THREE.Group>(null);
-  const orc = useRef(null);
+  const orc = useRef<THREE.Group>(null);
   useImperativeHandle(forwardedRef, () => orc.current);
 
   //const enemies = useStore((store: GameState) => store.enemies, shallow);
