@@ -1,14 +1,29 @@
-'use client';
-
-import React, { useMemo } from 'react';
+import * as THREE from 'three';
+import React from 'react';
 import { useGLTF } from '@react-three/drei';
+import { GLTF } from 'three-stdlib';
 
-function WallHalf(props) {
-  const { scene } = useGLTF('/wall-half.glb');
-  const copiedScene = useMemo(() => scene.clone(), [scene]);
-  return <primitive {...props} object={copiedScene} />;
+type GLTFResult = GLTF & {
+  nodes: {
+    ['wall-half_1']: THREE.Mesh;
+  };
+  materials: {
+    colormap: THREE.MeshStandardMaterial;
+  };
+};
+
+export default function WallHalf(props: JSX.IntrinsicElements['group']) {
+  const { nodes, materials } = useGLTF(
+    '/models/environment/wall-half.glb'
+  ) as GLTFResult;
+  return (
+    <group {...props} dispose={null}>
+      <mesh
+        geometry={nodes['wall-half_1'].geometry}
+        material={materials.colormap}
+      />
+    </group>
+  );
 }
 
-useGLTF.preload('/wall-half.glb');
-
-export default WallHalf;
+useGLTF.preload('/models/environment/wall-half.glb');

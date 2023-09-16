@@ -1,10 +1,10 @@
 import Dirt from '@/components/models/Dirt';
 import Floor from '@/components/models/Floor';
-import { Stairs } from '@/components/models/Stairs';
+import Stairs from '@/components/models/Stairs';
 import { ThreeSidedWall } from '@/components/models/Three-Sided-Wall';
 import Wall from '@/components/models/Wall';
 import WallHalf from '@/components/models/WallHalf';
-import { WallNarrow } from '@/components/models/WallNarrow';
+import WallNarrow from '@/components/models/WallNarrow';
 import { TileType, WallType } from '@/components/types/GameTypes';
 import { useStore } from '@/stores/useStore';
 import { MathUtils } from 'three';

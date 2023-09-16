@@ -16,10 +16,10 @@ import { ThreeElements, useFrame } from '@react-three/fiber';
 
 type GLTFResult = GLTF & {
   nodes: {
-    coin: THREE.Mesh;
+    coin_1: THREE.Mesh;
   };
   materials: {
-    yellow: THREE.MeshStandardMaterial;
+    colormap: THREE.MeshStandardMaterial;
   };
 };
 
@@ -28,7 +28,9 @@ export const Coin = forwardRef(function Coin(
   forwardedRef
 ) {
   const [visible] = useState(true);
-  const { nodes, materials } = useGLTF('/coin.glb') as GLTFResult;
+  const { nodes, materials } = useGLTF(
+    '/models/environment/coin.glb'
+  ) as GLTFResult;
   const myRef = useRef<THREE.Group>(null);
   useImperativeHandle(forwardedRef, () => myRef.current);
 
@@ -41,10 +43,10 @@ export const Coin = forwardRef(function Coin(
   return (
     <group {...props} ref={myRef} dispose={null}>
       {visible && (
-        <mesh geometry={nodes.coin.geometry} material={materials.yellow} />
+        <mesh geometry={nodes.coin_1.geometry} material={materials.colormap} />
       )}
     </group>
   );
 });
 
-useGLTF.preload('/coin.glb');
+useGLTF.preload('/models/environment/coin.glb');
