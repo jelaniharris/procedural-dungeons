@@ -5,7 +5,7 @@ Command: npx gltfjsx@6.2.10 ./public/models/items/chest.glb -t
 
 import * as THREE from 'three';
 import React, { useRef } from 'react';
-import { useGLTF, useAnimations } from '@react-three/drei';
+import { useGLTF /*, useAnimations*/ } from '@react-three/drei';
 import { GLTF } from 'three-stdlib';
 
 type GLTFResult = GLTF & {
