@@ -93,7 +93,7 @@ export const ShowEnvironment = () => {
           tile = (
             <Stairs
               key={`${x}-${y}`}
-              rotation={[0, MathUtils.degToRad(180), 0]}
+              rotation={[0, MathUtils.degToRad(0), 0]}
               position={[tileXPos, 0, tileYPos]}
             />
           );

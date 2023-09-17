@@ -230,10 +230,10 @@ export const createMapSlice: StateCreator<
         // 1 1 1 0 = 14
         // 0 1 1 1 = 7
         const partialRotationData = {
-          7: 0,
-          14: 90,
-          13: 180,
-          11: 270,
+          13: 0, // 180a
+          11: 90, //270
+          14: 180, //90
+          7: 270,
         };
         wallType = WallType.WALL_PARTIAL;
         rotation = partialRotationData[bitwiseWalls] || 0;

@@ -11,13 +11,13 @@ export const ShowItems = () => {
     shallow
   );
 
-  console.log('Showing items');
+  console.log('[ShowItems] Showing items');
 
   const worldItems: JSX.Element[] = [];
   if (!items) {
     return <></>;
   }
-  //console.log('Rendering items');
+  console.log('[ShowItems] Rendering items');
 
   items.forEach((item) => {
     //console.log(item);

@@ -4,9 +4,15 @@ Command: npx gltfjsx@6.2.10 ./public/models/items/chest.glb -t
 */
 
 import * as THREE from 'three';
-import React, { useRef } from 'react';
-import { useGLTF /*, useAnimations*/ } from '@react-three/drei';
+import React, { useEffect, useRef } from 'react';
+import { useGLTF, useAnimations } from '@react-three/drei';
 import { GLTF } from 'three-stdlib';
+
+type ActionName = 'open' | 'close' | 'open-close';
+//interface GLTFActions = Record<ActionName, THREE.AnimationAction>
+interface GLTFAction extends THREE.AnimationClip {
+  name: ActionName;
+}
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -16,17 +22,18 @@ type GLTFResult = GLTF & {
   materials: {
     colormap: THREE.MeshStandardMaterial;
   };
+  animations: GLTFAction[];
 };
-
-//type ActionName = 'open' | 'close' | 'open-close'
-//type GLTFActions = Record<ActionName, THREE.AnimationAction>
 
 export default function Chest(props: JSX.IntrinsicElements['group']) {
   const group = useRef<THREE.Group>(null);
-  const { nodes, materials /*, animations*/ } = useGLTF(
-    '/chest.glb'
-  ) as GLTFResult;
-  //const { actions } = useAnimations<GLTFActions>(animations, group)
+  const { nodes, materials, animations } = useGLTF('/chest.glb') as GLTFResult;
+  const { actions, mixer } = useAnimations(animations, group);
+
+  useEffect(() => {
+    actions?.open?.play();
+  }, [actions, mixer]);
+
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="chest">
