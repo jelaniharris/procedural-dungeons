@@ -1,5 +1,6 @@
 import Dirt from '@/components/models/Dirt';
 import Floor from '@/components/models/Floor';
+import FloorDetail from '@/components/models/Floor-detail';
 import Stairs from '@/components/models/Stairs';
 import { ThreeSidedWall } from '@/components/models/Three-Sided-Wall';
 import Wall from '@/components/models/Wall';
@@ -43,7 +44,20 @@ export const ShowEnvironment = () => {
       let tile: React.JSX.Element | null = null;
       switch (tileType) {
         case TileType.TILE_FLOOR:
-          tile = <Floor key={`${x}-${y}`} position={[tileXPos, 0, tileYPos]} />;
+          const randomFloor = Math.random();
+          if (randomFloor < 0.8) {
+            tile = (
+              <Floor key={`${x}-${y}`} position={[tileXPos, 0, tileYPos]} />
+            );
+          } else {
+            tile = (
+              <FloorDetail
+                key={`${x}-${y}`}
+                position={[tileXPos, 0, tileYPos]}
+              />
+            );
+          }
+
           break;
         case TileType.TILE_WALL:
         case TileType.TILE_WALL_EDGE:
