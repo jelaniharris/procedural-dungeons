@@ -13,6 +13,7 @@ import shuffle from 'lodash/shuffle';
 import { createRef } from 'react';
 import { PlayerSlice } from './playerSlice';
 import { EnemySlice } from './enemySlice';
+import { checkPointInPoints } from '@/utils/gridUtils';
 
 export interface MapSlice {
   mapData: (TileType | null)[][];
@@ -20,7 +21,10 @@ export interface MapSlice {
   numCols: number;
   resetStage: () => void;
   getTilePosition: (x: number, y: number) => TileType | null;
-  determineValidDirections: (point: Point2D) => Direction[];
+  determineValidDirections: (
+    point: Point2D,
+    excludedPoints?: Point2D[]
+  ) => Direction[];
   isBlockWallOrNull: (e: TileType | null) => boolean;
   determineWallType: (
     x: number,
@@ -135,18 +139,27 @@ export const createMapSlice: StateCreator<
   isBlockWallOrNull: (e: TileType | null) => {
     return e == null || e == TileType.TILE_WALL || e == TileType.TILE_WALL_EDGE;
   },
-  determineValidDirections: (point: Point2D) => {
+  determineValidDirections: (point: Point2D, excludedPoints?: Point2D[]) => {
     const getTilePosition = get().getTilePosition;
     const isBlockWallOrNull = get().isBlockWallOrNull;
 
     const validDirections: Direction[] = [];
 
     for (const posOff of POSITION_OFFSETS) {
-      const dirTile = getTilePosition(
+      const newPosition = new Point2D(
         point.x + posOff.position.x,
         point.y + posOff.position.y
       );
+      const dirTile = getTilePosition(newPosition.x, newPosition.y);
       if (!dirTile) {
+        continue;
+      }
+
+      if (
+        excludedPoints &&
+        excludedPoints.length > 0 &&
+        checkPointInPoints(newPosition, excludedPoints)
+      ) {
         continue;
       }
 
@@ -155,7 +168,7 @@ export const createMapSlice: StateCreator<
       }
     }
 
-    console.log(validDirections);
+    //console.log(validDirections);
 
     return validDirections;
   },
@@ -230,10 +243,10 @@ export const createMapSlice: StateCreator<
         // 1 1 1 0 = 14
         // 0 1 1 1 = 7
         const partialRotationData = {
-          13: 0, // 180a
-          11: 90, //270
-          14: 180, //90
-          7: 270,
+          13: 0,
+          11: 90,
+          14: 270,
+          7: 180,
         };
         wallType = WallType.WALL_PARTIAL;
         rotation = partialRotationData[bitwiseWalls] || 0;

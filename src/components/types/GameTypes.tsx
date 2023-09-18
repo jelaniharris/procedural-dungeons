@@ -38,14 +38,32 @@ export enum Direction {
   DIR_EAST,
   DIR_SOUTH,
   DIR_WEST,
+  DIR_NONE,
 }
 
 export const DIRECTIONS = [
   Direction.DIR_NORTH,
   Direction.DIR_EAST,
-  Direction.DIR_EAST,
+  Direction.DIR_SOUTH,
   Direction.DIR_WEST,
 ];
+
+export enum TravellingDirection {
+  DIR_NORTH_SOUTH,
+  DIR_EAST_WEST,
+  DIR_WEST_SOUTH,
+  DIR_EAST_SOUTH,
+  DIR_WEST_NORTH,
+  DIR_EAST_NORTH,
+  DIR_TURN,
+}
+
+export enum PathCurves {
+  PATH_ORIGIN,
+  PATH_STRAIGHT,
+  PATH_CURVE,
+  PATH_DESTINATION,
+}
 
 export const POSITION_OFFSETS = [
   {
@@ -73,6 +91,7 @@ export type Enemy = {
   name?: string;
   status: EnemyStatus;
   nextDirection: Point2D;
+  movementPoints: Point2D[];
 };
 
 export enum LocationActionType {

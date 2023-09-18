@@ -18,10 +18,11 @@ import { ShowItems } from '@/app/ShowItems';
 import { AmbientSound } from '../AmbientSound';
 import { Controls, LocationActionType } from '../types/GameTypes';
 import { ShowEnemies } from '@/app/ShowEnemies';
+import { ShowEnemyIntention } from '@/app/ShowEnemyIntentions';
 const DungeonScene = () => {
   const startGame = useStore((state: GameState) => state.startGame);
   const advanceStage = useStore((state: GameState) => state.advanceStage);
-  const aiMove = useStore((state: GameState) => state.aiMove);
+  const performTurn = useStore((state: GameState) => state.performTurn);
   const checkPlayerLocation = useStore(
     (state: GameState) => state.checkPlayerLocation
   );
@@ -46,6 +47,10 @@ const DungeonScene = () => {
     party();
   }, []);
 
+  const aiTurn = () => {
+    performTurn();
+  };
+
   const playerAction = (moved = false) => {
     if (moved) {
       playAudio('stepstone_1.wav', 0.2);
@@ -64,7 +69,7 @@ const DungeonScene = () => {
       default:
         break;
     }
-    aiMove();
+    aiTurn();
   };
 
   return (
@@ -88,6 +93,7 @@ const DungeonScene = () => {
           <CharacterController movementCallback={playerAction} />
           <ShowItems />
           <ShowEnemies />
+          <ShowEnemyIntention />
         </Suspense>
       </Canvas>
     </KeyboardControls>

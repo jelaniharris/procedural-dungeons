@@ -16,7 +16,7 @@ export interface EnemySlice {
   enemies: Enemy[];
   generateEnemies: () => void;
   enemyIndex: number;
-  aiMove: () => void;
+  aiMove: () => Promise<boolean>;
   aiCalculateNewDirection: (enemies: Enemy[]) => void;
 }
 
@@ -59,6 +59,7 @@ export const createEnemySlice: StateCreator<
         name: 'Orc',
         status: EnemyStatus.STATUS_ROAMING,
         nextDirection: new Point2D(0, 0),
+        movementPoints: [],
       };
 
       newEnemyData.push(newEnemy);
@@ -78,53 +79,86 @@ export const createEnemySlice: StateCreator<
     const determineValidDirections = get().determineValidDirections;
 
     for (const enemy of enemies) {
+      const newPositions = [];
+      //enemy.movementPoints = [];
       if (enemy.status == EnemyStatus.STATUS_ROAMING) {
-        const availableDirections = determineValidDirections(enemy.position);
-        const randomDirectionIndex = Math.floor(
-          Math.random() * (availableDirections.length + 1)
-        );
-        const selectedDirection = availableDirections[randomDirectionIndex];
-        let movementVector = new Vector2(0, 0);
+        let amountOfMoves = 2; //;Math.floor(Math.random() * 3);
+        let lastPosition = enemy.position;
+        while (amountOfMoves > 0) {
+          amountOfMoves--;
 
-        switch (selectedDirection) {
-          case Direction.DIR_NORTH:
-            movementVector = new Vector2(0, -1);
-            break;
-          case Direction.DIR_EAST:
-            movementVector = new Vector2(1, 0);
-            break;
-          case Direction.DIR_SOUTH:
-            movementVector = new Vector2(0, 1);
-            break;
-          case Direction.DIR_WEST:
-            movementVector = new Vector2(-1, 0);
-            break;
-          default:
-            movementVector = new Vector2(0, 0);
-            break;
+          const availableDirections = determineValidDirections(lastPosition, [
+            enemy.position,
+            ...newPositions,
+          ]);
+          const randomDirectionIndex = Math.floor(
+            Math.random() * availableDirections.length
+          );
+          const selectedDirection = availableDirections[randomDirectionIndex];
+          let movementVector = new Vector2(0, 0);
+
+          switch (selectedDirection) {
+            case Direction.DIR_NORTH:
+              movementVector = new Vector2(0, -1);
+              break;
+            case Direction.DIR_EAST:
+              movementVector = new Vector2(1, 0);
+              break;
+            case Direction.DIR_SOUTH:
+              movementVector = new Vector2(0, 1);
+              break;
+            case Direction.DIR_WEST:
+              movementVector = new Vector2(-1, 0);
+              break;
+            default:
+              movementVector = new Vector2(0, 0);
+              break;
+          }
+
+          if (!movementVector.equals(new Vector2(0, 0))) {
+            enemy.nextDirection = movementVector;
+            const newLocation = new Point2D(
+              lastPosition.x + movementVector.x,
+              lastPosition.y + movementVector.y
+            );
+
+            /*if (checkPointInPoints(newLocation, enemy.movementPoints)) {
+
+            }*/
+
+            newPositions.push(newLocation);
+            //enemy.movementPoints.push(newLocation);
+            lastPosition = newLocation;
+          }
         }
-
-        enemy.nextDirection = movementVector;
       }
+      enemy.movementPoints = newPositions;
     }
+
     return enemies;
   },
-  aiMove() {
+  async aiMove() {
     const currentEnemies = get().enemies;
-    const aiCalculateNewDirection = get().aiCalculateNewDirection;
 
+    let enemyHasMovementLeft = false;
     currentEnemies.forEach((enemy, i) => {
-      const nextDirection = enemy.nextDirection;
-      if (nextDirection && currentEnemies[i]) {
-        currentEnemies[i].position.x += nextDirection.x;
-        currentEnemies[i].position.y += nextDirection.y;
+      if (enemy.movementPoints.length > 0) {
+        enemyHasMovementLeft = true;
+        const nextLocation = enemy.movementPoints.shift();
+        //const nextDirection = enemy.nextDirection;
+        if (nextLocation && currentEnemies[i]) {
+          /*currentEnemies[i].position.x += nextDirection.x;
+          currentEnemies[i].position.y += nextDirection.y;
+          */
+          currentEnemies[i].position.x = nextLocation.x;
+          currentEnemies[i].position.y = nextLocation.y;
+        }
       }
     });
-
-    aiCalculateNewDirection(currentEnemies);
 
     console.debug('[aiMove] Done moving AI');
 
     set({ enemies: currentEnemies });
+    return enemyHasMovementLeft;
   },
 });
