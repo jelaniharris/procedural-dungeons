@@ -1,6 +1,7 @@
-import { Orc } from '@/components/models/characters/Character-orc';
+import { Orc } from '@/components/models/characters/CharacterOrc';
 import { GameState, useStore } from '@/stores/useStore';
 import { useRef } from 'react';
+import { Vector3 } from 'three';
 
 export const ShowEnemies = () => {
   const { enemies } = useStore((store: GameState) => ({
@@ -16,10 +17,11 @@ export const ShowEnemies = () => {
   }
 
   enemies.forEach((enemy) => {
-    if (enemy && enemy.id) {
+    if (enemy && enemy.id >= 0) {
       worldEnemies.push(
         <Orc
           key={`${enemy.name}-${enemy.id}`}
+          position={new Vector3(enemy.position.x, 0, enemy.position.y)}
           enemy={enemy}
           enemyId={enemy.id}
           ref={(el) => {

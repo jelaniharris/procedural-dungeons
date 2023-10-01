@@ -1,4 +1,4 @@
-import Point2D from '../../utils/Point2D';
+import { Point2D } from '../../utils/Point2D';
 
 export enum TileType {
   TILE_NONE,
@@ -13,6 +13,7 @@ export enum ItemType {
   ITEM_NONE,
   ITEM_COIN,
   ITEM_CHEST,
+  ITEM_CHICKEN,
 }
 
 export enum WallType {
@@ -21,6 +22,10 @@ export enum WallType {
   WALL_TWO_SIDED,
   WALL_TRI_SIDED,
   WALL_ENCASED,
+}
+
+export enum TrapType {
+  TRAP_FLOOR_SPIKES,
 }
 
 export enum EnemyType {
@@ -68,19 +73,19 @@ export enum PathCurves {
 export const POSITION_OFFSETS = [
   {
     direction: Direction.DIR_NORTH,
-    position: new Point2D(0, -1),
+    position: { x: 0, y: -1 },
   },
   {
     direction: Direction.DIR_EAST,
-    position: new Point2D(1, 0),
+    position: { x: 1, y: 0 },
   },
   {
     direction: Direction.DIR_SOUTH,
-    position: new Point2D(0, 1),
+    position: { x: 0, y: 1 },
   },
   {
     direction: Direction.DIR_WEST,
-    position: new Point2D(-1, 0),
+    position: { x: -1, y: 0 },
   },
 ];
 
@@ -97,6 +102,7 @@ export type Enemy = {
 export enum LocationActionType {
   NOTHING,
   COLLECTED_ITEM,
+  TOUCHED_PLAYER,
   AT_EXIT,
 }
 
@@ -131,4 +137,5 @@ export enum Controls {
   left = 'left',
   right = 'right',
   jump = 'jump',
+  stall = 'stall',
 }

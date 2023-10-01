@@ -1,18 +1,37 @@
-import Point2D from '@/utils/Point2D';
+import { Point2D } from '@/utils/Point2D';
 import { StateCreator } from 'zustand';
 import { MapSlice } from './mapSlice';
-import { MathUtils } from 'three/src/Three';
-import { LocationActionType, TileType } from '@/components/types/GameTypes';
+import {
+  Item,
+  LocationActionType,
+  TileType,
+} from '@/components/types/GameTypes';
+import { MathUtils } from 'three';
 
 export interface PlayerSlice {
   playerPosition: Point2D;
   playerRotation: number;
   score: number;
+  energy: number;
+  maxEnergy: number;
+  health: number;
+  maxHealth: number;
+  isDead: boolean;
+  isTired: boolean;
+  setDead: () => void;
   adjustPlayer: (xOffset: number, yOffset: number) => boolean;
-  checkPlayerLocation: () => LocationActionType;
+  checkPlayerLocation: () => PlayerLocationResults;
+  adjustHealth: (amount: number) => boolean;
   addScore: (score: number) => void;
+  modifyEnergy: (amount: number) => void;
   isPlayerAtExit: () => boolean;
+  resetPlayer: () => void;
 }
+
+export type PlayerLocationResults = {
+  result: LocationActionType;
+  item?: Item;
+};
 
 export const createPlayerSlice: StateCreator<
   PlayerSlice & MapSlice,
@@ -20,13 +39,37 @@ export const createPlayerSlice: StateCreator<
   [],
   PlayerSlice
 > = (set, get) => ({
-  playerPosition: new Point2D(5, 5),
+  playerPosition: { x: 5, y: 5 },
   score: 0,
+  energy: 10,
+  maxEnergy: 100,
+  isDead: false,
   playerRotation: 0,
+  health: 2,
+  maxHealth: 2,
+  isTired: false,
+  resetPlayer() {
+    const resetSet = {
+      score: 0,
+      energy: 10,
+      maxEnergy: 100,
+      isDead: false,
+      playerRotation: 0,
+      health: 2,
+      maxHealth: 2,
+      isTired: false,
+    };
+    set(resetSet);
+  },
+  setDead() {
+    set({ isDead: true });
+  },
   adjustPlayer(xOffset: number, yOffset: number) {
     const isBlockWallOrNull = get().isBlockWallOrNull;
     const currentMapData = get().mapData;
-    const playerData = get().playerPosition;
+    const oldPlayerData = get().playerPosition;
+    //const playerData = get().playerPosition;
+    const playerData = { x: oldPlayerData.x, y: oldPlayerData.y };
     let currentPlayerRotation = get().playerRotation;
 
     if (
@@ -36,6 +79,8 @@ export const createPlayerSlice: StateCreator<
     ) {
       return false;
     }
+
+    console.log('[adjustPlayer] Old position:', playerData);
 
     playerData.x = playerData.x + xOffset;
     playerData.y = playerData.y + yOffset;
@@ -52,14 +97,32 @@ export const createPlayerSlice: StateCreator<
       currentPlayerRotation = MathUtils.degToRad(180);
     }
 
-    set({
+    console.log('[adjustPlayer] New position:', playerData);
+
+    set(() => ({
       playerPosition: playerData,
       playerRotation: currentPlayerRotation,
-    });
+    }));
     return true;
   },
   addScore(amount: number) {
     set((store) => ({ score: store.score + amount }));
+  },
+  adjustHealth(amount: number): boolean {
+    const currentHealth = get().health;
+    const maxHealth = get().maxHealth;
+    const newHealth = currentHealth + amount;
+    set(() => ({ health: Math.max(0, Math.min(newHealth, maxHealth)) }));
+    return newHealth != 0;
+  },
+  modifyEnergy(amount: number) {
+    const currentEnergy = get().energy;
+    const maxEnergy = get().maxEnergy;
+
+    let newEnergy = currentEnergy + amount;
+    newEnergy = Math.max(0, Math.min(newEnergy, maxEnergy));
+
+    set(() => ({ energy: newEnergy, isTired: newEnergy <= 0 }));
   },
   isPlayerAtExit() {
     const currentMapData = get().mapData;
@@ -73,17 +136,16 @@ export const createPlayerSlice: StateCreator<
     }
     return false;
   },
-  checkPlayerLocation() {
+  checkPlayerLocation(): PlayerLocationResults {
     // Check for item at location
     const getItemPosition = get().getItemPosition;
     const currentPlayerData = get().playerPosition;
-    const addScore = get().addScore;
     const items = get().items;
     const getItemPositionOnGrid = get().getItemPositionOnGrid;
     const isPlayerAtExit = get().isPlayerAtExit;
 
     if (isPlayerAtExit()) {
-      return LocationActionType.AT_EXIT;
+      return { result: LocationActionType.AT_EXIT };
     }
 
     const itemAtLocation = getItemPosition(
@@ -98,7 +160,6 @@ export const createPlayerSlice: StateCreator<
         ' - ',
         itemAtLocation.id
       );
-      addScore(10);
       const oldItems = [...items];
 
       delete oldItems[
@@ -106,9 +167,12 @@ export const createPlayerSlice: StateCreator<
       ];
       set({ items: oldItems });
 
-      return LocationActionType.COLLECTED_ITEM;
+      return {
+        result: LocationActionType.COLLECTED_ITEM,
+        item: itemAtLocation,
+      };
     }
 
-    return LocationActionType.NOTHING;
+    return { result: LocationActionType.NOTHING };
   },
 });

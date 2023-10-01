@@ -4,15 +4,16 @@ import { PathChain, generatePathChain } from '@/utils/gridUtils';
 import { MathUtils } from 'three';
 
 export const ShowEnemyIntention = () => {
-  const { enemies } = useStore((store: GameState) => ({
+  const { enemies, isDead } = useStore((store: GameState) => ({
     enemies: store.enemies,
+    isDead: store.isDead,
   }));
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   //const enemiesRef = useRef<any[]>([]);
 
   const intentions: JSX.Element[] = [];
-  if (!enemies) {
+  if (!enemies || isDead) {
     return <></>;
   }
 
@@ -20,7 +21,7 @@ export const ShowEnemyIntention = () => {
 
   enemies.forEach((enemy) => {
     // If no enemy assigned, or isn't moving then move on
-    if (!enemy.id || enemy.movementPoints.length == 0) {
+    if (enemy.movementPoints.length == 0) {
       return;
     }
     const paths = [enemy.position, ...enemy.movementPoints];

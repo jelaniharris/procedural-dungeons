@@ -28,9 +28,7 @@ export const Coin = forwardRef(function Coin(
   forwardedRef
 ) {
   const [visible] = useState(true);
-  const { nodes, materials } = useGLTF(
-    '/models/environment/coin.glb'
-  ) as GLTFResult;
+  const { nodes, materials } = useGLTF('/models/items/coin.glb') as GLTFResult;
   const myRef = useRef<THREE.Group>(null);
   useImperativeHandle(forwardedRef, () => myRef.current);
 
@@ -49,4 +47,4 @@ export const Coin = forwardRef(function Coin(
   );
 });
 
-useGLTF.preload('/models/environment/coin.glb');
+useGLTF.preload('/models/items/coin.glb');

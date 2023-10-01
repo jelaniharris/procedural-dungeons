@@ -1,18 +1,18 @@
-import { Player } from './models/characters/Player';
 import { useKeyboardControls } from '@react-three/drei';
 import { Controls } from './types/GameTypes';
 import { useStore } from '@/stores/useStore';
+import useGame from './useGame';
+import { useCallback, useEffect } from 'react';
 
-type CharacterControllerProps = {
-  movementCallback: (moved: boolean) => void;
-};
-
-const CharacterListener = ({
-  movementCallback,
+export const CharacterController = ({
+  children,
 }: {
-  movementCallback: (moved: boolean) => void;
+  children?: React.ReactNode;
 }) => {
   const adjustPlayer = useStore((store) => store.adjustPlayer);
+  const isDead = useStore((store) => store.isDead);
+
+  const { publish } = useGame();
 
   const forwardPressed = useKeyboardControls<Controls>(
     (state) => state.forward
@@ -20,40 +20,56 @@ const CharacterListener = ({
   const rightPressed = useKeyboardControls<Controls>((state) => state.right);
   const leftPressed = useKeyboardControls<Controls>((state) => state.left);
   const downPressed = useKeyboardControls<Controls>((state) => state.back);
+  const stallPressed = useKeyboardControls<Controls>((state) => state.stall);
 
-  //console.log(forward);
-  let movementValid = false;
+  const moveDirection = useCallback(() => {
+    let movementValid = false;
+    if (isDead) {
+      return false;
+    }
 
-  if (adjustPlayer) {
     if (forwardPressed) {
       movementValid = adjustPlayer(0, -1);
-      //SetLastRotation(MathUtils.degToRad(0));
     } else if (downPressed) {
       movementValid = adjustPlayer(0, 1);
-      //SetLastRotation(MathUtils.degToRad(180));
     } else if (rightPressed) {
       movementValid = adjustPlayer(1, 0);
-      //SetLastRotation(MathUtils.degToRad(90));
     } else if (leftPressed) {
       movementValid = adjustPlayer(-1, 0);
-      //SetLastRotation(MathUtils.degToRad(270));
     }
-  }
 
-  if (
-    movementValid &&
-    (forwardPressed || downPressed || rightPressed || leftPressed)
-  ) {
-    if (movementCallback) {
-      movementCallback(movementValid);
+    if (movementValid) {
+      if (forwardPressed || downPressed || rightPressed || leftPressed) {
+        console.debug(
+          `[CharacterController|Component] Moving ${forwardPressed}|${rightPressed}|${downPressed}|${leftPressed}`
+        );
+        publish('player-moved', { moved: true });
+      } else {
+        //console.log('Let go of button');
+      }
+    } else {
+      // Movement is not valid
+      if (stallPressed) {
+        console.debug(`[CharacterController|Component] wait`);
+        publish('player-moved', { moved: false });
+      } else {
+        console.debug('stall released');
+      }
     }
-  }
+  }, [
+    adjustPlayer,
+    downPressed,
+    forwardPressed,
+    isDead,
+    leftPressed,
+    publish,
+    rightPressed,
+    stallPressed,
+  ]);
 
-  return <Player />;
-};
+  useEffect(() => {
+    moveDirection();
+  }, [moveDirection]);
 
-export const CharacterController = ({
-  movementCallback,
-}: CharacterControllerProps) => {
-  return <CharacterListener movementCallback={movementCallback} />;
+  return <>{children}</>;
 };

@@ -3,25 +3,43 @@ import {
   Enemy,
   EnemyStatus,
   EnemyType,
+  LocationActionType,
   TileType,
 } from '@/components/types/GameTypes';
 import { StateCreator } from 'zustand';
 import { MapSlice } from './mapSlice';
 import shuffle from 'lodash/shuffle';
 import { StageSlice } from './stageSlice';
-import Point2D from '@/utils/Point2D';
 import { Vector2 } from 'three';
+import { PlayerSlice } from './playerSlice';
+import { Point2D } from '@/utils/Point2D';
 
 export interface EnemySlice {
   enemies: Enemy[];
   generateEnemies: () => void;
   enemyIndex: number;
-  aiMove: () => Promise<boolean>;
+  aiMove: (props: AiMoveProps) => Promise<boolean>;
   aiCalculateNewDirection: (enemies: Enemy[]) => void;
+  checkEnemyLocation: (
+    enemyPosition: Point2D,
+    enemy: Enemy
+  ) => LocationActionType;
 }
 
+export interface EnemyLocationResultsCallback {
+  locationResult: LocationActionType;
+  enemy: Enemy;
+}
+
+export type AiMoveProps = {
+  enemyLocationResultCallback?: (
+    location: LocationActionType,
+    enemy: Enemy
+  ) => void;
+};
+
 export const createEnemySlice: StateCreator<
-  EnemySlice & MapSlice & StageSlice,
+  EnemySlice & MapSlice & StageSlice & PlayerSlice,
   [],
   [],
   EnemySlice
@@ -58,7 +76,7 @@ export const createEnemySlice: StateCreator<
         position: point,
         name: 'Orc',
         status: EnemyStatus.STATUS_ROAMING,
-        nextDirection: new Point2D(0, 0),
+        nextDirection: { x: 0, y: 0 },
         movementPoints: [],
       };
 
@@ -77,12 +95,18 @@ export const createEnemySlice: StateCreator<
   },
   aiCalculateNewDirection(enemies: Enemy[]) {
     const determineValidDirections = get().determineValidDirections;
+    const isPlayerTired = get().isTired;
+    const addLocationsToDangerZones = get().addLocationsToDangerZones;
+    const newDangerSpots: Point2D[] = [];
 
     for (const enemy of enemies) {
       const newPositions = [];
       //enemy.movementPoints = [];
       if (enemy.status == EnemyStatus.STATUS_ROAMING) {
         let amountOfMoves = 2; //;Math.floor(Math.random() * 3);
+        if (isPlayerTired) {
+          amountOfMoves += 2;
+        }
         let lastPosition = enemy.position;
         while (amountOfMoves > 0) {
           amountOfMoves--;
@@ -116,17 +140,18 @@ export const createEnemySlice: StateCreator<
           }
 
           if (!movementVector.equals(new Vector2(0, 0))) {
-            enemy.nextDirection = movementVector;
-            const newLocation = new Point2D(
-              lastPosition.x + movementVector.x,
-              lastPosition.y + movementVector.y
-            );
+            enemy.nextDirection = { x: movementVector.x, y: movementVector.y };
+            const newLocation = {
+              x: lastPosition.x + movementVector.x,
+              y: lastPosition.y + movementVector.y,
+            };
 
             /*if (checkPointInPoints(newLocation, enemy.movementPoints)) {
 
             }*/
 
             newPositions.push(newLocation);
+            newDangerSpots.push(newLocation);
             //enemy.movementPoints.push(newLocation);
             lastPosition = newLocation;
           }
@@ -135,13 +160,28 @@ export const createEnemySlice: StateCreator<
       enemy.movementPoints = newPositions;
     }
 
+    // Add new locations to the danger zones
+    addLocationsToDangerZones(newDangerSpots);
+
     return enemies;
   },
-  async aiMove() {
+  checkEnemyLocation(enemyPosition: Point2D): LocationActionType {
+    const playerPosition = get().playerPosition;
+
+    if (
+      enemyPosition.x == playerPosition.x &&
+      enemyPosition.y == playerPosition.y
+    ) {
+      return LocationActionType.TOUCHED_PLAYER;
+    }
+    return LocationActionType.NOTHING;
+  },
+  async aiMove({ enemyLocationResultCallback }: AiMoveProps) {
     const currentEnemies = get().enemies;
+    const checkEnemyLocation = get().checkEnemyLocation;
 
     let enemyHasMovementLeft = false;
-    currentEnemies.forEach((enemy, i) => {
+    currentEnemies.forEach(async (enemy, i) => {
       if (enemy.movementPoints.length > 0) {
         enemyHasMovementLeft = true;
         const nextLocation = enemy.movementPoints.shift();
@@ -150,13 +190,25 @@ export const createEnemySlice: StateCreator<
           /*currentEnemies[i].position.x += nextDirection.x;
           currentEnemies[i].position.y += nextDirection.y;
           */
-          currentEnemies[i].position.x = nextLocation.x;
-          currentEnemies[i].position.y = nextLocation.y;
+
+          // Check the next location has the player
+          const locationResult = checkEnemyLocation(nextLocation, enemy);
+          if (
+            enemyLocationResultCallback &&
+            locationResult == LocationActionType.TOUCHED_PLAYER
+          ) {
+            enemyLocationResultCallback(locationResult, enemy);
+            enemy.movementPoints = [];
+            enemyHasMovementLeft = false;
+          } else {
+            currentEnemies[i].position.x = nextLocation.x;
+            currentEnemies[i].position.y = nextLocation.y;
+          }
         }
       }
     });
 
-    console.debug('[aiMove] Done moving AI');
+    //console.debug('[aiMove] Done moving AI');
 
     set({ enemies: currentEnemies });
     return enemyHasMovementLeft;

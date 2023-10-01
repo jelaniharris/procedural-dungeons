@@ -1,3 +1,4 @@
+import { Column } from '@/components/models/Column';
 import Dirt from '@/components/models/Dirt';
 import Floor from '@/components/models/Floor';
 import FloorDetail from '@/components/models/Floor-detail';
@@ -22,7 +23,7 @@ export const ShowEnvironment = () => {
     shallow
   );
 
-  const worldTiles = [];
+  const worldTiles: React.JSX.Element[] = [];
 
   if (!mapData || mapData.length == 0) {
     return <></>;
@@ -41,21 +42,24 @@ export const ShowEnvironment = () => {
       const tileXPos = x * TILE_W + offsetX;
       const tileYPos = y * TILE_W;
 
-      let tile: React.JSX.Element | null = null;
+      let tile: React.JSX.Element[] | null = null;
       switch (tileType) {
         case TileType.TILE_FLOOR:
           const randomFloor = Math.random();
           if (randomFloor < 0.8) {
-            tile = (
-              <Floor key={`${x}-${y}`} position={[tileXPos, 0, tileYPos]} />
-            );
-          } else {
-            tile = (
-              <FloorDetail
-                key={`${x}-${y}`}
+            tile = [
+              <Floor
+                key={`tile-${x}-${y}`}
                 position={[tileXPos, 0, tileYPos]}
-              />
-            );
+              />,
+            ];
+          } else {
+            tile = [
+              <FloorDetail
+                key={`tiledetail-${x}-${y}`}
+                position={[tileXPos, 0, tileYPos]}
+              />,
+            ];
           }
 
           break;
@@ -65,52 +69,69 @@ export const ShowEnvironment = () => {
           switch (wallType) {
             case WallType.WALL_ENCASED:
               // Fully encased, then convert to DIRT
-              tile = (
-                <Dirt key={`${x}-${y}`} position={[tileXPos, 0, tileYPos]} />
-              );
+              tile = [
+                <Dirt
+                  key={`dirt-${x}-${y}`}
+                  position={[tileXPos, 0, tileYPos]}
+                />,
+              ];
               break;
             case WallType.WALL_OPEN:
-              tile = (
-                <Wall key={`${x}-${y}`} position={[tileXPos, 0, tileYPos]} />
-              );
+              const randomWall = Math.random();
+              if (randomWall < 0.25) {
+                tile = [
+                  <Column
+                    key={`column-${x}-${y}`}
+                    position={[tileXPos, 0, tileYPos]}
+                  />,
+                  <Floor
+                    key={`columnfloor-${x}-${y}`}
+                    position={[tileXPos, 0, tileYPos]}
+                  />,
+                ];
+              } else {
+                tile = [
+                  <Wall key={`${x}-${y}`} position={[tileXPos, 0, tileYPos]} />,
+                ];
+              }
               break;
             case WallType.WALL_TWO_SIDED:
-              tile = (
+              tile = [
                 <WallNarrow
-                  key={`${x}-${y}`}
+                  key={`wallnarrow-${x}-${y}`}
                   rotation={[0, rotation, 0]}
                   position={[tileXPos, 0, tileYPos]}
-                />
-              );
+                />,
+              ];
               break;
             case WallType.WALL_TRI_SIDED:
-              tile = (
+              tile = [
                 <ThreeSidedWall
-                  key={`${x}-${y}`}
+                  key={`tsw-${x}-${y}`}
                   rotation={[0, rotation, 0]}
                   position={[tileXPos, 0, tileYPos]}
-                />
-              );
+                />,
+              ];
               break;
             case WallType.WALL_PARTIAL:
-              tile = (
+              tile = [
                 <WallHalf
-                  key={`${x}-${y}`}
+                  key={`partial-${x}-${y}`}
                   rotation={[0, rotation, 0]}
                   position={[tileXPos, 0, tileYPos]}
-                />
-              );
+                />,
+              ];
               break;
           }
           break;
         case TileType.TILE_EXIT:
-          tile = (
+          tile = [
             <Stairs
-              key={`${x}-${y}`}
+              key={`stairs-${x}-${y}`}
               rotation={[0, MathUtils.degToRad(0), 0]}
               position={[tileXPos, 0, tileYPos]}
-            />
-          );
+            />,
+          ];
           break;
         case TileType.TILE_NONE:
         default:
@@ -118,7 +139,9 @@ export const ShowEnvironment = () => {
       }
 
       if (tile) {
-        worldTiles.push(tile);
+        for (const placeTile of tile) {
+          worldTiles.push(placeTile);
+        }
       }
     }
   }

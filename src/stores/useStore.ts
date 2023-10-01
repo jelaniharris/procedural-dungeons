@@ -1,8 +1,8 @@
-import { create } from 'zustand';
 import { MapSlice, createMapSlice } from './mapSlice';
 import { PlayerSlice, createPlayerSlice } from './playerSlice';
 import { StageSlice, createStageSlice } from './stageSlice';
 import { EnemySlice, createEnemySlice } from './enemySlice';
+import { createWithEqualityFn } from 'zustand/traditional';
 
 export interface GameState
   extends MapSlice,
@@ -21,13 +21,17 @@ export const playAudio = (path: string, volume = 1, callback?: () => void) => {
   audio.play();
 };
 
-export const useStore = create<GameState>((set, get, other) => ({
-  ...createStageSlice(set, get, other),
-  ...createMapSlice(set, get, other),
-  ...createPlayerSlice(set, get, other),
-  ...createEnemySlice(set, get, other),
-  startGame: () => {
-    set((state) => ({ ...state, currentLevel: 1 }));
-    get().resetStage();
-  },
-}));
+export const useStore = createWithEqualityFn<GameState>(
+  (...args) => ({
+    ...createStageSlice(...args),
+    ...createMapSlice(...args),
+    ...createPlayerSlice(...args),
+    ...createEnemySlice(...args),
+    startGame: () => {
+      const [set, get] = [args[0], args[1]];
+      set((state) => ({ ...state, currentLevel: 1 }));
+      get().resetStage(true);
+    },
+  }),
+  Object.is // shallow
+);

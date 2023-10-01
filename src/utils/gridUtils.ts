@@ -3,7 +3,7 @@ import {
   PathCurves,
   TravellingDirection,
 } from '@/components/types/GameTypes';
-import Point2D from './Point2D';
+import { Point2D } from './Point2D';
 
 export const checkPointInPoints = (
   needle: Point2D,
@@ -21,7 +21,7 @@ export const checkPointInPoints = (
 };
 
 export const determineTravellingDirection = (from: Point2D, to: Point2D) => {
-  const difference = new Point2D(to.x - from.x, to.y - from.y);
+  const difference: Point2D = { x: to.x - from.x, y: to.y - from.y };
 
   if (difference.x == 0) {
     if (difference.y < 0) {
@@ -186,7 +186,6 @@ export const generatePathChain = (points: Point2D[]): PathChain[] => {
     }
 
     lastTravelingDirection = travelingDirection;
-    //lastPosition = point;
   });
   return path;
 };

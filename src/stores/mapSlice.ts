@@ -8,7 +8,7 @@ import {
 } from '@/components/types/GameTypes';
 import { StateCreator } from 'zustand';
 import { StageSlice } from './stageSlice';
-import Point2D from '@/utils/Point2D';
+import { Point2D } from '@/utils/Point2D';
 import shuffle from 'lodash/shuffle';
 import { createRef } from 'react';
 import { PlayerSlice } from './playerSlice';
@@ -19,7 +19,7 @@ export interface MapSlice {
   mapData: (TileType | null)[][];
   numRows: number;
   numCols: number;
-  resetStage: () => void;
+  resetStage: (hard: boolean) => void;
   getTilePosition: (x: number, y: number) => TileType | null;
   determineValidDirections: (
     point: Point2D,
@@ -61,15 +61,20 @@ export const createMapSlice: StateCreator<
   items: [],
   itemIndex: 0,
   itemsRefs: allItemRefs,
-  resetStage: () => {
-    const currentMapData = get().mapData;
+  resetStage: (hardReset = false) => {
     const generateItems = get().generateItems;
     const generateExit = get().generateExit;
     const generatePlayerPosition = get().generatePlayerPosition;
     const resetMap = get().resetMap;
+    const resetPlayer = get().resetPlayer;
     const generateEnemies = get().generateEnemies;
 
     resetMap();
+    if (hardReset) {
+      resetPlayer();
+    }
+
+    const currentMapData = get().mapData;
 
     const mapNumRows = get().numRows;
     const mapNumCols = get().numCols;
@@ -146,10 +151,10 @@ export const createMapSlice: StateCreator<
     const validDirections: Direction[] = [];
 
     for (const posOff of POSITION_OFFSETS) {
-      const newPosition = new Point2D(
-        point.x + posOff.position.x,
-        point.y + posOff.position.y
-      );
+      const newPosition = {
+        x: point.x + posOff.position.x,
+        y: point.y + posOff.position.y,
+      };
       const dirTile = getTilePosition(newPosition.x, newPosition.y);
       if (!dirTile) {
         continue;
@@ -322,7 +327,7 @@ export const createMapSlice: StateCreator<
           currentMapData[x][y] != TileType.TILE_EXIT &&
           !getItemPosition(x, y)
         ) {
-          emptySpots.push(new Point2D(x, y));
+          emptySpots.push({ x: x, y: y });
         }
       }
     }
@@ -414,6 +419,10 @@ export const createMapSlice: StateCreator<
           newItem.name = 'coin';
           break;
         case 2:
+          newItem.type = ItemType.ITEM_CHICKEN;
+          newItem.rotates = true;
+          newItem.name = 'chicken_leg';
+          break;
         case 3:
           newItem.type = ItemType.ITEM_CHEST;
           newItem.name = 'chest';

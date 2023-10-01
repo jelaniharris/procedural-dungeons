@@ -4,12 +4,11 @@ Command: npx gltfjsx@6.2.10 ./public/character-human.glb -t
 */
 
 import * as THREE from 'three';
-import React, { useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { GLTF } from 'three-stdlib';
 import { useFrame } from '@react-three/fiber';
 import { Group } from 'three';
-import { GameState, useStore } from '@/stores/useStore';
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -35,26 +34,27 @@ type GLTFResult = GLTF & {
   };
 };
 
-export function Player(props: JSX.IntrinsicElements['group']) {
+export function CharacterPlayer(props: JSX.IntrinsicElements['group']) {
   const human = useRef<Group>(null);
-
-  const playerPosition = useStore((store: GameState) => store.playerPosition);
-  const playerRotation = useStore((store: GameState) => store.playerRotation);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const position = useMemo(() => props.position, []);
 
   useFrame(() => {
-    if (!playerPosition) return;
-    if (human.current) {
-      human.current.position.x = playerPosition?.x || 0;
-      human.current.position.y = 0;
-      human.current.position.z = playerPosition?.y || 0;
-      human.current.rotation.y = playerRotation;
+    if (!human || !human.current) {
+      return;
+    }
+    if (
+      props.position &&
+      human.current?.position.distanceTo(props.position as THREE.Vector3) > 0.1
+    ) {
+      human.current?.position.lerp(props.position as THREE.Vector3, 0.1);
     }
   });
 
   const { nodes, materials } = useGLTF('/character-human.glb') as GLTFResult;
 
   return (
-    <group {...props} dispose={null} ref={human}>
+    <group {...props} position={position} dispose={null} ref={human}>
       <group position={[0, 0.176, 0]}>
         <mesh geometry={nodes.mesh_0.geometry} material={materials.grey} />
         <mesh geometry={nodes.mesh_0_1.geometry} material={materials.brown} />

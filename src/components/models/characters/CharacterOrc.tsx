@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { GLTF } from 'three-stdlib';
 import { Enemy } from '@/components/types/GameTypes';
@@ -40,31 +40,54 @@ export const Orc = forwardRef(function Orc(
   props: JSX.IntrinsicElements['group'] & OrcProps,
   forwardedRef
 ) {
+  const position = useMemo(() => props.position, []);
+  const MovementSpeed = 0.32;
+
   //const orc = useRef<THREE.Group>(null);
   const orc = useRef<THREE.Group>(null);
   useImperativeHandle(forwardedRef, () => orc.current);
 
   //const enemies = useStore((store: GameState) => store.enemies, shallow);
 
-  const enemy = props.enemy; //enemies[props.enemyId];
-  console.log('Rendering enemy:', enemy);
+  //const enemy = props.enemy; //enemies[props.enemyId];
+  //console.log('Rendering enemy:', enemy);
 
   const { nodes, materials } = useGLTF(
     '/models/characters/character-orc.glb'
   ) as GLTFResult;
 
+  /*
+  const { actions } = useAnimations(animations,group);
+  const [animation, setAnimation] = useState("idle");
+
+  useEffect(() => {
+    actions[animation].reset().fadeIn(0.32).play();
+    return () => actions[animation]?.fadeOut(0.32);
+  })
+  */
+
   useFrame(() => {
-    if (!enemy || !enemy.position) return;
-    if (orc.current) {
-      orc.current.position.x = enemy.position?.x || 0;
-      orc.current.position.y = 0;
-      orc.current.position.z = enemy.position?.y || 0;
-      //orc.current.rotation.y = playerRotation;
+    if (!orc || !orc.current || !props.position) {
+      return;
+    }
+    const propsPosition = props.position as THREE.Vector3;
+    if (orc.current?.position.distanceTo(propsPosition) > 0.2) {
+      const direction = orc.current.position
+        .clone()
+        .sub(propsPosition)
+        .normalize()
+        .multiplyScalar(MovementSpeed);
+      //orc.current?.position.lerp(props.position as THREE.Vector3, 0.2);
+      orc.current.position.sub(direction);
+      orc.current.lookAt(propsPosition);
+      //setAnimation("walk")
+    } else {
+      // setAnimation("idle")
     }
   });
 
   return (
-    <group {...props} ref={orc} dispose={null}>
+    <group {...props} position={position} ref={orc} dispose={null}>
       <group position={[0, 0.176, 0]}>
         <mesh geometry={nodes.mesh_0.geometry} material={materials.brown} />
         <mesh geometry={nodes.mesh_0_1.geometry} material={materials.dark} />
