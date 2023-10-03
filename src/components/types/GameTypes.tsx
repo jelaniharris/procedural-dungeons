@@ -24,7 +24,7 @@ export enum WallType {
   WALL_ENCASED,
 }
 
-export enum TrapType {
+export enum HazardType {
   TRAP_FLOOR_SPIKES,
 }
 
@@ -97,6 +97,19 @@ export type Enemy = {
   status: EnemyStatus;
   nextDirection: Point2D;
   movementPoints: Point2D[];
+};
+
+export type BaseGameObject = {
+  worldPosition: Point2D;
+};
+
+export type Hazard = BaseGameObject & {
+  id: string;
+  type: HazardType;
+  name?: string;
+  isActive: boolean;
+  currentPhase: number;
+  maxPhase: number;
 };
 
 export enum LocationActionType {

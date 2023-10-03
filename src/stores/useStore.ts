@@ -3,11 +3,13 @@ import { PlayerSlice, createPlayerSlice } from './playerSlice';
 import { StageSlice, createStageSlice } from './stageSlice';
 import { EnemySlice, createEnemySlice } from './enemySlice';
 import { createWithEqualityFn } from 'zustand/traditional';
+import { HazardSlice, createHazardSlice } from './hazardSlice';
 
 export interface GameState
   extends MapSlice,
     PlayerSlice,
     StageSlice,
+    HazardSlice,
     EnemySlice {
   startGame: () => void;
 }
@@ -27,6 +29,7 @@ export const useStore = createWithEqualityFn<GameState>(
     ...createMapSlice(...args),
     ...createPlayerSlice(...args),
     ...createEnemySlice(...args),
+    ...createHazardSlice(...args),
     startGame: () => {
       const [set, get] = [args[0], args[1]];
       set((state) => ({ ...state, currentLevel: 1 }));

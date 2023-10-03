@@ -14,6 +14,7 @@ import { createRef } from 'react';
 import { PlayerSlice } from './playerSlice';
 import { EnemySlice } from './enemySlice';
 import { checkPointInPoints } from '@/utils/gridUtils';
+import { HazardSlice } from './hazardSlice';
 
 export interface MapSlice {
   mapData: (TileType | null)[][];
@@ -50,7 +51,7 @@ export interface MapSlice {
 const allItemRefs = createRef<any[]>() as React.MutableRefObject<any[]>;
 
 export const createMapSlice: StateCreator<
-  MapSlice & StageSlice & PlayerSlice & EnemySlice,
+  MapSlice & StageSlice & PlayerSlice & EnemySlice & HazardSlice,
   [],
   [],
   MapSlice
@@ -68,8 +69,11 @@ export const createMapSlice: StateCreator<
     const resetMap = get().resetMap;
     const resetPlayer = get().resetPlayer;
     const generateEnemies = get().generateEnemies;
+    const generateHazards = get().generateHazards;
+    const resetDangerZones = get().resetDangerZones;
 
     resetMap();
+    resetDangerZones();
     if (hardReset) {
       resetPlayer();
     }
@@ -105,6 +109,7 @@ export const createMapSlice: StateCreator<
     generatePlayerPosition();
     generateExit();
     generateEnemies();
+    generateHazards();
   },
   resetMap: () => {
     const mapNumRows = 15 + 5 * get().currentLevel;
@@ -386,7 +391,7 @@ export const createMapSlice: StateCreator<
     const getItemPositionOnGrid = get().getItemPositionOnGrid;
     const itemIndex = get().itemIndex;
 
-    let numberItems = 10 + 2 + currentLevel;
+    let numberItems = 12 + currentLevel * 2;
     let emptySpots = get().getEmptyTiles();
 
     console.debug(`[generateItems] Found ${emptySpots.length} empty spots`);

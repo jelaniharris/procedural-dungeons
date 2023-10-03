@@ -13,11 +13,15 @@ import { ShowEnemyIntention } from '@/app/ShowEnemyIntentions';
 import useGame from '../useGame';
 import Player from '../entities/Player';
 import {
+  ON_TICK,
+  PLAYER_DAMAGED_TRAP,
   PLAYER_DIED,
   PLAYER_MOVED,
   PLAYER_TOUCHED_ENEMY,
+  PlayerDamagedTrapEvent,
 } from '../types/EventTypes';
 import { ShowDangerIndicators } from '@/app/ShowDangerIndicators';
+import { ShowHazards } from '@/app/ShowHazards';
 
 const DungeonScene = () => {
   const startGame = useStore((state: GameState) => state.startGame);
@@ -27,10 +31,15 @@ const DungeonScene = () => {
   const adjustHealth = useStore((state: GameState) => state.adjustHealth);
   const addScore = useStore((state: GameState) => state.addScore);
   const setDead = useStore((state: GameState) => state.setDead);
+  const resetDangerZones = useStore(
+    (state: GameState) => state.resetDangerZones
+  );
+
   const checkPlayerLocation = useStore(
     (state: GameState) => state.checkPlayerLocation
   );
-  const { subscribe, publish, unsubscribeAllHandlers } = useGame();
+  const { subscribe, publish, unsubscribeAllHandlers, getAllRegistryById } =
+    useGame();
   const [mapTone, setMapTone] = useState<string>('#FFFFFF');
 
   console.log('Rendering Scene');
@@ -46,8 +55,14 @@ const DungeonScene = () => {
         }
       }
     };
+    resetDangerZones();
 
     performTurn({ enemyLocationResultCallback: enemyLocationResult });
+
+    const gameObjectRegistry = getAllRegistryById();
+    gameObjectRegistry.forEach((reg) => {
+      reg.publish(ON_TICK);
+    });
   }, [performTurn, publish]);
 
   const playerMoved = useCallback(
@@ -132,6 +147,15 @@ const DungeonScene = () => {
         }
       });
 
+      subscribe<PlayerDamagedTrapEvent>(PLAYER_DAMAGED_TRAP, ({ hazard }) => {
+        console.log('Touched by hazard: ', hazard.name);
+        playAudio('hurt_04.ogg');
+        if (!adjustHealth(-1)) {
+          // Then the player died
+          publish(PLAYER_DIED, {});
+        }
+      });
+
       subscribe(PLAYER_MOVED, ({ moved }) => {
         //console.log('New callback: ', moved);
         if (moved) {
@@ -144,6 +168,7 @@ const DungeonScene = () => {
     return () => {
       unsubscribeAllHandlers(PLAYER_TOUCHED_ENEMY);
       unsubscribeAllHandlers(PLAYER_MOVED);
+      unsubscribeAllHandlers(PLAYER_DIED);
     };
   }, []);
 
@@ -160,6 +185,7 @@ const DungeonScene = () => {
         <ShowEnemies />
         <ShowEnemyIntention />
         <ShowDangerIndicators />
+        <ShowHazards />
       </Suspense>
     </>
   );

@@ -5,12 +5,17 @@ import { NoToneMapping } from 'three';
 import { Controls } from './types/GameTypes';
 import createPubSub, { PubSub } from '@/utils/pubSub';
 import React from 'react';
+import {
+  GameObjectRegistry,
+  GameObjectRegistryUtils,
+} from './GameObjectRegistry';
+import { GameObjectRef } from './entities/GameObject';
 
 interface GameProps {
   children?: React.ReactNode;
 }
 
-export interface GameContextValue extends PubSub {
+export interface GameContextValue extends GameObjectRegistryUtils, PubSub {
   paused: boolean;
   setPaused: Dispatch<SetStateAction<boolean>>;
 }
@@ -20,6 +25,11 @@ export const GameContext = React.createContext<GameContextValue | null>(null);
 export default function Game({ children }: GameProps) {
   const [paused, setPaused] = useState(false);
   const [pubSub] = useState(() => createPubSub());
+
+  const [registryById] = useState<GameObjectRegistry<GameObjectRef>>(
+    () => new Map()
+  );
+
   const map = useMemo<KeyboardControlsEntry<Controls>[]>(
     () => [
       { name: Controls.forward, keys: ['ArrowUp', 'KeyW'] },
@@ -31,10 +41,27 @@ export default function Game({ children }: GameProps) {
     []
   );
 
+  const registryUtils = useMemo<GameObjectRegistryUtils>(
+    () => ({
+      registerGameObject(identifier: symbol, ref: GameObjectRef) {
+        // Register game object by id
+        registryById.set(identifier, ref);
+      },
+      unregisterGameObject(identifier: symbol) {
+        registryById.delete(identifier);
+      },
+      getAllRegistryById() {
+        return registryById;
+      },
+    }),
+    [registryById]
+  );
+
   const contextValue: GameContextValue = {
     paused,
     setPaused,
     ...pubSub,
+    ...registryUtils,
   };
 
   return (

@@ -4,9 +4,19 @@ Command: npx gltfjsx@6.2.10 .\public\models\traps\trap.glb -t
 */
 
 import * as THREE from 'three';
-import React, { useRef } from 'react';
-import { useGLTF /*, useAnimations*/ } from '@react-three/drei';
+import React, { useEffect, useRef, useState } from 'react';
+import { useGLTF, useAnimations } from '@react-three/drei';
 import { GLTF } from 'three-stdlib';
+import { Hazard } from '../types/GameTypes';
+import { OnTickEvent, PLAYER_DAMAGED_TRAP } from '../types/EventTypes';
+import useGameObjectEvent from '../entities/useGameObjectEvent';
+import { useStore } from '@/stores/useStore';
+import useGameObject from '../entities/useGameObject';
+import useGame from '../useGame';
+
+interface GLTFAction extends THREE.AnimationClip {
+  name: ActionName;
+}
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -16,34 +26,90 @@ type GLTFResult = GLTF & {
   materials: {
     colormap: THREE.MeshStandardMaterial;
   };
+  animations: GLTFAction[];
 };
 
-type SpikeTrap = JSX.IntrinsicElements['group'];
+type SpikeTrapProps = JSX.IntrinsicElements['group'] & {
+  data: Hazard;
+};
 
-//type ActionName = 'show' | 'hide' | 'show-hide'
-//type GLTFActions = Record<ActionName, THREE.AnimationAction>
+type ActionName = 'show' | 'hide' | 'show-hide';
 
-export function SpikeTrap(props: SpikeTrap) {
-  const group = useRef<THREE.Group>(null);
-  const { nodes, materials /*, animations*/ } = useGLTF(
-    '/modesl/traps/trap.glb'
+export function SpikeTrap(props: SpikeTrapProps) {
+  const groupRef = useRef<THREE.Group>(null);
+  const { nodes, materials, animations } = useGLTF(
+    '/models/traps/trap.glb'
   ) as GLTFResult;
-  //const { actions } = useAnimations<GLTFActions>(animations, group)
+  const [animation, setAnimation] = useState<ActionName>('hide');
+  const { actions, mixer } = useAnimations(animations, groupRef);
+  const currentPhase = useRef(2);
+  const maxPhase = 2;
+  const isActive = useRef(false);
+  const {} = useGameObject();
+  const { publish } = useGame();
+  const addLocationsToDangerZones = useStore(
+    (state) => state.addLocationsToDangerZones
+  );
+  const playerInDamageZone = useStore((state) => state.playerInDamageZone);
+
+  useGameObjectEvent<OnTickEvent>('on-tick', () => {
+    if (isActive.current) {
+      isActive.current = false;
+      currentPhase.current = maxPhase;
+    } else {
+      currentPhase.current -= 1;
+
+      // Phase before trigger = give the player a warning
+      if (currentPhase.current == 1) {
+        addLocationsToDangerZones([props.data.worldPosition]);
+      }
+
+      if (currentPhase.current <= 0) {
+        // Spike is active, do damage if the player is on top of me
+        isActive.current = true;
+        if (playerInDamageZone([props.data.worldPosition])) {
+          publish(PLAYER_DAMAGED_TRAP, { hazard: props.data });
+        }
+      }
+    }
+  });
+
+  useEffect(() => {
+    if (isActive.current) {
+      setAnimation('show');
+    } else {
+      setAnimation('hide');
+    }
+  }, [isActive.current]);
+
+  useEffect(() => {
+    if (actions && animation && actions[animation]) {
+      const clipAction = actions[animation];
+      if (clipAction) {
+        clipAction.reset();
+        mixer.stopAllAction();
+        clipAction.clampWhenFinished = true;
+        clipAction.setLoop(THREE.LoopOnce, 1);
+        clipAction.play();
+      }
+    }
+
+    //actions[animation]?.setLoop(THREE.LoopOnce, 1).play();
+  }, [actions, animation, mixer]);
+
   return (
-    <group ref={group} {...props} dispose={null}>
-      <group name="trap">
+    <group ref={groupRef} name="trap">
+      <mesh
+        name="trap_1"
+        geometry={nodes.trap_1.geometry}
+        material={materials.colormap}
+      >
         <mesh
-          name="trap_1"
-          geometry={nodes.trap_1.geometry}
+          name="spikes"
+          geometry={nodes.spikes.geometry}
           material={materials.colormap}
-        >
-          <mesh
-            name="spikes"
-            geometry={nodes.spikes.geometry}
-            material={materials.colormap}
-          />
-        </mesh>
-      </group>
+        />
+      </mesh>
     </group>
   );
 }

@@ -3,6 +3,7 @@ import { MapSlice } from './mapSlice';
 import { EnemySlice } from './enemySlice';
 import { Enemy, LocationActionType } from '@/components/types/GameTypes';
 import { Point2D } from '@/utils/Point2D';
+import { HazardSlice } from './hazardSlice';
 
 export type PerformTurnProps = {
   enemyLocationResultCallback?: (
@@ -21,7 +22,7 @@ export interface StageSlice {
 }
 
 export const createStageSlice: StateCreator<
-  StageSlice & MapSlice & EnemySlice,
+  StageSlice & MapSlice & EnemySlice & HazardSlice,
   [],
   [],
   StageSlice
@@ -40,17 +41,13 @@ export const createStageSlice: StateCreator<
   },
   addLocationsToDangerZones(locations: Point2D[]) {
     const currentDangerZones = get().dangerZones;
-
-    const dangerZones = [...currentDangerZones, ...locations];
-
     set({
-      dangerZones: dangerZones,
+      dangerZones: [...currentDangerZones, ...locations],
     });
   },
   async performTurn({ enemyLocationResultCallback }: PerformTurnProps) {
     const aiMove = get().aiMove;
     const aiCalculateNewDirection = get().aiCalculateNewDirection;
-    const resetDangerZones = get().resetDangerZones;
 
     // All of the enemies move
     let hasMovesLeft = true;
@@ -67,7 +64,6 @@ export const createStageSlice: StateCreator<
 
     // Calculate the new direction the enemies are going
     const currentEnemies = get().enemies;
-    resetDangerZones();
     aiCalculateNewDirection(currentEnemies);
     set({ enemies: currentEnemies });
   },

@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface ConsumerEvent<EventName = string, Data = any> {
+export interface ConsumerEvent<EventName = string, Data = any | undefined> {
   name: EventName;
   data: Data;
 }

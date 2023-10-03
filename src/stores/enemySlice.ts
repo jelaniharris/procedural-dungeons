@@ -56,7 +56,7 @@ export const createEnemySlice: StateCreator<
     let newEnemyIndex = enemyIndex;
     const newEnemyData: Enemy[] = [];
 
-    let numberEnemies = 5 + 2 + currentLevel;
+    let numberEnemies = 7 + currentLevel * 2;
 
     while (emptySpots.length != 0 && numberEnemies > 0) {
       const point = emptySpots.shift();
