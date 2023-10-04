@@ -22,6 +22,29 @@ import {
 } from '../types/EventTypes';
 import { ShowDangerIndicators } from '@/app/ShowDangerIndicators';
 import { ShowHazards } from '@/app/ShowHazards';
+import { EffectComposer, Vignette } from '@react-three/postprocessing';
+
+function Effects() {
+  const isTired = useStore((state: GameState) => state.isTired);
+
+  if (!isTired) {
+    return;
+  }
+
+  return (
+    <EffectComposer>
+      <Vignette
+        offset={1.5}
+        darkness={1}
+        // Eskil's vignette technique works from the outside inwards rather
+        // than the inside outwards, so if this is 'true' set the offset
+        // to a value greater than 1.
+        // See frag for details - https://github.com/vanruesc/postprocessing/blob/main/src/effects/glsl/vignette/shader.frag
+        eskil={true}
+      />
+    </EffectComposer>
+  );
+}
 
 const DungeonScene = () => {
   const startGame = useStore((state: GameState) => state.startGame);
@@ -169,6 +192,7 @@ const DungeonScene = () => {
       unsubscribeAllHandlers(PLAYER_TOUCHED_ENEMY);
       unsubscribeAllHandlers(PLAYER_MOVED);
       unsubscribeAllHandlers(PLAYER_DIED);
+      unsubscribeAllHandlers(PLAYER_DAMAGED_TRAP);
     };
   }, []);
 
@@ -179,6 +203,7 @@ const DungeonScene = () => {
       <Stats />
       <Suspense fallback={null}>
         <AmbientSound url={'./sounds/dungeon_ambient_1.ogg'} />
+        <Effects />
         <ShowEnvironment />
         <Player />
         <ShowItems />
