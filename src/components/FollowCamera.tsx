@@ -13,10 +13,20 @@ export const FollowCamera = () => {
   const cameraVector = useRef<THREE.Vector3>(new THREE.Vector3(0, 0, 0));
   const cameraPosition = new THREE.Vector3(0, 0, 0);
 
+  const stopLookAt = useRef<boolean>(false);
+
+  const startDrag = () => {
+    stopLookAt.current = true;
+  };
+
+  const endDrag = () => {
+    stopLookAt.current = false;
+  };
+
   console.log('[FollowCamera] Refollowing player position');
 
   useFrame((state) => {
-    if (!playerPosition) {
+    if (!playerPosition || stopLookAt.current) {
       return;
     }
     lookAtVec.current.set(playerPosition.x, 0, playerPosition.y);
@@ -29,7 +39,13 @@ export const FollowCamera = () => {
   return (
     <>
       <PerspectiveCamera ref={cameraRef} makeDefault position={[6, 3, 6]} />
-      <OrbitControls />
+      <OrbitControls
+        onStart={startDrag}
+        enablePan={false}
+        onEnd={endDrag}
+        maxPolarAngle={THREE.MathUtils.degToRad(90)}
+        target={[playerPosition.x, 0, playerPosition.y]}
+      />
     </>
   );
 };
