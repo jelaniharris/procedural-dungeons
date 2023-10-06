@@ -1,6 +1,8 @@
 import { GameState, useStore } from '@/stores/useStore';
 import { FaBolt as EnergyIcon, FaHeart as HeartIcon } from 'react-icons/fa';
 import { EndScreen } from './EndScreen';
+import { ExitOption } from './ExitOption';
+import { GameStatus } from '../types/GameTypes';
 
 export const FooterHud = () => {
   const currentLevel = useStore((store: GameState) => store.currentLevel);
@@ -10,6 +12,8 @@ export const FooterHud = () => {
   const health = useStore((store: GameState) => store.health);
   const maxHealth = useStore((store: GameState) => store.maxHealth);
   const isDead = useStore((store: GameState) => store.isDead);
+  const showExitDialog = useStore((store: GameState) => store.showExitDialog);
+  const gameStatus = useStore((store: GameState) => store.gameStatus);
 
   const PanelLabel = ({
     icon,
@@ -30,8 +34,9 @@ export const FooterHud = () => {
 
   return (
     <>
-      {isDead && <EndScreen />}
-      {!isDead && (
+      {showExitDialog && <ExitOption />}
+      {gameStatus == GameStatus.GAME_ENDED && <EndScreen />}
+      {gameStatus != GameStatus.GAME_ENDED && !showExitDialog && (
         <>
           <section className="fixed w-full flex gap-8 justify-center top-4">
             <section className=" bg-slate-700 bg-opacity-60 p-4 text-2xl font-bold text-white">

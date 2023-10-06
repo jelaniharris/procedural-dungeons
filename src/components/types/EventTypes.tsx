@@ -5,6 +5,10 @@ export const PLAYER_MOVED = 'player-moved';
 export const PLAYER_TOUCHED_ENEMY = 'player-touched-enemy';
 export const PLAYER_DIED = 'player-died';
 export const PLAYER_DAMAGED_TRAP = 'player-damaged-trap';
+export const PLAYER_REACHED_EXIT = 'player-reached-exit';
+
+export const EXIT_GREED = 'exit-greed';
+export const EXIT_NEED = 'exit-need';
 
 export const ON_TICK = 'on-tick';
 

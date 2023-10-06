@@ -7,16 +7,24 @@ import { ShowEnvironment } from '../../app/ShowEnvironment';
 import { GameState, playAudio, useStore } from '@/stores/useStore';
 import { ShowItems } from '@/app/ShowItems';
 import { AmbientSound } from '../AmbientSound';
-import { Enemy, ItemType, LocationActionType } from '../types/GameTypes';
+import {
+  Enemy,
+  GameStatus,
+  ItemType,
+  LocationActionType,
+} from '../types/GameTypes';
 import { ShowEnemies } from '@/app/ShowEnemies';
 import { ShowEnemyIntention } from '@/app/ShowEnemyIntentions';
 import useGame from '../useGame';
 import Player from '../entities/Player';
 import {
+  EXIT_GREED,
+  EXIT_NEED,
   ON_TICK,
   PLAYER_DAMAGED_TRAP,
   PLAYER_DIED,
   PLAYER_MOVED,
+  PLAYER_REACHED_EXIT,
   PLAYER_TOUCHED_ENEMY,
   PlayerDamagedTrapEvent,
 } from '../types/EventTypes';
@@ -54,6 +62,11 @@ const DungeonScene = () => {
   const adjustHealth = useStore((state: GameState) => state.adjustHealth);
   const addScore = useStore((state: GameState) => state.addScore);
   const setDead = useStore((state: GameState) => state.setDead);
+  const setGameStatus = useStore((state: GameState) => state.setGameStatus);
+  const setShowExitDialog = useStore(
+    (state: GameState) => state.setShowExitDialog
+  );
+
   const resetDangerZones = useStore(
     (state: GameState) => state.resetDangerZones
   );
@@ -117,7 +130,7 @@ const DungeonScene = () => {
             break;
           case LocationActionType.AT_EXIT:
             console.log('AT EXIT');
-            advanceStage();
+            publish(PLAYER_REACHED_EXIT);
             break;
           case LocationActionType.NOTHING:
           default:
@@ -156,9 +169,26 @@ const DungeonScene = () => {
           break;
       }
 
+      subscribe(EXIT_GREED, () => {
+        setShowExitDialog(false);
+        advanceStage();
+      });
+
+      subscribe(EXIT_NEED, () => {
+        setShowExitDialog(false);
+        setGameStatus(GameStatus.GAME_ENDED);
+      });
+
+      subscribe(PLAYER_REACHED_EXIT, () => {
+        console.log('Exit reached');
+        setGameStatus(GameStatus.GAME_EXITDECISION);
+        setShowExitDialog(true);
+      });
+
       subscribe(PLAYER_DIED, ({}) => {
         console.log('Player has died');
         setDead();
+        setGameStatus(GameStatus.GAME_ENDED);
       });
 
       subscribe(PLAYER_TOUCHED_ENEMY, ({ enemy }) => {

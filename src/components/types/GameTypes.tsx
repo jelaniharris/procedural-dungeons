@@ -99,6 +99,13 @@ export type Enemy = {
   movementPoints: Point2D[];
 };
 
+export enum GameStatus {
+  GAME_NONE,
+  GAME_STARTED,
+  GAME_EXITDECISION,
+  GAME_ENDED,
+}
+
 export type BaseGameObject = {
   worldPosition: Point2D;
 };

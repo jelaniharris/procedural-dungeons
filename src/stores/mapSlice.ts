@@ -1,5 +1,6 @@
 import {
   Direction,
+  GameStatus,
   Item,
   ItemType,
   POSITION_OFFSETS,
@@ -104,6 +105,7 @@ export const createMapSlice: StateCreator<
 
     set({
       mapData: currentMapData,
+      gameStatus: GameStatus.GAME_STARTED,
     });
     generateItems();
     generatePlayerPosition();

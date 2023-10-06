@@ -10,6 +10,7 @@ import {
   GameObjectRegistryUtils,
 } from './GameObjectRegistry';
 import { GameObjectRef } from './entities/GameObject';
+import { FooterHud } from './hud/FooterHud';
 
 interface GameProps {
   children?: React.ReactNode;
@@ -66,18 +67,21 @@ export default function Game({ children }: GameProps) {
 
   return (
     <KeyboardControls map={map}>
-      <Canvas
-        gl={{ antialias: true, toneMapping: NoToneMapping }}
-        shadows
-        onCreated={({ gl }) => {
-          gl.setClearColor('#252934');
-        }}
-        className="canvas"
-      >
-        <GameContext.Provider value={contextValue}>
+      <GameContext.Provider value={contextValue}>
+        <Canvas
+          gl={{ antialias: true, toneMapping: NoToneMapping }}
+          shadows
+          onCreated={({ gl }) => {
+            gl.setClearColor('#252934');
+          }}
+          className="canvas"
+        >
           {children}
-        </GameContext.Provider>
-      </Canvas>
+        </Canvas>
+        <div className="relative">
+          <FooterHud />
+        </div>
+      </GameContext.Provider>
     </KeyboardControls>
   );
 }

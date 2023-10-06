@@ -51,7 +51,7 @@ export const createPlayerSlice: StateCreator<
   resetPlayer() {
     const resetSet = {
       score: 0,
-      energy: 10,
+      energy: 25,
       maxEnergy: 100,
       isDead: false,
       playerRotation: 0,

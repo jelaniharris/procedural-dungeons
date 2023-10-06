@@ -1,7 +1,11 @@
 import { StateCreator } from 'zustand';
 import { MapSlice } from './mapSlice';
 import { EnemySlice } from './enemySlice';
-import { Enemy, LocationActionType } from '@/components/types/GameTypes';
+import {
+  Enemy,
+  GameStatus,
+  LocationActionType,
+} from '@/components/types/GameTypes';
 import { Point2D } from '@/utils/Point2D';
 import { HazardSlice } from './hazardSlice';
 
@@ -15,10 +19,14 @@ export type PerformTurnProps = {
 export interface StageSlice {
   currentLevel: number;
   dangerZones: Point2D[];
+  showExitDialog: boolean;
+  gameStatus: GameStatus;
+  setGameStatus: (newStatus: GameStatus) => void;
   advanceStage: () => void;
   performTurn: (props: PerformTurnProps) => void;
   resetDangerZones: () => void;
   addLocationsToDangerZones: (locations: Point2D[]) => void;
+  setShowExitDialog: (showDialog: boolean) => void;
 }
 
 export const createStageSlice: StateCreator<
@@ -28,11 +36,26 @@ export const createStageSlice: StateCreator<
   StageSlice
 > = (set, get) => ({
   currentLevel: 0,
+  showExitDialog: false,
+  gameStatus: GameStatus.GAME_NONE,
   dangerZones: [],
   advanceStage() {
     const resetStage = get().resetStage;
-    set((stage) => ({ currentLevel: stage.currentLevel + 1 }));
+    set((stage) => ({
+      currentLevel: stage.currentLevel + 1,
+      gameStatus: GameStatus.GAME_STARTED,
+    }));
     resetStage(false);
+  },
+  setGameStatus(newStatus: GameStatus) {
+    set({
+      gameStatus: newStatus,
+    });
+  },
+  setShowExitDialog(showDialog: boolean) {
+    set({
+      showExitDialog: showDialog,
+    });
   },
   resetDangerZones() {
     set({

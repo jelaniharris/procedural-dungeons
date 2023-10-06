@@ -1,5 +1,5 @@
 import { useKeyboardControls } from '@react-three/drei';
-import { Controls } from './types/GameTypes';
+import { Controls, GameStatus } from './types/GameTypes';
 import { useStore } from '@/stores/useStore';
 import useGame from './useGame';
 import { useCallback, useEffect } from 'react';
@@ -10,7 +10,7 @@ export const CharacterController = ({
   children?: React.ReactNode;
 }) => {
   const adjustPlayer = useStore((store) => store.adjustPlayer);
-  const isDead = useStore((store) => store.isDead);
+  const gameStatus = useStore((store) => store.gameStatus);
 
   const { publish } = useGame();
 
@@ -24,7 +24,7 @@ export const CharacterController = ({
 
   const moveDirection = useCallback(() => {
     let movementValid = false;
-    if (isDead) {
+    if (gameStatus != GameStatus.GAME_STARTED) {
       return false;
     }
 
@@ -60,7 +60,7 @@ export const CharacterController = ({
     adjustPlayer,
     downPressed,
     forwardPressed,
-    isDead,
+    gameStatus,
     leftPressed,
     publish,
     rightPressed,
