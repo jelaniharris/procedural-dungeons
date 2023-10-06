@@ -11,7 +11,6 @@ export const FooterHud = () => {
   const isTired = useStore((store: GameState) => store.isTired);
   const health = useStore((store: GameState) => store.health);
   const maxHealth = useStore((store: GameState) => store.maxHealth);
-  const isDead = useStore((store: GameState) => store.isDead);
   const showExitDialog = useStore((store: GameState) => store.showExitDialog);
   const gameStatus = useStore((store: GameState) => store.gameStatus);
 

@@ -34,7 +34,6 @@ export const useStore = createWithEqualityFn<GameState>(
       const [set, get] = [args[0], args[1]];
       set((state) => ({ ...state, currentLevel: 1 }));
       get().resetStage(true);
-      get().g;
     },
   }),
   Object.is // shallow

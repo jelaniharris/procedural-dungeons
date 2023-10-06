@@ -114,8 +114,8 @@ export const createMapSlice: StateCreator<
     generateHazards();
   },
   resetMap: () => {
-    const mapNumRows = 15 + 5 * get().currentLevel;
-    const mapNumCols = 15 + 5 * get().currentLevel;
+    const mapNumRows = 15 + 3 * get().currentLevel;
+    const mapNumCols = 15 + 3 * get().currentLevel;
 
     const newMap: (TileType | null)[][] = [];
 

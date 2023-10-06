@@ -28,7 +28,7 @@ export const createHazardSlice: StateCreator<
 
     const newHazardData = new Map<string, Hazard>();
 
-    let numberHazards = 15 + currentLevel * 2;
+    let numberHazards = 10 + currentLevel * 3;
     while (emptySpots.length != 0 && numberHazards > 0) {
       const point = emptySpots.shift();
       if (!point) {
