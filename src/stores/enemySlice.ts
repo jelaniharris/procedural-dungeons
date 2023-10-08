@@ -13,6 +13,7 @@ import { StageSlice } from './stageSlice';
 import { Vector2 } from 'three';
 import { PlayerSlice } from './playerSlice';
 import { Point2D } from '@/utils/Point2D';
+import { GeneratorSlice } from './generatorSlice';
 
 export interface EnemySlice {
   enemies: Enemy[];
@@ -39,7 +40,7 @@ export type AiMoveProps = {
 };
 
 export const createEnemySlice: StateCreator<
-  EnemySlice & MapSlice & StageSlice & PlayerSlice,
+  EnemySlice & MapSlice & StageSlice & PlayerSlice & GeneratorSlice,
   [],
   [],
   EnemySlice
@@ -51,7 +52,8 @@ export const createEnemySlice: StateCreator<
     const enemyIndex = get().enemyIndex;
     const currentLevel = get().currentLevel;
     const currentMapData = get().mapData;
-    emptySpots = shuffle(emptySpots);
+    const psuedoShuffle = get().shuffleArray;
+    emptySpots = psuedoShuffle(emptySpots);
 
     let newEnemyIndex = enemyIndex;
     const newEnemyData: Enemy[] = [];

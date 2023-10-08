@@ -8,7 +8,7 @@ const Player = () => {
   const playerPosition = useStore((state) => state.playerPosition);
   const playerRotation = useStore((state) => state.playerRotation);
 
-  console.debug('[Player|Component] Position updated:', playerPosition);
+  //console.debug('[Player|Component] Position updated:', playerPosition);
 
   return (
     <>

@@ -10,12 +10,12 @@ import {
 import { StateCreator } from 'zustand';
 import { StageSlice } from './stageSlice';
 import { Point2D } from '@/utils/Point2D';
-import shuffle from 'lodash/shuffle';
 import { createRef } from 'react';
 import { PlayerSlice } from './playerSlice';
 import { EnemySlice } from './enemySlice';
 import { checkPointInPoints } from '@/utils/gridUtils';
 import { HazardSlice } from './hazardSlice';
+import { GeneratorSlice } from './generatorSlice';
 
 export interface MapSlice {
   mapData: (TileType | null)[][];
@@ -52,7 +52,12 @@ export interface MapSlice {
 const allItemRefs = createRef<any[]>() as React.MutableRefObject<any[]>;
 
 export const createMapSlice: StateCreator<
-  MapSlice & StageSlice & PlayerSlice & EnemySlice & HazardSlice,
+  MapSlice &
+    StageSlice &
+    PlayerSlice &
+    EnemySlice &
+    HazardSlice &
+    GeneratorSlice,
   [],
   [],
   MapSlice
@@ -276,6 +281,7 @@ export const createMapSlice: StateCreator<
   generateMap(mapData: (TileType | null)[][]) {
     const mapNumRows = get().numRows;
     const mapNumCols = get().numCols;
+    const randomGen = get().randomGen;
 
     if (!mapData) {
       return [];
@@ -289,7 +295,7 @@ export const createMapSlice: StateCreator<
         ) {
           continue;
         }
-        const rand = Math.floor(Math.random() * 4);
+        const rand = Math.floor(randomGen() * 4);
         let tileType: TileType = TileType.TILE_NONE;
 
         switch (rand) {
@@ -344,7 +350,8 @@ export const createMapSlice: StateCreator<
   generatePlayerPosition() {
     //const currentMapData = get().mapData;
     let emptySpots = get().getEmptyTiles();
-    emptySpots = shuffle(emptySpots);
+    const psuedoShuffle = get().shuffleArray;
+    emptySpots = psuedoShuffle(emptySpots);
     //const currentPlayerPosition = get().playerPosition;
 
     let position = null;
@@ -372,7 +379,8 @@ export const createMapSlice: StateCreator<
   generateExit() {
     const currentMapData = get().mapData;
     let emptySpots = get().getEmptyTiles();
-    emptySpots = shuffle(emptySpots);
+    const psuedoShuffle = get().shuffleArray;
+    emptySpots = psuedoShuffle(emptySpots);
 
     let validSpot = false;
     while (emptySpots.length != 0 && validSpot == false) {
@@ -392,13 +400,15 @@ export const createMapSlice: StateCreator<
     const currentLevel = get().currentLevel;
     const getItemPositionOnGrid = get().getItemPositionOnGrid;
     const itemIndex = get().itemIndex;
+    const randomGen = get().randomGen;
+    const psuedoShuffle = get().shuffleArray;
 
     let numberItems = 12 + currentLevel * 2;
     let emptySpots = get().getEmptyTiles();
 
-    console.debug(`[generateItems] Found ${emptySpots.length} empty spots`);
+    //console.debug(`[generateItems] Found ${emptySpots.length} empty spots`);
 
-    emptySpots = shuffle(emptySpots);
+    emptySpots = psuedoShuffle(emptySpots);
     let newItemIndex = itemIndex;
     const newItemData: Item[] = [];
 
@@ -409,7 +419,7 @@ export const createMapSlice: StateCreator<
         break;
       }
 
-      const randomItem = Math.floor(Math.random() * 3);
+      const randomItem = Math.floor(randomGen() * 3);
 
       const newItem: Item = {
         id: newItemIndex,

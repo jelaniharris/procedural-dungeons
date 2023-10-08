@@ -1,11 +1,11 @@
 import { Hazard, HazardType, TileType } from '@/components/types/GameTypes';
 import { StateCreator } from 'zustand';
 import { MapSlice } from './mapSlice';
-import shuffle from 'lodash/shuffle';
 import { StageSlice } from './stageSlice';
 import { v4 as uuidv4 } from 'uuid';
 import { Point2D } from '@/utils/Point2D';
 import { PlayerSlice } from './playerSlice';
+import { GeneratorSlice } from './generatorSlice';
 
 export interface HazardSlice {
   hazards: Map<string, Hazard>;
@@ -14,7 +14,7 @@ export interface HazardSlice {
 }
 
 export const createHazardSlice: StateCreator<
-  HazardSlice & MapSlice & StageSlice & PlayerSlice,
+  HazardSlice & MapSlice & StageSlice & PlayerSlice & GeneratorSlice,
   [],
   [],
   HazardSlice
@@ -24,7 +24,8 @@ export const createHazardSlice: StateCreator<
     let emptySpots = get().getEmptyTiles();
     const currentLevel = get().currentLevel;
     const currentMapData = get().mapData;
-    emptySpots = shuffle(emptySpots);
+    const psuedoShuffle = get().shuffleArray;
+    emptySpots = psuedoShuffle(emptySpots);
 
     const newHazardData = new Map<string, Hazard>();
 
