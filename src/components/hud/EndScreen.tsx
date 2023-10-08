@@ -7,7 +7,7 @@ export const EndScreen = () => {
 
   return (
     <section className="fixed top-0 w-full items-stretch min-h-screen">
-      <section className="bg-slate-700 bg-opacity-60 min-h-screen m-8 flex flex-col gap-5 justify-center items-center">
+      <section className="bg-slate-700 bg-opacity-60 m-8 flex flex-col gap-5 justify-center items-center min-h-[100svh]">
         {isDead && <h1 className="text-6xl font-bold text-red-500">DEAD</h1>}
         {!isDead && (
           <h1 className="text-6xl font-bold text-green-500">ESCAPED</h1>

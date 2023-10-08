@@ -3,6 +3,7 @@ import { FaBolt as EnergyIcon, FaHeart as HeartIcon } from 'react-icons/fa';
 import { EndScreen } from './EndScreen';
 import { ExitOption } from './ExitOption';
 import { GameStatus } from '../types/GameTypes';
+import classNames from 'classnames';
 
 export const FooterHud = () => {
   const currentLevel = useStore((store: GameState) => store.currentLevel);
@@ -31,6 +32,25 @@ export const FooterHud = () => {
     );
   };
 
+  const ContentPanel = ({
+    children,
+    className,
+  }: {
+    children: React.ReactNode;
+    className?: string;
+  }) => {
+    return (
+      <section
+        className={classNames(
+          ' bg-slate-700 bg-opacity-60 p-2 rounded-md text-2xl font-bold text-white',
+          className
+        )}
+      >
+        {children}
+      </section>
+    );
+  };
+
   return (
     <>
       {showExitDialog && <ExitOption />}
@@ -38,12 +58,8 @@ export const FooterHud = () => {
       {gameStatus != GameStatus.GAME_ENDED && !showExitDialog && (
         <>
           <section className="fixed w-full flex gap-8 justify-center top-4">
-            <section className=" bg-slate-700 bg-opacity-60 p-4 text-2xl font-bold text-white">
-              Score: {score}
-            </section>
-            <section className=" bg-slate-700 bg-opacity-60 p-4 text-2xl font-bold text-white">
-              Level: {currentLevel}
-            </section>
+            <ContentPanel>Score: {score}</ContentPanel>
+            <ContentPanel>Level: {currentLevel}</ContentPanel>
           </section>
           <section className="fixed w-full flex justify-center bottom-28">
             {isTired && (
@@ -53,19 +69,19 @@ export const FooterHud = () => {
             )}
           </section>
           <section className="fixed w-full flex gap-8 justify-center bottom-4">
-            <section className=" bg-slate-700 bg-opacity-60 p-4 flex justify-center items-center flex-nowrap ">
+            <ContentPanel className="flex justify-center items-center flex-nowrap">
               <PanelLabel
                 iconClass="text-yellow-300 py-1"
                 icon={<EnergyIcon />}
               >
                 {energy}
               </PanelLabel>
-            </section>
-            <section className=" bg-slate-700 bg-opacity-60 p-4 flex justify-center items-center flex-nowrap ">
+            </ContentPanel>
+            <ContentPanel className="flex justify-center items-center flex-nowrap">
               <PanelLabel iconClass="text-red-600 py-1" icon={<HeartIcon />}>
                 {health}/{maxHealth}
               </PanelLabel>
-            </section>
+            </ContentPanel>
           </section>
         </>
       )}

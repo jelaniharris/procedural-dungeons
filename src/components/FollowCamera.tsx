@@ -1,6 +1,6 @@
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
+import { /*OrbitControls,*/ PerspectiveCamera } from '@react-three/drei';
 import { useRef } from 'react';
 import { useStore } from '@/stores/useStore';
 import { shallow } from 'zustand/shallow';
@@ -15,13 +15,13 @@ export const FollowCamera = () => {
 
   const stopLookAt = useRef<boolean>(false);
 
-  const startDrag = () => {
+  /*const startDrag = () => {
     stopLookAt.current = true;
   };
 
   const endDrag = () => {
     stopLookAt.current = false;
-  };
+  };*/
 
   console.log('[FollowCamera] Refollowing player position');
 
@@ -39,13 +39,13 @@ export const FollowCamera = () => {
   return (
     <>
       <PerspectiveCamera ref={cameraRef} makeDefault position={[6, 3, 6]} />
-      <OrbitControls
+      {/*<OrbitControls
         onStart={startDrag}
         enablePan={false}
         onEnd={endDrag}
         maxPolarAngle={THREE.MathUtils.degToRad(90)}
         target={[playerPosition.x, 0, playerPosition.y]}
-      />
+  />*/}
     </>
   );
 };

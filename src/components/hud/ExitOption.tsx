@@ -8,7 +8,7 @@ export const ExitOption = () => {
 
   return (
     <section className="fixed top-0 w-full items-stretch h-screen">
-      <section className="bg-slate-700 bg-opacity-70 m-5 p-5 flex flex-col gap-5 justify-center items-center">
+      <section className="bg-slate-700 bg-opacity-70 m-5 p-5 flex flex-col gap-5 justify-center items-center min-h-[100svh]">
         <span className="text-2xl font-bold text-white">
           You currently have {score} gold.{' '}
         </span>

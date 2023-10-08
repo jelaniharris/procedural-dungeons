@@ -103,8 +103,6 @@ const DungeonScene = () => {
 
   const playerMoved = useCallback(
     (moved: boolean) => {
-      //console.log(`Player action happened: ${moved}`);
-
       // Reduce player enemy on every step or wait action
       modifyEnergy(-1);
 
@@ -210,7 +208,6 @@ const DungeonScene = () => {
       });
 
       subscribe(PLAYER_MOVED, ({ moved }) => {
-        //console.log('New callback: ', moved);
         if (moved) {
           playAudio('stepstone_1.wav', 0.2);
         }

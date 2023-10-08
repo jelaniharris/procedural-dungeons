@@ -42,7 +42,10 @@ export function SpikeTrap(props: SpikeTrapProps) {
   ) as GLTFResult;
   const [animation, setAnimation] = useState<ActionName>('hide');
   const { actions, mixer } = useAnimations(animations, groupRef);
-  const currentPhase = useRef(2);
+  const currentLevel = useStore((state) => state.currentLevel);
+  const currentPhase = useRef(
+    currentLevel >= 2 ? Math.floor(Math.random() * 3) : 2
+  );
   const maxPhase = 2;
   const isActive = useRef(false);
   const {} = useGameObject();

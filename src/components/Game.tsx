@@ -11,6 +11,7 @@ import {
 } from './GameObjectRegistry';
 import { GameObjectRef } from './entities/GameObject';
 import { FooterHud } from './hud/FooterHud';
+import { Joystick } from './Joystick';
 
 interface GameProps {
   children?: React.ReactNode;
@@ -81,6 +82,7 @@ export default function Game({ children }: GameProps) {
         <div className="relative">
           <FooterHud />
         </div>
+        <Joystick />
       </GameContext.Provider>
     </KeyboardControls>
   );
