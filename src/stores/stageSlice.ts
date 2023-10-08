@@ -8,6 +8,9 @@ import {
 } from '@/components/types/GameTypes';
 import { Point2D } from '@/utils/Point2D';
 import { HazardSlice } from './hazardSlice';
+import { RunData } from '@/components/types/RecordTypes';
+import { PlayerSlice } from './playerSlice';
+import { v4 as uuidv4 } from 'uuid';
 
 export type PerformTurnProps = {
   enemyLocationResultCallback?: (
@@ -28,10 +31,14 @@ export interface StageSlice {
   resetDangerZones: () => void;
   addLocationsToDangerZones: (locations: Point2D[]) => void;
   setShowExitDialog: (showDialog: boolean) => void;
+  // Attempts
+  getAttemptData: () => RunData;
+  recordLocalAttempt: () => void;
+  getLocalAttempts: () => RunData[];
 }
 
 export const createStageSlice: StateCreator<
-  StageSlice & MapSlice & EnemySlice & HazardSlice,
+  StageSlice & MapSlice & EnemySlice & HazardSlice & PlayerSlice,
   [],
   [],
   StageSlice
@@ -91,5 +98,51 @@ export const createStageSlice: StateCreator<
     const currentEnemies = get().enemies;
     aiCalculateNewDirection(currentEnemies);
     set({ enemies: currentEnemies });
+  },
+  getAttemptData() {
+    const currentLevel = get().currentLevel;
+    const score = get().score;
+    const isDead = get().isDead;
+
+    const runData: RunData = {
+      level: currentLevel,
+      score: score,
+      date: new Date().toLocaleDateString(),
+      success: !isDead,
+      type: get().gameType,
+    };
+    return runData;
+  },
+  recordLocalAttempt() {
+    const attempt = get().getAttemptData();
+    const gameType = get().gameType;
+    const storageName = `${gameType}Attempts`;
+
+    let lastRun: RunData[];
+    const lastRunString = localStorage.getItem(storageName);
+    if (lastRunString) {
+      lastRun = JSON.parse(lastRunString);
+    } else {
+      lastRun = [];
+    }
+
+    // Add latest attempt to the front
+    lastRun.unshift({ ...attempt, id: uuidv4() });
+
+    // Save in local storage
+    localStorage.setItem(storageName, JSON.stringify(lastRun));
+  },
+  getLocalAttempts() {
+    const gameType = get().gameType;
+    const storageName = `${gameType}Attempts`;
+
+    let allAttempts: RunData[];
+    const allAttemptsString = localStorage.getItem(storageName);
+    if (allAttemptsString) {
+      allAttempts = JSON.parse(allAttemptsString);
+    } else {
+      allAttempts = [];
+    }
+    return allAttempts;
   },
 });

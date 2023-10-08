@@ -63,6 +63,9 @@ const DungeonScene = () => {
   const addScore = useStore((state: GameState) => state.addScore);
   const setDead = useStore((state: GameState) => state.setDead);
   const setGameStatus = useStore((state: GameState) => state.setGameStatus);
+  const recordLocalAttempt = useStore(
+    (state: GameState) => state.recordLocalAttempt
+  );
   const setShowExitDialog = useStore(
     (state: GameState) => state.setShowExitDialog
   );
@@ -174,6 +177,7 @@ const DungeonScene = () => {
 
       subscribe(EXIT_NEED, () => {
         setShowExitDialog(false);
+        recordLocalAttempt();
         setGameStatus(GameStatus.GAME_ENDED);
       });
 
@@ -186,6 +190,7 @@ const DungeonScene = () => {
       subscribe(PLAYER_DIED, ({}) => {
         console.log('Player has died');
         setDead();
+        recordLocalAttempt();
         setGameStatus(GameStatus.GAME_ENDED);
       });
 
