@@ -143,13 +143,7 @@ const DungeonScene = () => {
 
   React.useEffect(() => {
     const party = async () => {
-      const uniqueDate = new Date()
-        .toISOString()
-        .substring(0, 10)
-        .replaceAll('-', '');
-      console.log(uniqueDate);
-
-      startGame(parseInt(uniqueDate, 10));
+      startGame('daily');
 
       const randomTone = Math.floor(Math.random() * 6);
 

@@ -2,7 +2,7 @@ import { StateCreator } from 'zustand';
 
 export interface GeneratorSlice {
   randomGen: () => number;
-  shuffleArray: (arr: any[]) => any[];
+  shuffleArray<T>(arr: T[]): T[];
 }
 
 export const createGeneratorSlice: StateCreator<
@@ -11,8 +11,8 @@ export const createGeneratorSlice: StateCreator<
   [],
   GeneratorSlice
 > = (set, get) => ({
-  randomGen: () => 0.5,
-  shuffleArray(arr) {
+  randomGen: Math.random,
+  shuffleArray<T>(arr: T[]): T[] {
     let j, x, index;
     const randomGen = get().randomGen;
 

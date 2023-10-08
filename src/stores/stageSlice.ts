@@ -19,6 +19,7 @@ export type PerformTurnProps = {
 export interface StageSlice {
   currentLevel: number;
   dangerZones: Point2D[];
+  gameType: string;
   showExitDialog: boolean;
   gameStatus: GameStatus;
   setGameStatus: (newStatus: GameStatus) => void;
@@ -39,6 +40,7 @@ export const createStageSlice: StateCreator<
   showExitDialog: false,
   gameStatus: GameStatus.GAME_NONE,
   dangerZones: [],
+  gameType: 'daily',
   advanceStage() {
     const resetStage = get().resetStage;
     set((stage) => ({

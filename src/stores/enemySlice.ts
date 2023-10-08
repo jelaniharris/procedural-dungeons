@@ -8,7 +8,6 @@ import {
 } from '@/components/types/GameTypes';
 import { StateCreator } from 'zustand';
 import { MapSlice } from './mapSlice';
-import shuffle from 'lodash/shuffle';
 import { StageSlice } from './stageSlice';
 import { Vector2 } from 'three';
 import { PlayerSlice } from './playerSlice';

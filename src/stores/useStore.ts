@@ -14,7 +14,7 @@ export interface GameState
     HazardSlice,
     GeneratorSlice,
     EnemySlice {
-  startGame: (seed: number) => void;
+  startGame: (startGameType: string | null) => void;
 }
 
 export const playAudio = (path: string, volume = 1, callback?: () => void) => {
@@ -34,20 +34,33 @@ export const useStore = createWithEqualityFn<GameState>(
     ...createEnemySlice(...args),
     ...createHazardSlice(...args),
     ...createGeneratorSlice(...args),
-    startGame: (seed: number) => {
+    startGame: (startGameType: string | null) => {
       const [set, get] = [args[0], args[1]];
+
+      const gameType = startGameType || get().gameType;
+      let seed = 0;
+
+      switch (gameType) {
+        case 'daily':
+          const dailyUniqueDate = new Date()
+            .toISOString() //2023-10-08T20:48:34.378Z
+            .substring(0, 10)
+            .replaceAll('-', '');
+          seed = parseInt(dailyUniqueDate, 10);
+          break;
+        default:
+          seed = 100 * Math.random();
+      }
+
       set((state) => ({
         ...state,
         randomGen: psuedoRandom(seed),
+        gameType: gameType,
         currentLevel: 1,
       }));
-
-      for (let p = 5; p > 0; p--) {
-        console.log(get().randomGen());
-      }
 
       get().resetStage(true);
     },
   }),
-  Object.is // shallow
+  Object.is // not shallow - some bugs to fix yet
 );

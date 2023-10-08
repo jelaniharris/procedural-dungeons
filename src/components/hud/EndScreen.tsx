@@ -4,6 +4,11 @@ export const EndScreen = () => {
   const score = useStore((store: GameState) => store.score);
   const startGame = useStore((store: GameState) => store.startGame);
   const isDead = useStore((store: GameState) => store.isDead);
+  const gameType = useStore((store: GameState) => store.gameType);
+
+  const restartGame = () => {
+    startGame(gameType);
+  };
 
   return (
     <section className="fixed top-0 w-full items-stretch min-h-screen">
@@ -17,7 +22,7 @@ export const EndScreen = () => {
           Final Score: {score}
         </span>
         <button
-          onClick={startGame}
+          onClick={restartGame}
           className="bg-purple-700 text-white font-bold p-4"
         >
           Go Again
