@@ -1,3 +1,5 @@
+'use client';
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useEffect, useRef } from 'react';
 import nipplejs from 'nipplejs';
@@ -11,10 +13,10 @@ export type JoyStickData = {
   distance: number;
 };
 
-export const Joystick = () => {
+const Joystick = () => {
   const thisElement = useRef<HTMLDivElement | null>(null);
   const lastData = useRef<JoyStickData>({ distance: 0, angle: '' });
-  const joystiqManager = useRef<nipplejs.JoystickManager | null>(null);
+  const joystickManager = useRef<nipplejs.JoystickManager | null>(null);
   const adjustPlayer = useStore((store) => store.adjustPlayer);
   const gameStatus = useStore((store) => store.gameStatus);
   const { publish } = useGame();
@@ -71,15 +73,17 @@ export const Joystick = () => {
     if (!thisElement.current) {
       return;
     }
-    if (!joystiqManager.current) {
+
+    if (!joystickManager.current) {
       const manager = nipplejs.create({
         size: 120,
         zone: thisElement.current,
         maxNumberOfNipples: 2,
-        restOpacity: 0.3,
+        restOpacity: 0.4,
         mode: 'static',
         threshold: 0.3,
         restJoystick: true,
+        dynamicPage: true,
         // position: { top: 20, left: 20 },
         position: { top: '75%', left: '50%' },
       });
@@ -87,7 +91,7 @@ export const Joystick = () => {
       manager.on('dir', getDirection);
       manager.on('end', getJoystickDeactivation);
 
-      joystiqManager.current = manager;
+      joystickManager.current = manager;
     }
   }, [getJoystickDeactivation]);
 
@@ -102,3 +106,5 @@ export const Joystick = () => {
 
   return <div ref={thisElement}></div>;
 };
+
+export default Joystick;

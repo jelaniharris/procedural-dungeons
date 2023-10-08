@@ -1,3 +1,5 @@
+'use client';
+
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { KeyboardControlsEntry, KeyboardControls } from '@react-three/drei';
@@ -11,7 +13,7 @@ import {
 } from './GameObjectRegistry';
 import { GameObjectRef } from './entities/GameObject';
 import { FooterHud } from './hud/FooterHud';
-import { Joystick } from './Joystick';
+import dynamic from 'next/dynamic';
 
 interface GameProps {
   children?: React.ReactNode;
@@ -31,6 +33,8 @@ export default function Game({ children }: GameProps) {
   const [registryById] = useState<GameObjectRegistry<GameObjectRef>>(
     () => new Map()
   );
+
+  const ClientJoystick = dynamic(() => import('./Joystick').then(module => module.default), { ssr: false });
 
   const map = useMemo<KeyboardControlsEntry<Controls>[]>(
     () => [
@@ -82,7 +86,7 @@ export default function Game({ children }: GameProps) {
         <div className="relative">
           <FooterHud />
         </div>
-        <Joystick />
+        <ClientJoystick />
       </GameContext.Provider>
     </KeyboardControls>
   );
