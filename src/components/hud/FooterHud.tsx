@@ -1,5 +1,10 @@
 import { GameState, useStore } from '@/stores/useStore';
-import { FaBolt as EnergyIcon, FaHeart as HeartIcon } from 'react-icons/fa';
+import {
+  FaBolt as EnergyIcon,
+  FaHeart as HeartIcon,
+  FaCoins as CoinIcon,
+  FaLayerGroup as FloorIcon,
+} from 'react-icons/fa';
 import { EndScreen } from './EndScreen';
 import { ExitOption } from './ExitOption';
 import { GameStatus } from '../types/GameTypes';
@@ -58,8 +63,16 @@ export const FooterHud = () => {
       {gameStatus != GameStatus.GAME_ENDED && !showExitDialog && (
         <>
           <section className="fixed w-full flex gap-8 justify-center top-4">
-            <ContentPanel>Score: {score}</ContentPanel>
-            <ContentPanel>Level: {currentLevel}</ContentPanel>
+            <ContentPanel className="bg-slate-800 bg-opacity-80">
+              <PanelLabel iconClass="text-white-400 py-1" icon={<FloorIcon />}>
+                Floor {currentLevel}
+              </PanelLabel>
+            </ContentPanel>
+            <ContentPanel className="bg-slate-800 bg-opacity-80">
+              <PanelLabel iconClass="text-yellow-400 py-1" icon={<CoinIcon />}>
+                {score}
+              </PanelLabel>
+            </ContentPanel>
           </section>
           <section className="fixed w-full flex justify-center bottom-28">
             {isTired && (
