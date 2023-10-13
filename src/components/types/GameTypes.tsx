@@ -13,6 +13,8 @@ export enum ItemType {
   ITEM_NONE,
   ITEM_COIN,
   ITEM_CHEST,
+  ITEM_CHALICE,
+  ITEM_POTION,
   ITEM_CHICKEN,
 }
 

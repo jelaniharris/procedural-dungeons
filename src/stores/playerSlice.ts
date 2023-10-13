@@ -3,6 +3,7 @@ import { StateCreator } from 'zustand';
 import { MapSlice } from './mapSlice';
 import {
   Item,
+  ItemType,
   LocationActionType,
   TileType,
 } from '@/components/types/GameTypes';
@@ -22,6 +23,7 @@ export interface PlayerSlice {
   adjustPlayer: (xOffset: number, yOffset: number) => boolean;
   checkPlayerLocation: () => PlayerLocationResults;
   adjustHealth: (amount: number) => boolean;
+  atFullHealth: () => boolean;
   addScore: (score: number) => void;
   modifyEnergy: (amount: number) => void;
   isPlayerAtExit: () => boolean;
@@ -115,6 +117,11 @@ export const createPlayerSlice: StateCreator<
     set(() => ({ health: Math.max(0, Math.min(newHealth, maxHealth)) }));
     return newHealth != 0;
   },
+  atFullHealth() {
+    const currentHealth = get().health;
+    const maxHealth = get().maxHealth;
+    return currentHealth === maxHealth;
+  },
   modifyEnergy(amount: number) {
     const currentEnergy = get().energy;
     const maxEnergy = get().maxEnergy;
@@ -140,6 +147,7 @@ export const createPlayerSlice: StateCreator<
     // Check for item at location
     const getItemPosition = get().getItemPosition;
     const currentPlayerData = get().playerPosition;
+    const atFullHealth = get().atFullHealth;
     const items = get().items;
     const getItemPositionOnGrid = get().getItemPositionOnGrid;
     const isPlayerAtExit = get().isPlayerAtExit;
@@ -161,6 +169,10 @@ export const createPlayerSlice: StateCreator<
         itemAtLocation.id
       );
       const oldItems = [...items];
+
+      if (itemAtLocation.type == ItemType.ITEM_POTION && atFullHealth()) {
+        return { result: LocationActionType.NOTHING };
+      }
 
       delete oldItems[
         getItemPositionOnGrid(currentPlayerData.x, currentPlayerData.y)

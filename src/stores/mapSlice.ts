@@ -16,6 +16,7 @@ import { EnemySlice } from './enemySlice';
 import { checkPointInPoints } from '@/utils/gridUtils';
 import { HazardSlice } from './hazardSlice';
 import { GeneratorSlice } from './generatorSlice';
+import { LootChance } from '@/utils/LootChance';
 
 export interface MapSlice {
   mapData: (TileType | null)[][];
@@ -412,6 +413,14 @@ export const createMapSlice: StateCreator<
     let newItemIndex = itemIndex;
     const newItemData: Item[] = [];
 
+    // Create a new LootChance generator
+    const lootGen = new LootChance<ItemType>();
+
+    lootGen.add(ItemType.ITEM_COIN, 70);
+    lootGen.add(ItemType.ITEM_POTION, 5, 2);
+    lootGen.add(ItemType.ITEM_CHALICE, 25, 10);
+    lootGen.add(ItemType.ITEM_CHICKEN, 25);
+
     while (emptySpots.length != 0 && numberItems > 0) {
       const point = emptySpots.shift();
 
@@ -419,33 +428,32 @@ export const createMapSlice: StateCreator<
         break;
       }
 
-      const randomItem = Math.floor(randomGen() * 3);
+      // Choose the random item
+      const randomItem = lootGen.choose(randomGen);
 
-      const newItem: Item = {
+      let newItem: Item = {
         id: newItemIndex,
-        type: ItemType.ITEM_NONE,
+        type: randomItem === null ? ItemType.ITEM_NONE : randomItem,
         rotates: false,
         position: point,
+        name: 'coin',
       };
 
       switch (randomItem) {
-        case 0:
-        case 1:
-          newItem.type = ItemType.ITEM_COIN;
-          newItem.rotates = true;
-          newItem.name = 'coin';
+        case ItemType.ITEM_COIN:
+          newItem = { ...newItem, rotates: true, name: 'coin' };
           break;
-        case 2:
-          newItem.type = ItemType.ITEM_CHICKEN;
-          newItem.rotates = true;
-          newItem.name = 'chicken_leg';
+        case ItemType.ITEM_CHICKEN:
+          newItem = { ...newItem, rotates: true, name: 'chicken_leg' };
           break;
-        case 3:
-          newItem.type = ItemType.ITEM_CHEST;
-          newItem.name = 'chest';
+        case ItemType.ITEM_CHALICE:
+          newItem = { ...newItem, rotates: true, name: 'chalice' };
+          break;
+        case ItemType.ITEM_POTION:
+          newItem = { ...newItem, rotates: true, name: 'potion' };
           break;
         default:
-          newItem.type = ItemType.ITEM_NONE;
+          continue;
       }
 
       if (newItem.type != ItemType.ITEM_NONE) {
