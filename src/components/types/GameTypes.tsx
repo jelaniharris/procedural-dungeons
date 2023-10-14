@@ -128,11 +128,19 @@ export enum LocationActionType {
   AT_EXIT,
 }
 
+export type Point3D = {
+  x: number;
+  y: number;
+  z: number;
+};
+
 export type Item = {
   id: number;
   type: ItemType;
   rotates: boolean;
   position: Point2D;
+  modelRotation: Point3D;
+  modelPositionOffset: Point3D;
   name?: string;
 };
 

@@ -1,15 +1,16 @@
 import { Clone, useGLTF } from '@react-three/drei';
-import { Item as ItemType } from '../types/GameTypes';
-import { forwardRef, useRef, useImperativeHandle } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { forwardRef, useImperativeHandle, useRef } from 'react';
 import { Group } from 'three';
+import { Item as ItemType } from '../types/GameTypes';
 
 export type ItemProps = {
   item: ItemType;
 };
 
 export const Item = forwardRef(function Item(props: ItemProps, forwardedRef) {
-  const { name, position, rotates } = props.item;
+  const { name, position, modelRotation, modelPositionOffset, rotates } =
+    props.item;
   const { scene } = useGLTF(`/models/items/${name}.glb`);
   //const copiedScene = useMemo(() => scene.clone(), [scene]);
   //const myRef = useRef(null);
@@ -24,6 +25,15 @@ export const Item = forwardRef(function Item(props: ItemProps, forwardedRef) {
   });
 
   return (
-    <Clone ref={myRef} object={scene} position={[position.x, 0, position.y]} />
+    <Clone
+      ref={myRef}
+      object={scene}
+      position={[
+        position.x + modelPositionOffset.x,
+        0 + modelPositionOffset.y,
+        position.y + modelPositionOffset.z,
+      ]}
+      rotation={[modelRotation.x, modelRotation.y, modelRotation.z]}
+    />
   );
 });
