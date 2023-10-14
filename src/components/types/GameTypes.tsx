@@ -31,7 +31,9 @@ export enum HazardType {
 }
 
 export enum EnemyType {
+  ENEMY_NONE,
   ENEMY_ORC,
+  ENEMY_SKELETON,
 }
 
 export enum EnemyStatus {
@@ -98,6 +100,8 @@ export type Enemy = {
   name?: string;
   status: EnemyStatus;
   nextDirection: Point2D;
+  movementRange: number;
+  movementVariance: number;
   movementPoints: Point2D[];
 };
 

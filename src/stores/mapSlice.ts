@@ -100,6 +100,7 @@ export const createMapSlice: StateCreator<
       exit: randomGen(),
       item: randomGen(),
       playerPosition: randomGen(),
+      enemies: randomGen(),
     };
 
     console.log('[resetStage] Generated seeds: ', generatorSeeds);
@@ -136,7 +137,7 @@ export const createMapSlice: StateCreator<
     generateItems(generatorSeeds['item']);
     generatePlayerPosition(generatorSeeds['playerPosition']);
     generateExit();
-    generateEnemies();
+    generateEnemies(generatorSeeds['enemies']);
     generateHazards();
   },
   resetMap: () => {
