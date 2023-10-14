@@ -1,19 +1,19 @@
 'use client';
 
-import { Dispatch, SetStateAction, useMemo, useState } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { KeyboardControlsEntry, KeyboardControls } from '@react-three/drei';
-import { NoToneMapping } from 'three';
-import { Controls } from './types/GameTypes';
 import createPubSub, { PubSub } from '@/utils/pubSub';
-import React from 'react';
+import { KeyboardControls, KeyboardControlsEntry } from '@react-three/drei';
+import { Canvas } from '@react-three/fiber';
+import dynamic from 'next/dynamic';
+import React, { Dispatch, SetStateAction, useMemo, useState } from 'react';
+import { NoToneMapping } from 'three';
 import {
   GameObjectRegistry,
   GameObjectRegistryUtils,
 } from './GameObjectRegistry';
 import { GameObjectRef } from './entities/GameObject';
 import { FooterHud } from './hud/FooterHud';
-import dynamic from 'next/dynamic';
+import { Loading } from './hud/Loading';
+import { Controls } from './types/GameTypes';
 
 interface GameProps {
   children?: React.ReactNode;
@@ -86,6 +86,7 @@ export default function Game({ children }: GameProps) {
         >
           {children}
         </Canvas>
+        <Loading />
         <ClientJoystick />
         <div className="relative">
           <FooterHud />

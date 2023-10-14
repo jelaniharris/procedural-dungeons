@@ -3,6 +3,7 @@ import classnames from 'classnames';
 import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { RunData } from '../types/RecordTypes';
+import CenterScreenContainer from './CenterScreen';
 
 export const EndScreen = () => {
   const score = useStore((store: GameState) => store.score);
@@ -70,29 +71,27 @@ export const EndScreen = () => {
   };
 
   return (
-    <section className="fixed top-0 z-10 w-full h-full items-stretch p-8">
-      <section className="flex flex-col items-center justify-center p-5 h-full gap-5 bg-slate-700 bg-opacity-60">
-        {isDead && <h1 className="text-8xl font-bold text-red-500">DEAD</h1>}
-        {!isDead && (
-          <h1 className="text-8xl font-bold text-green-500">ESCAPED</h1>
-        )}
+    <CenterScreenContainer>
+      {isDead && <h1 className="text-8xl font-bold text-red-500">DEAD</h1>}
+      {!isDead && (
+        <h1 className="text-8xl font-bold text-green-500">ESCAPED</h1>
+      )}
 
-        <span className="text-4xl font-bold text-white">
-          Final Score: {score}
-        </span>
-        <div className="overflow-y-scroll" style={{ height: '50vh' }}>
-          <GameHistoryList />
-        </div>
-        <div className="flex-auto"></div>
-        <div className="pb-3">
-          <button
-            onClick={restartGame}
-            className="bottom-4 bg-purple-700 p-4 font-bold text-white"
-          >
-            Go Again
-          </button>
-        </div>
-      </section>
-    </section>
+      <span className="text-4xl font-bold text-white">
+        Final Score: {score}
+      </span>
+      <div className="overflow-y-scroll" style={{ height: '50vh' }}>
+        <GameHistoryList />
+      </div>
+      <div className="flex-auto"></div>
+      <div className="pb-3">
+        <button
+          onClick={restartGame}
+          className="bottom-4 bg-purple-700 p-4 font-bold text-white"
+        >
+          Go Again
+        </button>
+      </div>
+    </CenterScreenContainer>
   );
 };
