@@ -7,16 +7,17 @@ import {
   TileType,
   WallType,
 } from '@/components/types/GameTypes';
-import { StateCreator } from 'zustand';
-import { StageSlice } from './stageSlice';
-import { Point2D } from '@/utils/Point2D';
-import { createRef } from 'react';
-import { PlayerSlice } from './playerSlice';
-import { EnemySlice } from './enemySlice';
-import { checkPointInPoints } from '@/utils/gridUtils';
-import { HazardSlice } from './hazardSlice';
-import { GeneratorSlice } from './generatorSlice';
 import { LootChance } from '@/utils/LootChance';
+import { Point2D } from '@/utils/Point2D';
+import { checkPointInPoints } from '@/utils/gridUtils';
+import { createRef } from 'react';
+import { MathUtils } from 'three';
+import { StateCreator } from 'zustand';
+import { EnemySlice } from './enemySlice';
+import { GeneratorSlice } from './generatorSlice';
+import { HazardSlice } from './hazardSlice';
+import { PlayerSlice } from './playerSlice';
+import { StageSlice } from './stageSlice';
 
 export interface MapSlice {
   mapData: (TileType | null)[][];
@@ -33,17 +34,20 @@ export interface MapSlice {
     x: number,
     y: number
   ) => { rotation: number; wallType: WallType };
-  generateMap: (mapData: (TileType | null)[][]) => (TileType | null)[][];
+  generateMap: (
+    mapData: (TileType | null)[][],
+    useSeed: number
+  ) => (TileType | null)[][];
   getEmptyTiles: () => Point2D[];
   generateExit: () => void;
-  generatePlayerPosition: () => void;
+  generatePlayerPosition: (seed: number) => void;
   resetMap: () => void;
   // Items
   items: Item[];
   itemIndex: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   itemsRefs: React.MutableRefObject<any[]>;
-  generateItems: () => void;
+  generateItems: (seed: number) => void;
   getItemPositionOnGrid: (x: number, y: number) => number;
   getItemPosition: (x: number, y: number) => Item | null;
   resetItems: () => void;
@@ -74,16 +78,31 @@ export const createMapSlice: StateCreator<
     const generateExit = get().generateExit;
     const generatePlayerPosition = get().generatePlayerPosition;
     const resetMap = get().resetMap;
+    const resetItems = get().resetItems;
     const resetPlayer = get().resetPlayer;
     const generateEnemies = get().generateEnemies;
     const generateHazards = get().generateHazards;
     const resetDangerZones = get().resetDangerZones;
+    const assignRandomGenerator = get().assignRandomGenerator;
 
     resetMap();
+    resetItems();
+
     resetDangerZones();
     if (hardReset) {
       resetPlayer();
     }
+    assignRandomGenerator();
+    const randomGen = get().randomGen;
+
+    const generatorSeeds = {
+      map: randomGen(),
+      exit: randomGen(),
+      item: randomGen(),
+      playerPosition: randomGen(),
+    };
+
+    console.log('[resetStage] Generated seeds: ', generatorSeeds);
 
     const currentMapData = get().mapData;
 
@@ -107,14 +126,15 @@ export const createMapSlice: StateCreator<
 
     console.debug('[resetStage] Stage has been reset');
 
-    get().generateMap(currentMapData);
+    get().generateMap(currentMapData, generatorSeeds['map']);
 
     set({
       mapData: currentMapData,
       gameStatus: GameStatus.GAME_STARTED,
+      isPaused: false,
     });
-    generateItems();
-    generatePlayerPosition();
+    generateItems(generatorSeeds['item']);
+    generatePlayerPosition(generatorSeeds['playerPosition']);
     generateExit();
     generateEnemies();
     generateHazards();
@@ -185,8 +205,6 @@ export const createMapSlice: StateCreator<
         validDirections.push(posOff.direction);
       }
     }
-
-    //console.log(validDirections);
 
     return validDirections;
   },
@@ -279,10 +297,11 @@ export const createMapSlice: StateCreator<
       wallType,
     };
   },
-  generateMap(mapData: (TileType | null)[][]) {
+  generateMap(mapData: (TileType | null)[][], useSeed: number) {
     const mapNumRows = get().numRows;
     const mapNumCols = get().numCols;
-    const randomGen = get().randomGen;
+    const mapRandomGenerator = get().generateGenerator(useSeed);
+    console.log(`[generateMap] Using seed ${useSeed}`);
 
     if (!mapData) {
       return [];
@@ -296,7 +315,7 @@ export const createMapSlice: StateCreator<
         ) {
           continue;
         }
-        const rand = Math.floor(randomGen() * 4);
+        const rand = Math.floor(mapRandomGenerator() * 4);
         let tileType: TileType = TileType.TILE_NONE;
 
         switch (rand) {
@@ -348,12 +367,11 @@ export const createMapSlice: StateCreator<
 
     return emptySpots;
   },
-  generatePlayerPosition() {
-    //const currentMapData = get().mapData;
+  generatePlayerPosition(seed: number) {
     let emptySpots = get().getEmptyTiles();
     const psuedoShuffle = get().shuffleArray;
-    emptySpots = psuedoShuffle(emptySpots);
-    //const currentPlayerPosition = get().playerPosition;
+    const randomGen = get().generateGenerator(seed);
+    emptySpots = psuedoShuffle(emptySpots, randomGen);
 
     let position = null;
     while (emptySpots.length != 0 && position == null) {
@@ -364,9 +382,6 @@ export const createMapSlice: StateCreator<
       }
 
       position = point;
-      console.log('Player set to ', point.x, ',', point.y);
-
-      //currentMapData[point.x][point.y] = TileType.TILE_EXIT;
     }
     if (position) {
       set({
@@ -397,19 +412,17 @@ export const createMapSlice: StateCreator<
       validSpot = true;
     }
   },
-  generateItems() {
+  generateItems(seed: number) {
     const currentLevel = get().currentLevel;
     const getItemPositionOnGrid = get().getItemPositionOnGrid;
     const itemIndex = get().itemIndex;
-    const randomGen = get().randomGen;
+    const randomGen = get().generateGenerator(seed);
     const psuedoShuffle = get().shuffleArray;
 
-    let numberItems = 12 + currentLevel * 2;
+    let numberItems = 12 + currentLevel * 3;
     let emptySpots = get().getEmptyTiles();
+    emptySpots = psuedoShuffle(emptySpots, randomGen);
 
-    //console.debug(`[generateItems] Found ${emptySpots.length} empty spots`);
-
-    emptySpots = psuedoShuffle(emptySpots);
     let newItemIndex = itemIndex;
     const newItemData: Item[] = [];
 
@@ -417,7 +430,7 @@ export const createMapSlice: StateCreator<
     const lootGen = new LootChance<ItemType>();
 
     lootGen.add(ItemType.ITEM_COIN, 70);
-    lootGen.add(ItemType.ITEM_POTION, 5, 2);
+    lootGen.add(ItemType.ITEM_POTION, 45, 2);
     lootGen.add(ItemType.ITEM_CHALICE, 25, 10);
     lootGen.add(ItemType.ITEM_CHICKEN, 25);
 
@@ -436,6 +449,8 @@ export const createMapSlice: StateCreator<
         type: randomItem === null ? ItemType.ITEM_NONE : randomItem,
         rotates: false,
         position: point,
+        modelRotation: { x: 0, y: 0, z: 0 },
+        modelPositionOffset: { x: 0, y: 0, z: 0 },
         name: 'coin',
       };
 
@@ -447,10 +462,20 @@ export const createMapSlice: StateCreator<
           newItem = { ...newItem, rotates: true, name: 'chicken_leg' };
           break;
         case ItemType.ITEM_CHALICE:
-          newItem = { ...newItem, rotates: true, name: 'chalice' };
+          newItem = {
+            ...newItem,
+            rotates: true,
+            name: 'chalice',
+            modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(15) },
+          };
           break;
         case ItemType.ITEM_POTION:
-          newItem = { ...newItem, rotates: true, name: 'potion' };
+          newItem = {
+            ...newItem,
+            rotates: true,
+            name: 'potion',
+            modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(15) },
+          };
           break;
         default:
           continue;

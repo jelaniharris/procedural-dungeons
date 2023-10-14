@@ -34,7 +34,10 @@ export default function Game({ children }: GameProps) {
     () => new Map()
   );
 
-  const ClientJoystick = dynamic(() => import('./Joystick').then(module => module.default), { ssr: false });
+  const ClientJoystick = dynamic(
+    () => import('./Joystick').then((module) => module.default),
+    { ssr: false }
+  );
 
   const map = useMemo<KeyboardControlsEntry<Controls>[]>(
     () => [
@@ -83,10 +86,10 @@ export default function Game({ children }: GameProps) {
         >
           {children}
         </Canvas>
+        <ClientJoystick />
         <div className="relative">
           <FooterHud />
         </div>
-        <ClientJoystick />
       </GameContext.Provider>
     </KeyboardControls>
   );

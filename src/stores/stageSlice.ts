@@ -25,12 +25,14 @@ export interface StageSlice {
   gameType: string;
   showExitDialog: boolean;
   gameStatus: GameStatus;
+  isPaused: boolean;
   setGameStatus: (newStatus: GameStatus) => void;
   advanceStage: () => void;
   performTurn: (props: PerformTurnProps) => void;
   resetDangerZones: () => void;
   addLocationsToDangerZones: (locations: Point2D[]) => void;
   setShowExitDialog: (showDialog: boolean) => void;
+  setPaused: (newPauseStatus: boolean) => void;
   // Attempts
   getAttemptData: () => RunData;
   recordLocalAttempt: () => void;
@@ -45,6 +47,7 @@ export const createStageSlice: StateCreator<
 > = (set, get) => ({
   currentLevel: 0,
   showExitDialog: false,
+  isPaused: false,
   gameStatus: GameStatus.GAME_NONE,
   dangerZones: [],
   gameType: 'daily',
@@ -98,6 +101,11 @@ export const createStageSlice: StateCreator<
     const currentEnemies = get().enemies;
     aiCalculateNewDirection(currentEnemies);
     set({ enemies: currentEnemies });
+  },
+  setPaused(newPauseStatus: boolean) {
+    set({
+      isPaused: newPauseStatus,
+    });
   },
   getAttemptData() {
     const currentLevel = get().currentLevel;

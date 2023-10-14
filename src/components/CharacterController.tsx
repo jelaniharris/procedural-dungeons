@@ -1,8 +1,8 @@
-import { useKeyboardControls } from '@react-three/drei';
-import { Controls, GameStatus } from './types/GameTypes';
 import { useStore } from '@/stores/useStore';
-import useGame from './useGame';
+import { useKeyboardControls } from '@react-three/drei';
 import { useCallback, useEffect } from 'react';
+import { Controls, GameStatus } from './types/GameTypes';
+import useGame from './useGame';
 
 export const CharacterController = ({
   children,
@@ -52,8 +52,6 @@ export const CharacterController = ({
       if (stallPressed) {
         console.debug(`[CharacterController|Component] wait`);
         publish('player-moved', { moved: false });
-      } else {
-        console.debug('stall released');
       }
     }
   }, [

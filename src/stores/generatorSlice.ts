@@ -1,8 +1,12 @@
+import psuedoRandom from '@/utils/randomGenerator';
 import { StateCreator } from 'zustand';
 
 export interface GeneratorSlice {
+  seed: number;
   randomGen: () => number;
-  shuffleArray<T>(arr: T[]): T[];
+  shuffleArray<T>(arr: T[], useGenerator?: () => number): T[];
+  assignRandomGenerator: () => void;
+  generateGenerator: (seed: number) => () => number;
 }
 
 export const createGeneratorSlice: StateCreator<
@@ -11,13 +15,23 @@ export const createGeneratorSlice: StateCreator<
   [],
   GeneratorSlice
 > = (set, get) => ({
+  seed: Math.random(),
   randomGen: Math.random,
-  shuffleArray<T>(arr: T[]): T[] {
+  assignRandomGenerator() {
+    const seed = get().seed;
+    set({
+      randomGen: psuedoRandom(seed),
+    });
+  },
+  generateGenerator(seed: number) {
+    return psuedoRandom(seed);
+  },
+  shuffleArray<T>(arr: T[], useGenerator?: () => number): T[] {
     let j, x, index;
-    const randomGen = get().randomGen;
+    const shuffleRandomGenerator = useGenerator || get().randomGen;
 
     for (index = arr.length - 1; index > 0; index--) {
-      j = Math.floor(randomGen() * (index + 1));
+      j = Math.floor(shuffleRandomGenerator() * (index + 1));
       x = arr[index];
       arr[index] = arr[j];
       arr[j] = x;

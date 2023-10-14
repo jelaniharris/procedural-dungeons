@@ -1,12 +1,12 @@
 'use client';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useCallback, useEffect, useRef } from 'react';
+import { GameState, useStore } from '@/stores/useStore';
 import nipplejs from 'nipplejs';
-import { useStore } from '@/stores/useStore';
-import useGame from './useGame';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { useCallback, useEffect, useRef } from 'react';
+import { shallow } from 'zustand/shallow';
 import { GameStatus } from './types/GameTypes';
+import useGame from './useGame';
 
 export type JoyStickData = {
   angle: string;
@@ -18,7 +18,9 @@ const Joystick = () => {
   const lastData = useRef<JoyStickData>({ distance: 0, angle: '' });
   const joystickManager = useRef<nipplejs.JoystickManager | null>(null);
   const adjustPlayer = useStore((store) => store.adjustPlayer);
-  const gameStatus = useStore((store) => store.gameStatus);
+  const gameStatus = useStore((store) => store.gameStatus, shallow);
+  const isPaused = useStore((store: GameState) => store.isPaused, shallow);
+
   const { publish } = useGame();
 
   const getDirection = (evt: any, data: any) => {
@@ -27,16 +29,13 @@ const Joystick = () => {
       distance: data.distance,
     };
   };
-  console.log('Game sttus:', gameStatus);
 
   const getJoystickDeactivation = useCallback(() => {
     let movementValid = false;
 
-    console.log('Direction game status:', gameStatus);
-
-    /*if (gameStatus != GameStatus.GAME_STARTED) {
+    if (gameStatus != GameStatus.GAME_STARTED) {
       return;
-    }*/
+    }
 
     if (lastData.current.distance > 5) {
       switch (lastData.current.angle) {
@@ -69,14 +68,13 @@ const Joystick = () => {
   }, [adjustPlayer, gameStatus, publish]);
 
   useEffect(() => {
-    console.log("I'm being RAN");
     if (!thisElement.current) {
       return;
     }
 
     if (!joystickManager.current) {
       const manager = nipplejs.create({
-        size: 120,
+        size: 140,
         zone: thisElement.current,
         maxNumberOfNipples: 2,
         restOpacity: 0.4,
@@ -84,8 +82,7 @@ const Joystick = () => {
         threshold: 0.3,
         restJoystick: true,
         dynamicPage: true,
-        // position: { top: 20, left: 20 },
-        position: { top: '75%', left: '50%' },
+        position: { top: '80%', left: '50%' },
       });
 
       manager.on('dir', getDirection);
@@ -95,14 +92,24 @@ const Joystick = () => {
     }
   }, [getJoystickDeactivation]);
 
-  /*
-      style={{
-      outline: '1px dashed red',
-      color: 'blue',
-      width: 150,
-      height: 150,
-      position: 'relative'
-  }}*/
+  useEffect(() => {
+    if (joystickManager.current) {
+      const joystiq = joystickManager.current.get(0);
+      if (!joystiq) {
+        return;
+      }
+
+      if (gameStatus != GameStatus.GAME_STARTED) {
+        joystiq.remove();
+      } else {
+        if (isPaused) {
+          joystiq.remove();
+        } else {
+          joystiq.add();
+        }
+      }
+    }
+  }, [isPaused, gameStatus]);
 
   return <div ref={thisElement}></div>;
 };

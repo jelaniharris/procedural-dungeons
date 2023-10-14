@@ -1,11 +1,10 @@
+import { createWithEqualityFn } from 'zustand/traditional';
+import { EnemySlice, createEnemySlice } from './enemySlice';
+import { GeneratorSlice, createGeneratorSlice } from './generatorSlice';
+import { HazardSlice, createHazardSlice } from './hazardSlice';
 import { MapSlice, createMapSlice } from './mapSlice';
 import { PlayerSlice, createPlayerSlice } from './playerSlice';
 import { StageSlice, createStageSlice } from './stageSlice';
-import { EnemySlice, createEnemySlice } from './enemySlice';
-import { createWithEqualityFn } from 'zustand/traditional';
-import { HazardSlice, createHazardSlice } from './hazardSlice';
-import psuedoRandom from '@/utils/randomGenerator';
-import { GeneratorSlice, createGeneratorSlice } from './generatorSlice';
 
 export interface GameState
   extends MapSlice,
@@ -38,7 +37,7 @@ export const useStore = createWithEqualityFn<GameState>(
       const [set, get] = [args[0], args[1]];
 
       const gameType = startGameType || get().gameType;
-      let seed = 0;
+      let seed = Math.random() * 10000;
 
       switch (gameType) {
         case 'daily':
@@ -49,12 +48,12 @@ export const useStore = createWithEqualityFn<GameState>(
           seed = parseInt(dailyUniqueDate, 10);
           break;
         default:
-          seed = 100 * Math.random();
+          throw new Error(`Unknown game type: ${gameType}`);
       }
 
       set((state) => ({
         ...state,
-        randomGen: psuedoRandom(seed),
+        seed: seed,
         gameType: gameType,
         currentLevel: 1,
       }));
