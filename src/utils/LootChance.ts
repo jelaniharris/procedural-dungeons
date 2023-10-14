@@ -41,13 +41,11 @@ export class LootChance<T> {
       }
     }
 
-    console.log('Total weight is: ', totalWeight);
-
     let choice = 0;
     const randomChance = Math.floor(
       (randomFunction ? randomFunction() : Math.random()) * totalWeight + 1
     );
-    console.log('Random chance is: ', randomChance);
+
     let weight = 0;
     for (let i = 0; i < this.table.length; i++) {
       const tableEntry = this.table[i];
