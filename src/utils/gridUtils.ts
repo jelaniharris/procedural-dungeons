@@ -1,5 +1,6 @@
 import {
   Direction,
+  MapArea,
   PathCurves,
   TravellingDirection,
 } from '@/components/types/GameTypes';
@@ -18,6 +19,27 @@ export const checkPointInPoints = (
   }
 
   return foundPoint;
+};
+
+export const pointInArea = (point: Point2D, area: MapArea) => {
+  if (area.locationsSet && area.locationsSet.has(`${point.x},${point.y}`)) {
+    return true;
+  }
+
+  return false;
+};
+
+export const pointInAreas = (point: Point2D, areas: MapArea[]) => {
+  //console.log('[pointInAreas] Checking point', point);
+  for (const area of areas) {
+    //console.log('Checking area: ', area);
+    if (pointInArea(point, area)) {
+      //console.log('  Point in area:', point);
+      return true;
+    }
+  }
+  //console.log('Point NOT area:', point);
+  return false;
 };
 
 export const determineTravellingDirection = (from: Point2D, to: Point2D) => {

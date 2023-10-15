@@ -3,13 +3,14 @@ import {
   GameStatus,
   Item,
   ItemType,
+  MapArea,
   POSITION_OFFSETS,
   TileType,
   WallType,
 } from '@/components/types/GameTypes';
 import { LootChance } from '@/utils/LootChance';
 import { Point2D } from '@/utils/Point2D';
-import { checkPointInPoints } from '@/utils/gridUtils';
+import { checkPointInPoints, pointInAreas } from '@/utils/gridUtils';
 import { createRef } from 'react';
 import { MathUtils } from 'three';
 import { StateCreator } from 'zustand';
@@ -42,6 +43,12 @@ export interface MapSlice {
   generateExit: () => void;
   generatePlayerPosition: (seed: number) => void;
   resetMap: () => void;
+  fillMapGaps: (mapData: (TileType | null)[][]) => (TileType | null)[][];
+
+  // Areas
+  getAreasFromMap: (mapData: (TileType | null)[][]) => MapArea[];
+  getAdjacentArea: (location: Point2D) => MapArea;
+
   // Items
   items: Item[];
   itemIndex: number;
@@ -84,6 +91,7 @@ export const createMapSlice: StateCreator<
     const generateHazards = get().generateHazards;
     const resetDangerZones = get().resetDangerZones;
     const assignRandomGenerator = get().assignRandomGenerator;
+    const fillMapGaps = get().fillMapGaps;
 
     resetMap();
     resetItems();
@@ -128,6 +136,7 @@ export const createMapSlice: StateCreator<
     console.debug('[resetStage] Stage has been reset');
 
     get().generateMap(currentMapData, generatorSeeds['map']);
+    fillMapGaps(currentMapData);
 
     set({
       mapData: currentMapData,
@@ -141,8 +150,8 @@ export const createMapSlice: StateCreator<
     generateHazards();
   },
   resetMap: () => {
-    const mapNumRows = 15 + 3 * get().currentLevel;
-    const mapNumCols = 15 + 3 * get().currentLevel;
+    const mapNumRows = 14 + 3 * get().currentLevel;
+    const mapNumCols = 14 + 3 * get().currentLevel;
 
     const newMap: (TileType | null)[][] = [];
 
@@ -342,6 +351,126 @@ export const createMapSlice: StateCreator<
 
     return mapData;
   },
+  getAdjacentArea(location: Point2D): MapArea {
+    const getTilePosition = get().getTilePosition;
+    const isBlockWallOrNull = get().isBlockWallOrNull;
+
+    const areaLocations: Point2D[] = [];
+    const areaCache: Set<string> = new Set<string>();
+    const locationsToVisit: Point2D[] = [location];
+    const toVisitCache: Set<string> = new Set<string>();
+    const adjacentWalls: Point2D[] = [];
+
+    //console.log('Gettling area for location: ', location);
+
+    while (locationsToVisit.length > 0) {
+      const currentLocation = locationsToVisit.shift();
+
+      if (!currentLocation) continue;
+
+      // Check if we've already been here
+      if (areaCache.has(`${currentLocation.x},${currentLocation.y}`)) {
+        continue;
+      }
+
+      const currentTile = getTilePosition(currentLocation.x, currentLocation.y);
+      if (isBlockWallOrNull(currentTile)) {
+        continue;
+      }
+
+      // Add open location to area
+      //console.log('Adding to area: ', currentLocation);
+      areaLocations.push(currentLocation);
+      areaCache.add(`${currentLocation.x},${currentLocation.y}`);
+
+      // Calculate the location of the currounded coordinates
+      const surroundingCoordinates = [
+        { x: currentLocation.x, y: currentLocation.y - 1 },
+        { x: currentLocation.x + 1, y: currentLocation.y },
+        { x: currentLocation.x, y: currentLocation.y + 1 },
+        { x: currentLocation.x - 1, y: currentLocation.y },
+      ];
+
+      surroundingCoordinates.forEach((coordinate) => {
+        const coordinateHash = `${coordinate.x},${coordinate.y}`;
+        // If this coordinate is already in our visit in the future cache, then continue
+        if (toVisitCache.has(coordinateHash)) {
+          return;
+        }
+        // If this is already defined as an area, then continue
+        if (areaCache.has(coordinateHash)) {
+          return;
+        }
+
+        // Check if this tile position is a block
+        const tilePosition = getTilePosition(coordinate.x, coordinate.y);
+        if (isBlockWallOrNull(tilePosition)) {
+          // If the type of block is an all edge, and if it's not a internal block
+          if (tilePosition != TileType.TILE_WALL_EDGE) {
+            // Add to adjacent wall list
+            adjacentWalls.push(coordinate);
+          }
+        } else {
+          // add empty spot for next to visit
+          locationsToVisit.push(coordinate);
+          toVisitCache.add(coordinateHash);
+        }
+      });
+    }
+    return {
+      locations: areaLocations,
+      adjacentWalls: adjacentWalls,
+      locationsSet: areaCache,
+    };
+  },
+  getAreasFromMap(mapData: (TileType | null)[][]): MapArea[] {
+    const mapNumRows = get().numRows;
+    const mapNumCols = get().numCols;
+    const isBlockWallOrNull = get().isBlockWallOrNull;
+    const newAreas: MapArea[] = [];
+
+    for (let y = 0; y < mapNumRows; y++) {
+      for (let x = 0; x < mapNumCols; x++) {
+        // if wall then continue
+        if (isBlockWallOrNull(mapData[x][y])) {
+          //console.log(`${x}, ${y} is a wall`);
+          continue;
+        }
+
+        if (pointInAreas({ x, y }, newAreas)) {
+          //console.log(`${x}, ${y} is already in an area`);
+          continue;
+        }
+
+        //console.log(`${x}, ${y} NOT in an area`);
+        // point does not existin areas, so then create a new area from that point
+        const newArea = get().getAdjacentArea({ x, y });
+        //console.log(`${x}, ${y} created an area: `, newArea);
+        // Add the area made to the list
+        newAreas.push(newArea);
+      }
+    }
+
+    //console.log('Areas from map', newAreas);
+
+    return newAreas;
+  },
+  fillMapGaps(mapData: (TileType | null)[][]) {
+    //console.log('Filling gaps');
+    const allMapAreas: MapArea[] = get().getAreasFromMap(mapData);
+
+    //console.log('Got map areas: ', allMapAreas);
+
+    allMapAreas.forEach((area) => {
+      if (area.locations.length <= 4) {
+        area.locations.forEach((location) => {
+          mapData[location.x][location.y] = TileType.TILE_WALL;
+        });
+      }
+    });
+
+    return mapData;
+  },
   resetItems() {
     set({ items: [] });
   },
@@ -407,7 +536,7 @@ export const createMapSlice: StateCreator<
         break;
       }
 
-      console.log('Point ', point.x, ',', point.y);
+      //console.log('Point ', point.x, ',', point.y);
 
       currentMapData[point.x][point.y] = TileType.TILE_EXIT;
       validSpot = true;

@@ -7,6 +7,7 @@ import { ThreeSidedWall } from '@/components/models/Three-Sided-Wall';
 import Wall from '@/components/models/Wall';
 import WallHalf from '@/components/models/WallHalf';
 import WallNarrow from '@/components/models/WallNarrow';
+import Water from '@/components/models/Water';
 import { TileType, WallType } from '@/components/types/GameTypes';
 import { useStore } from '@/stores/useStore';
 import { MathUtils } from 'three';
@@ -44,6 +45,11 @@ export const ShowEnvironment = () => {
 
       let tile: React.JSX.Element[] | null = null;
       switch (tileType) {
+        case TileType.TILE_TEST:
+          tile = [
+            <Water key={`tile-${x}-${y}`} position={[tileXPos, 0, tileYPos]} />,
+          ];
+          break;
         case TileType.TILE_FLOOR:
           const randomFloor = Math.random();
           if (randomFloor < 0.8) {

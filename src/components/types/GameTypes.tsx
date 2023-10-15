@@ -2,6 +2,8 @@ import { Point2D } from '../../utils/Point2D';
 
 export enum TileType {
   TILE_NONE,
+  TILE_TEST,
+  TILE_WATER,
   TILE_FLOOR,
   TILE_DIRT,
   TILE_WALL,
@@ -157,6 +159,12 @@ export type ItemLocationType = {
 export type PlayerType = {
   x: number;
   y: number;
+};
+
+export type MapArea = {
+  locations: Point2D[];
+  locationsSet?: Set<string>;
+  adjacentWalls: Point2D[];
 };
 
 export type WorldDataType = {
