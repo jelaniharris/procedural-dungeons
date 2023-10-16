@@ -72,7 +72,9 @@ export const EndScreen = () => {
 
   return (
     <CenterScreenContainer>
-      {isDead && <h1 className="text-8xl font-bold text-red-500">DEAD</h1>}
+      {isDead && (
+        <h1 className="text-8xl font-bold text-red-500">TOO GREEDY</h1>
+      )}
       {!isDead && (
         <h1 className="text-8xl font-bold text-green-500">ESCAPED</h1>
       )}

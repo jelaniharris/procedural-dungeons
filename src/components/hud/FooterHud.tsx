@@ -1,14 +1,14 @@
 import { GameState, useStore } from '@/stores/useStore';
+import classNames from 'classnames';
 import {
-  FaBolt as EnergyIcon,
-  FaHeart as HeartIcon,
   FaCoins as CoinIcon,
+  FaBolt as EnergyIcon,
   FaLayerGroup as FloorIcon,
+  FaHeart as HeartIcon,
 } from 'react-icons/fa';
+import { GameStatus } from '../types/GameTypes';
 import { EndScreen } from './EndScreen';
 import { ExitOption } from './ExitOption';
-import { GameStatus } from '../types/GameTypes';
-import classNames from 'classnames';
 
 export const FooterHud = () => {
   const currentLevel = useStore((store: GameState) => store.currentLevel);
@@ -74,9 +74,9 @@ export const FooterHud = () => {
               </PanelLabel>
             </ContentPanel>
           </section>
-          <section className="fixed w-full flex justify-center bottom-28">
+          <section className="fixed w-full flex justify-center bottom-20 ">
             {isTired && (
-              <span className="text-3xl bg-opacity-60 p-3 bg-slate-700 text-red-400 font-bold">
+              <span className="text-3xl bg-opacity-60 px-3 py-1 rounded bg-slate-700 text-red-400 font-bold">
                 HUNGRY
               </span>
             )}
