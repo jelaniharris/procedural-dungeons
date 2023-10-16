@@ -43,7 +43,10 @@ export interface MapSlice {
   generateExit: () => void;
   generatePlayerPosition: (seed: number) => void;
   resetMap: () => void;
-  fillMapGaps: (mapData: (TileType | null)[][]) => (TileType | null)[][];
+  fillMapGaps: (
+    mapData: (TileType | null)[][],
+    allMapAreas: MapArea[]
+  ) => (TileType | null)[][];
 
   // Areas
   getAreasFromMap: (mapData: (TileType | null)[][]) => MapArea[];
@@ -136,7 +139,8 @@ export const createMapSlice: StateCreator<
     console.debug('[resetStage] Stage has been reset');
 
     get().generateMap(currentMapData, generatorSeeds['map']);
-    fillMapGaps(currentMapData);
+    const allMapAreas: MapArea[] = get().getAreasFromMap(currentMapData);
+    fillMapGaps(currentMapData, allMapAreas);
 
     set({
       mapData: currentMapData,
@@ -297,6 +301,23 @@ export const createMapSlice: StateCreator<
         wallType = WallType.WALL_PARTIAL;
         rotation = partialRotationData[bitwiseWalls] || 0;
         break;
+      case 3:
+      case 9:
+      case 12:
+      case 6:
+        // 0 0 1 1 = 3
+        // 1 0 0 1 = 9
+        // 1 1 0 0 = 12
+        // 0 1 1 0 = 6
+        const lRotationData = {
+          3: 90,
+          9: 0,
+          12: 270,
+          6: 180,
+        };
+        wallType = WallType.WALL_L_SHAPE;
+        rotation = lRotationData[bitwiseWalls] || 0;
+        break;
       default:
         wallType = WallType.WALL_OPEN;
         break;
@@ -359,7 +380,7 @@ export const createMapSlice: StateCreator<
     const areaCache: Set<string> = new Set<string>();
     const locationsToVisit: Point2D[] = [location];
     const toVisitCache: Set<string> = new Set<string>();
-    const adjacentWalls: Point2D[] = [];
+    const adjacentSet: Set<string> = new Set<string>();
 
     //console.log('Gettling area for location: ', location);
 
@@ -408,7 +429,7 @@ export const createMapSlice: StateCreator<
           // If the type of block is an all edge, and if it's not a internal block
           if (tilePosition != TileType.TILE_WALL_EDGE) {
             // Add to adjacent wall list
-            adjacentWalls.push(coordinate);
+            adjacentSet.add(coordinateHash);
           }
         } else {
           // add empty spot for next to visit
@@ -417,9 +438,10 @@ export const createMapSlice: StateCreator<
         }
       });
     }
+
     return {
       locations: areaLocations,
-      adjacentWalls: adjacentWalls,
+      adjacentWallsSet: adjacentSet,
       locationsSet: areaCache,
     };
   },
@@ -455,12 +477,7 @@ export const createMapSlice: StateCreator<
 
     return newAreas;
   },
-  fillMapGaps(mapData: (TileType | null)[][]) {
-    //console.log('Filling gaps');
-    const allMapAreas: MapArea[] = get().getAreasFromMap(mapData);
-
-    //console.log('Got map areas: ', allMapAreas);
-
+  fillMapGaps(mapData: (TileType | null)[][], allMapAreas: MapArea[]) {
     allMapAreas.forEach((area) => {
       if (area.locations.length <= 4) {
         area.locations.forEach((location) => {

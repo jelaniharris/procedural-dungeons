@@ -25,6 +25,7 @@ export enum WallType {
   WALL_PARTIAL,
   WALL_TWO_SIDED,
   WALL_TRI_SIDED,
+  WALL_L_SHAPE,
   WALL_ENCASED,
 }
 
@@ -164,7 +165,7 @@ export type PlayerType = {
 export type MapArea = {
   locations: Point2D[];
   locationsSet?: Set<string>;
-  adjacentWalls: Point2D[];
+  adjacentWallsSet: Set<string>;
 };
 
 export type WorldDataType = {

@@ -2,6 +2,7 @@ import { Column } from '@/components/models/Column';
 import Dirt from '@/components/models/Dirt';
 import Floor from '@/components/models/Floor';
 import FloorDetail from '@/components/models/Floor-detail';
+import { LShapeWall } from '@/components/models/LShape-Wall';
 import Stairs from '@/components/models/Stairs';
 import { ThreeSidedWall } from '@/components/models/Three-Sided-Wall';
 import Wall from '@/components/models/Wall';
@@ -114,6 +115,15 @@ export const ShowEnvironment = () => {
               tile = [
                 <ThreeSidedWall
                   key={`tsw-${x}-${y}`}
+                  rotation={[0, rotation, 0]}
+                  position={[tileXPos, 0, tileYPos]}
+                />,
+              ];
+              break;
+            case WallType.WALL_L_SHAPE:
+              tile = [
+                <LShapeWall
+                  key={`lsw-${x}-${y}`}
                   rotation={[0, rotation, 0]}
                   position={[tileXPos, 0, tileYPos]}
                 />,
