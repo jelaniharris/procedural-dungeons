@@ -33,9 +33,9 @@ const Joystick = () => {
   const getJoystickDeactivation = useCallback(() => {
     let movementValid = false;
 
-    if (gameStatus != GameStatus.GAME_STARTED) {
+    /*if (gameStatus != GameStatus.GAME_STARTED) {
       return;
-    }
+    }*/
 
     if (lastData.current.distance > 5) {
       switch (lastData.current.angle) {
@@ -76,7 +76,7 @@ const Joystick = () => {
       const manager = nipplejs.create({
         size: 140,
         zone: thisElement.current,
-        maxNumberOfNipples: 2,
+        maxNumberOfNipples: 1,
         restOpacity: 0.4,
         mode: 'static',
         threshold: 0.3,

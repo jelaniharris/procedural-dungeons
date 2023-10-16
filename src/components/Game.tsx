@@ -86,8 +86,8 @@ export default function Game({ children }: GameProps) {
         >
           {children}
         </Canvas>
-        <Loading />
         <ClientJoystick />
+        <Loading />
         <div className="relative">
           <FooterHud />
         </div>

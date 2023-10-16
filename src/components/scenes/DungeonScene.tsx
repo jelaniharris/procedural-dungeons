@@ -1,21 +1,16 @@
 'use client';
 
-import { Suspense, useCallback, useState } from 'react';
-import { Stats, Environment } from '@react-three/drei';
-import React from 'react';
-import { ShowEnvironment } from '../../app/ShowEnvironment';
-import { GameState, playAudio, useStore } from '@/stores/useStore';
-import { ShowItems } from '@/app/ShowItems';
-import { AmbientSound } from '../AmbientSound';
-import {
-  Enemy,
-  GameStatus,
-  ItemType,
-  LocationActionType,
-} from '../types/GameTypes';
+import { ShowDangerIndicators } from '@/app/ShowDangerIndicators';
 import { ShowEnemies } from '@/app/ShowEnemies';
 import { ShowEnemyIntention } from '@/app/ShowEnemyIntentions';
-import useGame from '../useGame';
+import { ShowHazards } from '@/app/ShowHazards';
+import { ShowItems } from '@/app/ShowItems';
+import { GameState, playAudio, useStore } from '@/stores/useStore';
+import { Environment, Stats } from '@react-three/drei';
+import { EffectComposer, Vignette } from '@react-three/postprocessing';
+import React, { Suspense, useCallback, useState } from 'react';
+import { ShowEnvironment } from '../../app/ShowEnvironment';
+import { AmbientSound } from '../AmbientSound';
 import Player from '../entities/Player';
 import {
   EXIT_GREED,
@@ -28,9 +23,13 @@ import {
   PLAYER_TOUCHED_ENEMY,
   PlayerDamagedTrapEvent,
 } from '../types/EventTypes';
-import { ShowDangerIndicators } from '@/app/ShowDangerIndicators';
-import { ShowHazards } from '@/app/ShowHazards';
-import { EffectComposer, Vignette } from '@react-three/postprocessing';
+import {
+  Enemy,
+  GameStatus,
+  ItemType,
+  LocationActionType,
+} from '../types/GameTypes';
+import useGame from '../useGame';
 
 function Effects() {
   const isTired = useStore((state: GameState) => state.isTired);
