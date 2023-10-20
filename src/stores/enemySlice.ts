@@ -180,7 +180,13 @@ export const createEnemySlice: StateCreator<
             }*/
 
             newPositions.push(newLocation);
-            newDangerSpots.push(newLocation);
+            // If this position covers the exit, then add it as a danger spot
+            if (
+              get().getTilePosition(newLocation.x, newLocation.y) ==
+              TileType.TILE_EXIT
+            ) {
+              newDangerSpots.push(newLocation);
+            }
             //enemy.movementPoints.push(newLocation);
             lastPosition = newLocation;
           }
