@@ -2,7 +2,10 @@ import { GameState, useStore } from '@/stores/useStore';
 import classnames from 'classnames';
 import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import Button from '../input/Button';
+import { CHANGE_SCENE } from '../types/EventTypes';
 import { RunData } from '../types/RecordTypes';
+import useGame from '../useGame';
 import CenterScreenContainer from './CenterScreen';
 
 export const EndScreen = () => {
@@ -13,9 +16,15 @@ export const EndScreen = () => {
   const getLocalAttempts = useStore(
     (store: GameState) => store.getLocalAttempts
   );
+  const { setCurrentHud, publish } = useGame();
 
   const restartGame = () => {
     startGame(gameType);
+  };
+
+  const backToMainMenu = () => {
+    setCurrentHud('mainmenu');
+    publish(CHANGE_SCENE, { nextScene: 'menu' });
   };
 
   const GameHistoryList = () => {
@@ -86,13 +95,19 @@ export const EndScreen = () => {
         <GameHistoryList />
       </div>
       <div className="flex-auto"></div>
-      <div className="pb-3">
+      <div className="pb-3 flex items-center gap-3">
         <button
           onClick={restartGame}
           className="bottom-4 bg-purple-700 p-4 font-bold text-white"
         >
           Go Again
         </button>
+        <Button
+          onClick={backToMainMenu}
+          className="bg-red-700 hover:bg-red-600"
+        >
+          Back to Menu
+        </Button>
       </div>
     </CenterScreenContainer>
   );

@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import wait from '@/utils/wait';
 import React, { useMemo, useRef, useState } from 'react';
+import { CHANGE_SCENE, ChangeSceneEvent } from '../types/EventTypes';
+import useGame from '../useGame';
 
 interface SceneManagerProps {
   defaultScene: string;
@@ -24,6 +26,7 @@ export default function SceneManager({
 }: SceneManagerProps) {
   const [currentScene, setScene] = useState(defaultScene);
   const sceneStore = useRef(new Map<string, any>());
+  const { subscribe, unsubscribeAllHandlers } = useGame();
 
   const sceneManagerApi = useMemo<SceneManagerContextValue>(
     () => ({
@@ -57,6 +60,17 @@ export default function SceneManager({
     }),
     [currentScene]
   );
+
+  React.useEffect(() => {
+    subscribe<ChangeSceneEvent>(CHANGE_SCENE, ({ nextScene }) => {
+      sceneManagerApi.setScene(nextScene);
+      //setShowExitDialog(false);
+      //advanceStage();
+    });
+    return () => {
+      unsubscribeAllHandlers(CHANGE_SCENE);
+    };
+  }, [sceneManagerApi, subscribe, unsubscribeAllHandlers]);
 
   return (
     <SceneManagerContext.Provider value={sceneManagerApi}>

@@ -12,6 +12,13 @@ export const EXIT_NEED = 'exit-need';
 
 export const ON_TICK = 'on-tick';
 
+export const CHANGE_SCENE = 'change-scene';
+
+export type ChangeSceneEvent = ConsumerEvent<
+  'change-scene',
+  { nextScene: string }
+>;
+
 export type PlayerMovedEvent = ConsumerEvent<
   'player-moved',
   { moved: boolean }

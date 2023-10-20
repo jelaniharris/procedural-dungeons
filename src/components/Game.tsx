@@ -13,6 +13,7 @@ import {
 import { GameObjectRef } from './entities/GameObject';
 import { FooterHud } from './hud/FooterHud';
 import { Loading } from './hud/Loading';
+import MainMenu from './hud/MainMenu';
 import { Controls } from './types/GameTypes';
 
 interface GameProps {
@@ -22,12 +23,15 @@ interface GameProps {
 export interface GameContextValue extends GameObjectRegistryUtils, PubSub {
   paused: boolean;
   setPaused: Dispatch<SetStateAction<boolean>>;
+  currentHud: string;
+  setCurrentHud: Dispatch<SetStateAction<string>>;
 }
 
 export const GameContext = React.createContext<GameContextValue | null>(null);
 
 export default function Game({ children }: GameProps) {
   const [paused, setPaused] = useState(false);
+  const [currentHud, setCurrentHud] = useState('mainmenu');
   const [pubSub] = useState(() => createPubSub());
 
   const [registryById] = useState<GameObjectRegistry<GameObjectRef>>(
@@ -69,6 +73,8 @@ export default function Game({ children }: GameProps) {
   const contextValue: GameContextValue = {
     paused,
     setPaused,
+    currentHud,
+    setCurrentHud,
     ...pubSub,
     ...registryUtils,
   };
@@ -86,11 +92,20 @@ export default function Game({ children }: GameProps) {
         >
           {children}
         </Canvas>
-        <ClientJoystick />
         <Loading />
-        <div className="relative">
-          <FooterHud />
-        </div>
+        {currentHud && currentHud === 'mainmenu' && (
+          <div className="relative">
+            <MainMenu />
+          </div>
+        )}
+        {currentHud && currentHud === 'game' && (
+          <>
+            <ClientJoystick />
+            <div className="relative">
+              <FooterHud />
+            </div>
+          </>
+        )}
       </GameContext.Provider>
     </KeyboardControls>
   );
