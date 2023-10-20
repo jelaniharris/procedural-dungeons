@@ -1,5 +1,5 @@
 import { GameState, useStore } from '@/stores/useStore';
-import classNames from 'classnames';
+import { cn } from '@/utils/classnames';
 import {
   FaCoins as CoinIcon,
   FaBolt as EnergyIcon,
@@ -46,7 +46,7 @@ export const FooterHud = () => {
   }) => {
     return (
       <section
-        className={classNames(
+        className={cn(
           ' bg-slate-700 bg-opacity-60 p-2 rounded-md text-2xl font-bold text-white',
           className
         )}

@@ -1,5 +1,5 @@
 import { GameState, useStore } from '@/stores/useStore';
-import classnames from 'classnames';
+import { cn } from '@/utils/classnames';
 import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import Button from '../input/Button';
@@ -37,7 +37,7 @@ export const EndScreen = () => {
       return (
         <tr className="">
           <td
-            className={classnames(
+            className={cn(
               'text-center',
               attempt.success ? '' : 'text-stone-300 line-through'
             )}
@@ -82,7 +82,7 @@ export const EndScreen = () => {
   return (
     <CenterScreenContainer>
       {isDead && (
-        <h1 className="text-8xl font-bold text-red-500">TOO GREEDY</h1>
+        <h1 className="text-8xl font-bold text-red-500">GOT GREEDY</h1>
       )}
       {!isDead && (
         <h1 className="text-8xl font-bold text-green-500">ESCAPED</h1>
@@ -95,17 +95,9 @@ export const EndScreen = () => {
         <GameHistoryList />
       </div>
       <div className="flex-auto"></div>
-      <div className="pb-3 flex items-center gap-3">
-        <button
-          onClick={restartGame}
-          className="bottom-4 bg-purple-700 p-4 font-bold text-white"
-        >
-          Go Again
-        </button>
-        <Button
-          onClick={backToMainMenu}
-          className="bg-red-700 hover:bg-red-600"
-        >
+      <div className="pb-3 flex items-center gap-5">
+        <Button onClick={restartGame}>Go Again</Button>
+        <Button onClick={backToMainMenu} variant="danger">
           Back to Menu
         </Button>
       </div>
