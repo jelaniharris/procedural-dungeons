@@ -1,77 +1,74 @@
-import Image from 'next/image';
-import { useState } from 'react';
-import Button from '../input/Button';
+import { getPlayerLocalData } from '@/utils/playerUtils';
+import React, {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { CHANGE_SCENE } from '../types/EventTypes';
+import { PlayerLocalData } from '../types/GameTypes';
 import useGame from '../useGame';
+import MainScreen from './Menu/MainScreen';
+import NameChangeScreen from './Menu/NameChangeScreen';
+import PlayScreen from './Menu/PlayScreen';
+
+export interface MainMenuContextValue {
+  currentScreen: string[];
+  pushToScreen: (name: string) => void;
+  popScreen: () => void;
+  playGame: () => void;
+  playerData: PlayerLocalData | null;
+  setPlayerData: Dispatch<SetStateAction<PlayerLocalData | null>>;
+}
+
+export const MainMenuContext = React.createContext<MainMenuContextValue | null>(
+  null
+);
 
 const MainMenu = () => {
-  const [currentScreen, setCurrentScreen] = useState('main');
+  const [currentScreen, setCurrentScreen] = useState<string[]>(['main']);
+  const [playerData, setPlayerData] = useState<PlayerLocalData | null>(null);
   const { setCurrentHud, publish } = useGame();
 
-  const playGame = () => {
-    setCurrentHud('game');
-    publish(CHANGE_SCENE, { nextScene: 'dungeon' });
-  };
+  const mainMenuApi = useMemo<MainMenuContextValue>(
+    () => ({
+      currentScreen,
+      playerData,
+      setPlayerData,
+      pushToScreen(name: string) {
+        setCurrentScreen([name, ...currentScreen]);
+      },
+      popScreen() {
+        if (currentScreen.length != 1) {
+          setCurrentScreen(currentScreen.slice(1));
+        }
+      },
+      playGame() {
+        if (playerData && playerData.name.length > 0) {
+          setCurrentHud('game');
+          publish(CHANGE_SCENE, { nextScene: 'dungeon' });
+        } else {
+          mainMenuApi.pushToScreen('name');
+        }
+      },
+    }),
+    [currentScreen, playerData, publish, setCurrentHud]
+  );
 
-  const PlayScreen = () => {
-    return (
-      <>
-        <ScreenHeader />
-        <div className="grid grid-cols-2 gap-4 items-center m-auto">
-          <div className="text-right">
-            <Button onClick={playGame} className="">
-              Daily Crawl
-            </Button>
-          </div>
-          <div className="font-bold text-white bg-slate-600 p-3 text-left ">
-            Tower changes everyday.
-          </div>
-          <Button disabled className="">
-            Adventure
-          </Button>
-          <div className="font-bold text-white bg-slate-600 p-3  text-left ">
-            A new adventure everytime!
-          </div>
-        </div>
-        <div className="flex-auto"></div>
-        <Button onClick={() => setCurrentScreen('main')}>{'< Back'}</Button>
-      </>
-    );
-  };
-
-  const ScreenHeader = () => {
-    return (
-      <div className="relative flex flex-col">
-        <Image
-          src="/textures/Tower Of Greed Logo.png"
-          width={500}
-          height={500}
-          priority
-          alt="Tower of Greed Logo"
-        />
-      </div>
-    );
-  };
-
-  const MainScreen = () => {
-    return (
-      <>
-        <ScreenHeader />
-        <Button onClick={() => setCurrentScreen('play')}>Play Game</Button>
-        <Button>Tutorial</Button>
-        <Button>Scores</Button>
-        <Button>Settings</Button>
-        <div className="flex-auto"></div>
-      </>
-    );
-  };
+  useEffect(() => {
+    const player = getPlayerLocalData();
+    setPlayerData(player);
+  }, []);
 
   const ShowScreen = () => {
-    switch (currentScreen) {
+    switch (currentScreen[0]) {
       case 'main':
         return <MainScreen />;
       case 'play':
         return <PlayScreen />;
+      case 'name':
+        return <NameChangeScreen />;
       default:
         return <></>;
     }
@@ -81,7 +78,9 @@ const MainMenu = () => {
     <>
       <section className="fixed top-0 z-10 w-full h-full items-stretch">
         <section className="flex flex-col items-center justify-center p-5 h-full gap-5 bg-slate-700 bg-opacity-60">
-          <ShowScreen />
+          <MainMenuContext.Provider value={mainMenuApi}>
+            <ShowScreen />
+          </MainMenuContext.Provider>
         </section>
       </section>
     </>

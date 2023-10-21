@@ -182,3 +182,8 @@ export enum Controls {
   jump = 'jump',
   stall = 'stall',
 }
+
+export type PlayerLocalData = {
+  name: string;
+  discriminator: number;
+};
