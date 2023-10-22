@@ -122,8 +122,12 @@ const DungeonScene = () => {
                 playAudio('coin.wav');
                 addScore(25);
                 break;
-              case ItemType.ITEM_POTION:
+              case ItemType.ITEM_CROWN:
                 playAudio('coin.wav');
+                addScore(150);
+                break;
+              case ItemType.ITEM_POTION:
+                playAudio('bottle.wav', 0.5);
                 adjustHealth(1);
                 break;
               case ItemType.ITEM_CHEST:

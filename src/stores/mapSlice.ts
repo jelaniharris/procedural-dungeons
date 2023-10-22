@@ -577,9 +577,10 @@ export const createMapSlice: StateCreator<
     const lootGen = new LootChance<ItemType>();
 
     lootGen.add(ItemType.ITEM_COIN, 70);
-    lootGen.add(ItemType.ITEM_POTION, 45, 2);
-    lootGen.add(ItemType.ITEM_CHALICE, 25, 10);
     lootGen.add(ItemType.ITEM_CHICKEN, 25);
+    lootGen.add(ItemType.ITEM_CHALICE, 25, 10);
+    lootGen.add(ItemType.ITEM_CROWN, 15, 1);
+    lootGen.add(ItemType.ITEM_POTION, 10, 2);
 
     while (emptySpots.length != 0 && numberItems > 0) {
       const point = emptySpots.shift();
@@ -613,6 +614,15 @@ export const createMapSlice: StateCreator<
             ...newItem,
             rotates: true,
             name: 'chalice',
+            modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(15) },
+          };
+          break;
+        case ItemType.ITEM_CROWN:
+          newItem = {
+            ...newItem,
+            rotates: true,
+            name: 'crown',
+            modelPositionOffset: { x: 0, y: 0.3, z: 0 },
             modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(15) },
           };
           break;

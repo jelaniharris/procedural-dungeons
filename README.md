@@ -6,7 +6,8 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 [https://opengameart.org/content/foot-walking-step-sounds-on-stone-water-snow-wood-and-dirt](Footstep sounds by Jute)
 [https://opengameart.org/content/loopable-dungeon-ambience](Ambient Dungeon Sound by JaggedStone)
 [https://opengameart.org/content/80-cc0-creature-sfx](Hurt and Eating Sounds by RubberDuck)
-[https://quaternius.com/](Chicken Leg by Quaternius)
+[https://quaternius.com/](Chicken Leg, Chalice, Crown by Quaternius)
+[https://opengameart.org/content/rpg-sound-pack](Bottle sound by artisticdude)
 
 ## Getting Started
 
