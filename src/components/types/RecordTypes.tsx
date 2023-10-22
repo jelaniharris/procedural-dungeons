@@ -5,4 +5,5 @@ export type RunData = {
   success: boolean;
   type: string;
   id?: string;
+  seed: number;
 };

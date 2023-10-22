@@ -1,16 +1,17 @@
-import { StateCreator } from 'zustand';
-import { MapSlice } from './mapSlice';
-import { EnemySlice } from './enemySlice';
 import {
   Enemy,
   GameStatus,
   LocationActionType,
 } from '@/components/types/GameTypes';
-import { Point2D } from '@/utils/Point2D';
-import { HazardSlice } from './hazardSlice';
 import { RunData } from '@/components/types/RecordTypes';
-import { PlayerSlice } from './playerSlice';
+import { Point2D } from '@/utils/Point2D';
 import { v4 as uuidv4 } from 'uuid';
+import { StateCreator } from 'zustand';
+import { EnemySlice } from './enemySlice';
+import { GeneratorSlice } from './generatorSlice';
+import { HazardSlice } from './hazardSlice';
+import { MapSlice } from './mapSlice';
+import { PlayerSlice } from './playerSlice';
 
 export type PerformTurnProps = {
   enemyLocationResultCallback?: (
@@ -40,7 +41,12 @@ export interface StageSlice {
 }
 
 export const createStageSlice: StateCreator<
-  StageSlice & MapSlice & EnemySlice & HazardSlice & PlayerSlice,
+  StageSlice &
+    MapSlice &
+    EnemySlice &
+    HazardSlice &
+    PlayerSlice &
+    GeneratorSlice,
   [],
   [],
   StageSlice
@@ -118,6 +124,7 @@ export const createStageSlice: StateCreator<
       date: new Date().toLocaleDateString(),
       success: !isDead,
       type: get().gameType,
+      seed: get().seed,
     };
     return runData;
   },
@@ -125,6 +132,7 @@ export const createStageSlice: StateCreator<
     const attempt = get().getAttemptData();
     const gameType = get().gameType;
     const storageName = `${gameType}Attempts`;
+    const seed = get().seed;
 
     let lastRun: RunData[];
     const lastRunString = localStorage.getItem(storageName);
@@ -136,6 +144,8 @@ export const createStageSlice: StateCreator<
 
     // Add latest attempt to the front
     lastRun.unshift({ ...attempt, id: uuidv4() });
+
+    lastRun = lastRun.filter((run) => run.seed === seed);
 
     // Save in local storage
     localStorage.setItem(storageName, JSON.stringify(lastRun));
