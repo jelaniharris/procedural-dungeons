@@ -566,7 +566,7 @@ export const createMapSlice: StateCreator<
     const randomGen = get().generateGenerator(seed);
     const psuedoShuffle = get().shuffleArray;
 
-    let numberItems = 12 + currentLevel * 3;
+    let numberItems = 12 + currentLevel * 4;
     let emptySpots = get().getEmptyTiles();
     emptySpots = psuedoShuffle(emptySpots, randomGen);
 
@@ -576,9 +576,9 @@ export const createMapSlice: StateCreator<
     // Create a new LootChance generator
     const lootGen = new LootChance<ItemType>();
 
-    lootGen.add(ItemType.ITEM_COIN, 70);
+    lootGen.add(ItemType.ITEM_COIN, 65);
     lootGen.add(ItemType.ITEM_CHICKEN, 25);
-    lootGen.add(ItemType.ITEM_CHALICE, 25, 10);
+    lootGen.add(ItemType.ITEM_CHALICE, 20, 10);
     lootGen.add(ItemType.ITEM_CROWN, 15, 1);
     lootGen.add(ItemType.ITEM_POTION, 10, 2);
 
