@@ -64,8 +64,8 @@ export const createEnemySlice: StateCreator<
 
     // Create a new LootChance generator
     const enemyTypeGenerator = new LootChance<EnemyType>();
-    enemyTypeGenerator.add(EnemyType.ENEMY_ORC, 50);
-    enemyTypeGenerator.add(EnemyType.ENEMY_SKELETON, 50);
+    enemyTypeGenerator.add(EnemyType.ENEMY_ORC, 75);
+    enemyTypeGenerator.add(EnemyType.ENEMY_SKELETON, 25);
 
     while (emptySpots.length != 0 && numberEnemies > 0) {
       const point = emptySpots.shift();
