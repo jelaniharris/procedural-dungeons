@@ -12,6 +12,7 @@ import useGame from '../useGame';
 import MainScreen from './Menu/MainScreen';
 import NameChangeScreen from './Menu/NameChangeScreen';
 import PlayScreen from './Menu/PlayScreen';
+import ScoresScreen from './Menu/ScoresScreen';
 
 export interface MainMenuContextValue {
   currentScreen: string[];
@@ -67,6 +68,8 @@ const MainMenu = () => {
         return <MainScreen />;
       case 'play':
         return <PlayScreen />;
+      case 'scores':
+        return <ScoresScreen />;
       case 'name':
         return <NameChangeScreen />;
       default:
