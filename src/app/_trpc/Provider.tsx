@@ -10,7 +10,7 @@ export default function Provider({ children }: { children: React.ReactNode }) {
 
   let apiUrl = process.env.NEXT_PUBLIC_API_URL;
   if ((!apiUrl || apiUrl.length === 0) && typeof window !== 'undefined') {
-    apiUrl = window.location.origin;
+    apiUrl = `${window.location.origin}/api`;
   }
 
   const [trpcClient] = useState(() =>
