@@ -1,3 +1,4 @@
+import { trpc } from '@/app/_trpc/client';
 import Button from '@/components/input/Button';
 import { getPlayerLocalData, savePlayerLocalData } from '@/utils/playerUtils';
 import { FormEvent, useState } from 'react';
@@ -11,6 +12,7 @@ type NameFormData = {
 
 const NameChangeScreen = () => {
   const { playerData, setPlayerData, popScreen } = useMainMenuContext();
+  const addUser = trpc.addUser.useMutation();
   const [data, setData] = useState<NameFormData>({
     name: playerData ? playerData.name : '',
     discriminator: Math.floor(Math.random() * 999),
@@ -25,6 +27,7 @@ const NameChangeScreen = () => {
     });
     const player = getPlayerLocalData();
     setPlayerData(player);
+    addUser.mutate({ name: data.name, discriminator: data.discriminator });
   };
 
   const changeData = (dataName: string, value: string) => {

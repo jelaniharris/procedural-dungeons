@@ -1,19 +1,27 @@
 /** @type {import('next').NextConfig} */
-const path = require('path')
+const path = require('path');
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
-})
+});
 
 const nextConfig = {
   transpilePackages: ['three'],
   sassOptions: {
     includePaths: [path.join(__dirname, 'src/styles')],
   },
-  webpack(config, { isServer }) {
+  webpack(config, { webpack, isServer, nextRuntime }) {
     if (!isServer) {
       // We're in the browser build, so we can safely exclude the sharp module
-      config.externals.push('sharp')
+      config.externals.push('sharp');
     }
+
+    // Avoid AWS SDK Node.js require issue
+    // https://github.com/aws-amplify/amplify-js/issues/11030#issuecomment-1598207365
+    if (isServer && nextRuntime === 'nodejs')
+      config.plugins.push(
+        new webpack.IgnorePlugin({ resourceRegExp: /^aws-crt$/ })
+      );
+
     // audio support
     config.module.rules.push({
       test: /\.(ogg|mp3|wav|mpe?g)$/i,
@@ -31,18 +39,18 @@ const nextConfig = {
           },
         },
       ],
-    })
+    });
 
     // shader support
     config.module.rules.push({
       test: /\.(glsl|vs|fs|vert|frag)$/,
       exclude: /node_modules/,
       use: ['raw-loader', 'glslify-loader'],
-    })
+    });
 
-    return config
+    return config;
   },
-}
+};
 
 const KEYS_TO_OMIT = [
   'webpackDevMiddleware',
@@ -52,10 +60,10 @@ const KEYS_TO_OMIT = [
   'webpack5',
   'amp',
   'assetPrefix',
-]
+];
 
 module.exports = (_phase, { defaultConfig }) => {
-  const plugins = [[withBundleAnalyzer, {}]]
+  const plugins = [[withBundleAnalyzer, {}]];
 
   const wConfig = plugins.reduce(
     (acc, [plugin, config]) => plugin({ ...acc, ...config }),
@@ -63,14 +71,14 @@ module.exports = (_phase, { defaultConfig }) => {
       ...defaultConfig,
       ...nextConfig,
     }
-  )
+  );
 
-  const finalConfig = {}
+  const finalConfig = {};
   Object.keys(wConfig).forEach((key) => {
     if (!KEYS_TO_OMIT.includes(key)) {
-      finalConfig[key] = wConfig[key]
+      finalConfig[key] = wConfig[key];
     }
-  })
+  });
 
-  return finalConfig
-}
+  return finalConfig;
+};
