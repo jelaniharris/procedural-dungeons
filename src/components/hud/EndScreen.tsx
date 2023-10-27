@@ -1,6 +1,8 @@
+import { trpc } from '@/app/_trpc/client';
 import { GameState, useStore } from '@/stores/useStore';
 import { cn } from '@/utils/classnames';
-import { useEffect, useState } from 'react';
+import { getPlayerLocalData } from '@/utils/playerUtils';
+import { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import Button from '../input/Button';
 import { CHANGE_SCENE } from '../types/EventTypes';
@@ -13,10 +15,39 @@ export const EndScreen = () => {
   const startGame = useStore((store: GameState) => store.startGame);
   const isDead = useStore((store: GameState) => store.isDead);
   const gameType = useStore((store: GameState) => store.gameType);
+  const seed = useStore((store: GameState) => store.seed);
   const getLocalAttempts = useStore(
     (store: GameState) => store.getLocalAttempts
   );
   const { setCurrentHud, publish } = useGame();
+  const saveScore = trpc.saveScore.useMutation();
+  const scoreSaved = useRef(false);
+
+  useEffect(() => {
+    const sendPlayerScore = async () => {
+      const player = getPlayerLocalData();
+      if (player) {
+        console.log('Got player, saving score');
+        saveScore.mutate({
+          name: player.name,
+          discriminator: player.discriminator,
+          score: score,
+          gameType: gameType,
+          seed: seed,
+        });
+        scoreSaved.current = true;
+      }
+    };
+    if (!isDead) {
+      return;
+    }
+
+    if (!scoreSaved.current) {
+      sendPlayerScore();
+    } else {
+      console.log('Score already saved.');
+    }
+  }, [gameType, isDead, score, seed]);
 
   const restartGame = () => {
     startGame(gameType);

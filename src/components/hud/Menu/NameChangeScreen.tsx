@@ -12,7 +12,9 @@ type NameFormData = {
 
 const NameChangeScreen = () => {
   const { playerData, setPlayerData, popScreen } = useMainMenuContext();
-  const addUser = trpc.addUser.useMutation();
+  const addUser = trpc.addUser.useMutation({
+    onSettled: () => {},
+  });
   const [data, setData] = useState<NameFormData>({
     name: playerData ? playerData.name : '',
     discriminator: Math.floor(Math.random() * 999),
