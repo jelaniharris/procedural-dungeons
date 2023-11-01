@@ -1,11 +1,15 @@
 import { trpc } from '@/app/_trpc/client';
 import Button from '@/components/input/Button';
+import { getDailyUniqueSeed } from '@/utils/seed';
 import useMainMenuContext from '../useMainMenuContext';
 import ScreenHeader from './ScreenHeader';
 
 const ScoresScreen = () => {
   const { popScreen } = useMainMenuContext();
-  const getScores = trpc.getScores.useQuery();
+  const getScores = trpc.getScores.useQuery({
+    gameType: 'daily',
+    seed: getDailyUniqueSeed(),
+  });
 
   const ScoreListing = () => {
     if (!getScores || !getScores.data) {

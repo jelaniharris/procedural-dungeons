@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ScoreModel, saveScore } from './models/score';
+import { ScoreModel, getScores, saveScore } from './models/score';
 import { UserModel, createUser } from './models/user';
 import { publicProcedure, router } from './trpc';
 
@@ -82,8 +82,15 @@ export const appRouter = router({
     }
     return {};
   }),*/
-  getScores: publicProcedure.query(async () => {
-    /*const command = new QueryCommand({
+  getScores: publicProcedure
+    .input(
+      z.object({
+        gameType: z.string(),
+        seed: z.number().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      /*const command = new QueryCommand({
       TableName: process.env.DYNAMO_DATA_TABLE_NAME,
       IndexName: 'GSI1',
       KeyConditionExpression: 'GSI1PK = :gsi1pk',
@@ -97,9 +104,10 @@ export const appRouter = router({
         userId: userId,
       },
     });*/
+      const scores = await getScores(input.gameType, input.seed);
 
-    return [10, 20, 30];
-  }),
+      return JSON.stringify(scores);
+    }),
 });
 
 export type AppRouter = typeof appRouter;

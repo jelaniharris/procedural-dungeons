@@ -1,5 +1,5 @@
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
-import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import { QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { docClient } from '../dbconfig';
 import { generateGameHash, generateUserHash } from '../utils';
 import { DynamoItem } from './dynamoItem';
@@ -118,5 +118,30 @@ export const saveScore = async (
       console.log(error);
       throw error;
     }
+  }
+};
+
+export const getScores = async (gameType: string, seed?: number) => {
+  const gameHash = generateGameHash(gameType, seed);
+
+  try {
+    const command = new QueryCommand({
+      TableName: process.env.DYNAMO_DATA_TABLE_NAME,
+      IndexName: 'GSI1PK-GSI1SK-index',
+      Select: 'ALL_ATTRIBUTES',
+      Limit: 50,
+      KeyConditionExpression: 'GSI1PK = :gsipk',
+      ExpressionAttributeValues: {
+        ':gsipk': `GAME#${gameHash}`,
+      },
+      ScanIndexForward: false,
+    });
+    console.log(`PK: GAME#${gameHash}`);
+    const response = await docClient.send(command);
+    console.log(response);
+    return response.Items;
+  } catch (error) {
+    console.log(error);
+    throw error;
   }
 };

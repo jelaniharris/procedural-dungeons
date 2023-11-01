@@ -1,3 +1,4 @@
+import { getDailyUniqueSeed } from '@/utils/seed';
 import { createWithEqualityFn } from 'zustand/traditional';
 import { EnemySlice, createEnemySlice } from './enemySlice';
 import { GeneratorSlice, createGeneratorSlice } from './generatorSlice';
@@ -41,11 +42,7 @@ export const useStore = createWithEqualityFn<GameState>(
 
       switch (gameType) {
         case 'daily':
-          const dailyUniqueDate = new Date()
-            .toISOString() //2023-10-08T20:48:34.378Z
-            .substring(0, 10)
-            .replaceAll('-', '');
-          seed = parseInt(dailyUniqueDate, 10);
+          seed = getDailyUniqueSeed();
           break;
         default:
           throw new Error(`Unknown game type: ${gameType}`);

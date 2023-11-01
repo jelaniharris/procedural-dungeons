@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  greedtower-prod:
+    Type: AWS::DynamoDB::Table
+    TableName: 'greedtower-prod'
+    BillingMode: 'PAY_PER_REQUEST'
+    Properties:
+      KeySchema:
+        - AttributeName: 'pk'
+          KeyType: 'HASH'
+        - AttributeName: 'sk'
+          KeyType: 'RANGE'
+      AttributeDefinitions:
+        - AttributeName: 'EventType'
+          AttributeType: 'S'
+        - AttributeName: 'Name'
+          AttributeType: 'S'
+        - AttributeName: 'Discriminator'
+          AttributeType: 'N'
+        - AttributeName: 'GameType'
+          AttributeType: 'S'
+        - AttributeName: 'Seed'
+          AttributeType: 'S'
+        - AttributeName: 'Attempts'
+          AttributeType: 'N'
+        - AttributeName: 'Score'
+          AttributeType: 'N'
+        - AttributeName: 'TTL'
+          AttributeType: 'N'
+        - AttributeName: 'Seed'
+          AttributeType: 'S'
+        - AttributeName: 'UpdatedAt'
+          AttributeType: 'S'
+    GlobalSecondaryIndexes:
+      - IndexName: 'myGSI'
+        Projection:
+          ProjectionType: 'ALL'
+        KeySchema:
+          -
