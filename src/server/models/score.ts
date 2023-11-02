@@ -98,13 +98,14 @@ export const saveScore = async (
       Key: score.keys(),
       ConditionExpression: 'attribute_not_exists(Score) OR :score > Score',
       UpdateExpression:
-        'SET #et = :entity_type, #s = :score, GSI1PK = :gamehash, GameType = :GameType, Seed = :seed, GSI1SK = :score_string, #uat = :updated_at, #name = :name, Discriminator = :Discriminatorm, Level = :level ADD #att :amount',
+        'SET #et = :entity_type, #s = :score, GSI1PK = :gamehash, GameType = :GameType, Seed = :seed, GSI1SK = :score_string, #uat = :updated_at, #name = :name, Discriminator = :Discriminator, #level = :Level ADD #att :amount',
       ExpressionAttributeNames: {
         '#s': 'Score',
         '#et': 'EntityType',
         '#uat': 'UpdatedAt',
         '#att': 'Attempts',
         '#name': 'Name',
+        '#level': 'Level',
       },
       ExpressionAttributeValues: {
         ':entity_type': 'GameScore',

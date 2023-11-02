@@ -1,10 +1,12 @@
 import { trpc } from '@/app/_trpc/client';
 import Button from '@/components/input/Button';
 import { getDailyUniqueSeed } from '@/utils/seed';
+import { useState } from 'react';
+import { ScoreList } from '../ScoreList';
 import useMainMenuContext from '../useMainMenuContext';
-import ScreenHeader from './ScreenHeader';
 
 const ScoresScreen = () => {
+  const [tab, setTab] = useState('local');
   const { popScreen } = useMainMenuContext();
   const getScores = trpc.getScores.useQuery({
     gameType: 'daily',
@@ -20,10 +22,35 @@ const ScoresScreen = () => {
 
   return (
     <>
-      <ScreenHeader />
-      <div className="flex-auto"></div>
-      <h2>Daily Scores</h2>
-      <ScoreListing />
+      <h1 className="text-white text-2xl">Scores</h1>
+
+      <div className="flex flex-row gap-3 my-3">
+        <Button
+          onClick={() => {
+            setTab('local');
+          }}
+        >
+          Local
+        </Button>
+        <Button
+          onClick={() => {
+            setTab('online');
+          }}
+        >
+          Online
+        </Button>
+      </div>
+      {tab === 'local' && (
+        <>
+          <h2>Daily Scores</h2>
+          <ScoreListing />
+        </>
+      )}
+      {tab === 'online' && (
+        <>
+          <ScoreList gameType={'daily'} seed={getDailyUniqueSeed()} />
+        </>
+      )}
       <div className="flex-auto"></div>
       <Button variant="danger" type="submit" onClick={() => popScreen()}>
         Back
