@@ -14,6 +14,7 @@ interface SaveScoreInputType {
   gameType: string;
   seed: number;
   score: number;
+  level: number;
 }
 
 export const appRouter = router({
@@ -43,6 +44,7 @@ export const appRouter = router({
         gameType: z.string(),
         seed: z.number(),
         score: z.number(),
+        level: z.number(),
       })
     )
     .mutation(async ({ input }: { input: SaveScoreInputType }) => {
@@ -53,7 +55,8 @@ export const appRouter = router({
             input.discriminator,
             input.gameType,
             input.seed,
-            input.score
+            input.score,
+            input.level
           )
         );
         console.log(score);
@@ -90,23 +93,8 @@ export const appRouter = router({
       })
     )
     .query(async ({ input }) => {
-      /*const command = new QueryCommand({
-      TableName: process.env.DYNAMO_DATA_TABLE_NAME,
-      IndexName: 'GSI1',
-      KeyConditionExpression: 'GSI1PK = :gsi1pk',
-      ExpressionAttributeValues: {
-        ':gsi1pk': '',
-      },
-      Limit: 150,
-      //ScanIndexForward: false
-
-      Key: {
-        userId: userId,
-      },
-    });*/
-      const scores = await getScores(input.gameType, input.seed);
-
-      return JSON.stringify(scores);
+      const resultScores = await getScores(input.gameType, input.seed);
+      return resultScores;
     }),
 });
 

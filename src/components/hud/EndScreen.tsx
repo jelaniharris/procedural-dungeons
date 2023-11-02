@@ -16,6 +16,7 @@ export const EndScreen = () => {
   const isDead = useStore((store: GameState) => store.isDead);
   const gameType = useStore((store: GameState) => store.gameType);
   const seed = useStore((store: GameState) => store.seed);
+  const currentLevel = useStore((store: GameState) => store.currentLevel);
   const getLocalAttempts = useStore(
     (store: GameState) => store.getLocalAttempts
   );
@@ -34,6 +35,7 @@ export const EndScreen = () => {
           score: score,
           gameType: gameType,
           seed: seed,
+          level: currentLevel,
         });
         scoreSaved.current = true;
       }

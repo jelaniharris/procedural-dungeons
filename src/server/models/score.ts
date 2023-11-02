@@ -4,6 +4,16 @@ import { docClient } from '../dbconfig';
 import { generateGameHash, generateUserHash } from '../utils';
 import { DynamoItem } from './dynamoItem';
 
+export type GetScoresResult = {
+  score: number;
+  gameType: string;
+  seed: number;
+  discriminator: number;
+  attempts: number;
+  name: string;
+  level: number;
+};
+
 export class ScoreModel extends DynamoItem {
   name: string;
   Discriminator: number;
@@ -11,6 +21,7 @@ export class ScoreModel extends DynamoItem {
   seed: number;
   score: number;
   UpdatedAt?: string;
+  Level: number;
 
   constructor(
     name: string,
@@ -18,6 +29,7 @@ export class ScoreModel extends DynamoItem {
     GameType: string,
     seed: number,
     score: number,
+    Level: number,
     UpdatedAt?: string
   ) {
     super();
@@ -26,6 +38,7 @@ export class ScoreModel extends DynamoItem {
     this.GameType = GameType;
     this.seed = seed;
     this.score = score;
+    this.Level = Level;
     this.UpdatedAt = UpdatedAt;
   }
 
@@ -53,6 +66,7 @@ export class ScoreModel extends DynamoItem {
       item.GameType,
       item.seed,
       item.score,
+      item.Level,
       item.UpdatedAt
     );
   }
@@ -67,6 +81,7 @@ export class ScoreModel extends DynamoItem {
       GameType: this.GameType,
       seed: this.seed,
       score: this.score,
+      Level: this.Level,
     };
   }
 }
@@ -83,7 +98,7 @@ export const saveScore = async (
       Key: score.keys(),
       ConditionExpression: 'attribute_not_exists(Score) OR :score > Score',
       UpdateExpression:
-        'SET #et = :entity_type, #s = :score, GSI1PK = :gamehash, GameType = :GameType, Seed = :seed, GSI1SK = :score_string, #uat = :updated_at, #name = :name, Discriminator = :Discriminator ADD #att :amount',
+        'SET #et = :entity_type, #s = :score, GSI1PK = :gamehash, GameType = :GameType, Seed = :seed, GSI1SK = :score_string, #uat = :updated_at, #name = :name, Discriminator = :Discriminatorm, Level = :level ADD #att :amount',
       ExpressionAttributeNames: {
         '#s': 'Score',
         '#et': 'EntityType',
@@ -97,6 +112,7 @@ export const saveScore = async (
         ':Discriminator': score.Discriminator,
         ':gamehash': score.gsi1pk,
         ':GameType': score.GameType,
+        ':Level': score.Level,
         ':seed': score.seed,
         ':score': score.score,
         ':score_string': score.gsi1sk,
@@ -139,7 +155,22 @@ export const getScores = async (gameType: string, seed?: number) => {
     console.log(`PK: GAME#${gameHash}`);
     const response = await docClient.send(command);
     console.log(response);
-    return response.Items;
+    if (!response.Items || response.Items.length == 0) {
+      return [];
+    }
+    const items: GetScoresResult[] = [];
+    for (const item of response.Items) {
+      items.push({
+        score: item.Score,
+        gameType: item.GameType,
+        seed: item.Seed,
+        discriminator: item.Discriminator,
+        attempts: item.Attempts,
+        name: item.Name,
+        level: item.Level || 0,
+      });
+    }
+    return items;
   } catch (error) {
     console.log(error);
     throw error;
