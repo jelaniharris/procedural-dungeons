@@ -18,7 +18,7 @@ export interface MainMenuContextValue {
   currentScreen: string[];
   pushToScreen: (name: string) => void;
   popScreen: () => void;
-  playGame: () => void;
+  playGame: (gameType?: string) => void;
   playerData: PlayerLocalData | null;
   setPlayerData: Dispatch<SetStateAction<PlayerLocalData | null>>;
 }
@@ -30,7 +30,7 @@ export const MainMenuContext = React.createContext<MainMenuContextValue | null>(
 const MainMenu = () => {
   const [currentScreen, setCurrentScreen] = useState<string[]>(['main']);
   const [playerData, setPlayerData] = useState<PlayerLocalData | null>(null);
-  const { setCurrentHud, publish } = useGame();
+  const { setCurrentHud, publish, setGameMode } = useGame();
 
   const mainMenuApi = useMemo<MainMenuContextValue>(
     () => ({
@@ -45,9 +45,10 @@ const MainMenu = () => {
           setCurrentScreen(currentScreen.slice(1));
         }
       },
-      playGame() {
+      playGame(gameType = 'daily') {
         if (playerData && playerData.name.length > 0) {
           setCurrentHud('game');
+          setGameMode(gameType);
           publish(CHANGE_SCENE, { nextScene: 'dungeon' });
         } else {
           mainMenuApi.pushToScreen('name');

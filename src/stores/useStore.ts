@@ -44,6 +44,9 @@ export const useStore = createWithEqualityFn<GameState>(
         case 'daily':
           seed = getDailyUniqueSeed();
           break;
+        case 'adventure':
+          seed = Math.random() * 100000;
+          break;
         default:
           throw new Error(`Unknown game type: ${gameType}`);
       }

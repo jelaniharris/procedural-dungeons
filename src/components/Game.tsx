@@ -25,6 +25,8 @@ export interface GameContextValue extends GameObjectRegistryUtils, PubSub {
   setPaused: Dispatch<SetStateAction<boolean>>;
   currentHud: string;
   setCurrentHud: Dispatch<SetStateAction<string>>;
+  gameMode: string;
+  setGameMode: Dispatch<SetStateAction<string>>;
 }
 
 export const GameContext = React.createContext<GameContextValue | null>(null);
@@ -33,6 +35,7 @@ export default function Game({ children }: GameProps) {
   const [paused, setPaused] = useState(false);
   const [currentHud, setCurrentHud] = useState('mainmenu');
   const [pubSub] = useState(() => createPubSub());
+  const [gameMode, setGameMode] = useState('daily');
 
   const [registryById] = useState<GameObjectRegistry<GameObjectRef>>(
     () => new Map()
@@ -75,6 +78,8 @@ export default function Game({ children }: GameProps) {
     setPaused,
     currentHud,
     setCurrentHud,
+    gameMode,
+    setGameMode,
     ...pubSub,
     ...registryUtils,
   };

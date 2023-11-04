@@ -10,14 +10,14 @@ const PlayScreen = () => {
       <ScreenHeader />
       <div className="grid grid-cols-2 gap-4 items-center m-auto">
         <div className="text-right">
-          <Button onClick={playGame} className="">
+          <Button onClick={() => playGame('daily')} className="">
             Daily Crawl
           </Button>
         </div>
         <div className="font-bold text-white bg-slate-600 p-3 text-left ">
           Tower changes everyday.
         </div>
-        <Button disabled className="">
+        <Button onClick={() => playGame('adventure')} className="">
           Adventure
         </Button>
         <div className="font-bold text-white bg-slate-600 p-3  text-left ">

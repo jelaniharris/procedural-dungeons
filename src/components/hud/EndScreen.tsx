@@ -28,7 +28,9 @@ export const EndScreen = () => {
     const sendPlayerScore = async () => {
       const player = getPlayerLocalData();
       if (player) {
-        console.log('Got player, saving score');
+        console.log(
+          `Got player, saving score ${score} for game mode ${gameType}`
+        );
         saveScore.mutate({
           name: player.name,
           discriminator: player.discriminator,
@@ -40,12 +42,13 @@ export const EndScreen = () => {
         scoreSaved.current = true;
       }
     };
-    if (!isDead) {
-      return;
-    }
 
     if (!scoreSaved.current) {
+      //if (!isDead) {
       sendPlayerScore();
+      //} else {
+      //        console.log('Player is dead. Not sending score.');
+      //    }
     } else {
       console.log('Score already saved.');
     }

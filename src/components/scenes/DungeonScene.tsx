@@ -77,8 +77,13 @@ const DungeonScene = () => {
   const checkPlayerLocation = useStore(
     (state: GameState) => state.checkPlayerLocation
   );
-  const { subscribe, publish, unsubscribeAllHandlers, getAllRegistryById } =
-    useGame();
+  const {
+    subscribe,
+    publish,
+    unsubscribeAllHandlers,
+    getAllRegistryById,
+    gameMode,
+  } = useGame();
   const [mapTone, setMapTone] = useState<string>('#FFFFFF');
 
   console.log('Rendering Scene');
@@ -158,7 +163,7 @@ const DungeonScene = () => {
 
   React.useEffect(() => {
     const party = async () => {
-      startGame('daily');
+      startGame(gameMode);
 
       const randomTone = Math.floor(Math.random() * 6);
 

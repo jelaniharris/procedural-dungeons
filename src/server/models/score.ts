@@ -96,7 +96,8 @@ export const saveScore = async (
     const command = new UpdateCommand({
       TableName: process.env.DYNAMO_DATA_TABLE_NAME,
       Key: score.keys(),
-      ConditionExpression: 'attribute_not_exists(Score) OR :score > Score',
+      ConditionExpression:
+        '(attribute_not_exists(Score) OR :score > Score) AND GSI1PK = :gamehash',
       UpdateExpression:
         'SET #et = :entity_type, #s = :score, GSI1PK = :gamehash, GameType = :GameType, Seed = :seed, GSI1SK = :score_string, #uat = :updated_at, #name = :name, Discriminator = :Discriminator, #level = :Level ADD #att :amount',
       ExpressionAttributeNames: {

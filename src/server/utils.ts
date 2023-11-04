@@ -3,8 +3,10 @@ export const generateUserHash = (name: string, discriminator: number) => {
   return userHash;
 };
 export const generateGameHash = (gameType: string, seed?: number) => {
-  let gameHash = `${gameType}`;
-  if (seed) {
+  let gameHash = '';
+  if (gameType == 'adventure') {
+    gameHash = `${gameType}`;
+  } else if (seed && gameType == 'daily') {
     gameHash = `${gameType}:${seed}`;
   }
   return gameHash;

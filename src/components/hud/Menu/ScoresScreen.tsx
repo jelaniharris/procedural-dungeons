@@ -22,7 +22,7 @@ const ScoresScreen = () => {
 
   return (
     <>
-      <h1 className="text-white text-2xl">Scores</h1>
+      <h1 className="text-white text-2xl font-bold">Scores</h1>
 
       <div className="flex flex-row gap-3 my-3">
         <Button
@@ -34,21 +34,35 @@ const ScoresScreen = () => {
         </Button>
         <Button
           onClick={() => {
-            setTab('online');
+            setTab('daily');
           }}
         >
-          Online
+          Daily
+        </Button>
+        <Button
+          onClick={() => {
+            setTab('adventure');
+          }}
+        >
+          Adventure
         </Button>
       </div>
       {tab === 'local' && (
         <>
-          <h2>Daily Scores</h2>
+          <h2 className="text-xl text-white font-bold">Last Climbs</h2>
           <ScoreListing />
         </>
       )}
-      {tab === 'online' && (
+      {tab === 'daily' && (
         <>
+          <h2 className="text-xl text-white font-bold">Daily Scores</h2>
           <ScoreList gameType={'daily'} seed={getDailyUniqueSeed()} />
+        </>
+      )}
+      {tab === 'adventure' && (
+        <>
+          <h2 className="text-xl text-white font-bold">Adventure Scores</h2>
+          <ScoreList gameType={'adventure'} />
         </>
       )}
       <div className="flex-auto"></div>
