@@ -72,6 +72,7 @@ export const EndScreen = () => {
     const AttemptComponentRow = ({ attempt }: { attempt: RunData }) => {
       return (
         <tr className="">
+          <td className="text-center">{attempt.type}</td>
           <td
             className={cn(
               'text-center',
@@ -97,6 +98,7 @@ export const EndScreen = () => {
       <table className="w-full table-auto overflow-y-scroll rounded-lg bg-slate-200 bg-opacity-30 p-3 text-white">
         <thead className="rounded-lg bg-slate-400">
           <tr>
+            <th className="px-6 py-3">Game</th>
             <th className="px-6 py-3">Score</th>
             <th className="px-6 py-3">Floor</th>
             <th className="px-6 py-3">Result</th>

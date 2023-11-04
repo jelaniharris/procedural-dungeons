@@ -5,6 +5,7 @@ import {
 } from '@/components/types/GameTypes';
 import { RunData } from '@/components/types/RecordTypes';
 import { Point2D } from '@/utils/Point2D';
+import { getDailyUniqueSeed } from '@/utils/seed';
 import { v4 as uuidv4 } from 'uuid';
 import { StateCreator } from 'zustand';
 import { EnemySlice } from './enemySlice';
@@ -132,7 +133,7 @@ export const createStageSlice: StateCreator<
     const attempt = get().getAttemptData();
     const gameType = get().gameType;
     const storageName = `${gameType}Attempts`;
-    const seed = get().seed;
+    //const seed = get().seed;
 
     let lastRun: RunData[];
     const lastRunString = localStorage.getItem(storageName);
@@ -145,7 +146,16 @@ export const createStageSlice: StateCreator<
     // Add latest attempt to the front
     lastRun.unshift({ ...attempt, id: uuidv4() });
 
-    lastRun = lastRun.filter((run) => run.seed === seed);
+    lastRun = lastRun.filter((run) => {
+      // Filter out daily runs that don't take place today
+      if (run.type === 'daily' && run.seed !== getDailyUniqueSeed()) {
+        return false;
+      }
+
+      //TODO Filter out adventure runs older than 5 days
+
+      return true;
+    });
 
     // Save in local storage
     localStorage.setItem(storageName, JSON.stringify(lastRun));
