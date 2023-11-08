@@ -28,9 +28,10 @@ export interface MapSlice {
   getTilePosition: (x: number, y: number) => TileType | null;
   determineValidDirections: (
     point: Point2D,
-    excludedPoints?: Point2D[]
+    excludedPoints?: Point2D[],
+    noClip?: boolean
   ) => Direction[];
-  isBlockWallOrNull: (e: TileType | null) => boolean;
+  isBlockWallOrNull: (e: TileType | null, noClip?: boolean) => boolean;
   determineWallType: (
     x: number,
     y: number
@@ -188,10 +189,19 @@ export const createMapSlice: StateCreator<
 
     return currentMapData[x][y];
   },
-  isBlockWallOrNull: (e: TileType | null) => {
+  isBlockWallOrNull: (e: TileType | null, noClip = false) => {
+    // No clip on, then only consider wall edges as impassible
+    if (noClip) {
+      return e == null || e == TileType.TILE_WALL_EDGE;
+    }
+
     return e == null || e == TileType.TILE_WALL || e == TileType.TILE_WALL_EDGE;
   },
-  determineValidDirections: (point: Point2D, excludedPoints?: Point2D[]) => {
+  determineValidDirections: (
+    point: Point2D,
+    excludedPoints?: Point2D[],
+    noClip = false
+  ) => {
     const getTilePosition = get().getTilePosition;
     const isBlockWallOrNull = get().isBlockWallOrNull;
 
@@ -215,7 +225,7 @@ export const createMapSlice: StateCreator<
         continue;
       }
 
-      if (!isBlockWallOrNull(dirTile)) {
+      if (!isBlockWallOrNull(dirTile, noClip)) {
         validDirections.push(posOff.direction);
       }
     }

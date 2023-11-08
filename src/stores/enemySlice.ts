@@ -64,8 +64,13 @@ export const createEnemySlice: StateCreator<
 
     // Create a new LootChance generator
     const enemyTypeGenerator = new LootChance<EnemyType>();
-    enemyTypeGenerator.add(EnemyType.ENEMY_ORC, 75);
-    enemyTypeGenerator.add(EnemyType.ENEMY_SKELETON, 25);
+    enemyTypeGenerator.add(EnemyType.ENEMY_ORC, 60);
+    if (currentLevel > 2) {
+      enemyTypeGenerator.add(EnemyType.ENEMY_SKELETON, 35);
+    }
+    if (currentLevel > 3) {
+      enemyTypeGenerator.add(EnemyType.ENEMY_GHOST, 25);
+    }
 
     while (emptySpots.length != 0 && numberEnemies > 0) {
       const point = emptySpots.shift();
@@ -100,6 +105,14 @@ export const createEnemySlice: StateCreator<
         case EnemyType.ENEMY_SKELETON:
           newEnemy = { ...newEnemy, movementVariance: 1, name: 'Skeleton' };
           break;
+        case EnemyType.ENEMY_GHOST:
+          newEnemy = {
+            ...newEnemy,
+            movementRange: 1,
+            movementVariance: 2,
+            name: 'Ghost',
+          };
+          break;
         default:
           continue;
       }
@@ -125,6 +138,7 @@ export const createEnemySlice: StateCreator<
 
     for (const enemy of enemies) {
       const newPositions = [];
+      const noClip = enemy.type == EnemyType.ENEMY_GHOST;
       //enemy.movementPoints = [];
       if (enemy.status == EnemyStatus.STATUS_ROAMING) {
         const variance = randomIntFromInterval(
@@ -140,10 +154,11 @@ export const createEnemySlice: StateCreator<
         while (amountOfMoves > 0) {
           amountOfMoves--;
 
-          const availableDirections = determineValidDirections(lastPosition, [
-            enemy.position,
-            ...newPositions,
-          ]);
+          const availableDirections = determineValidDirections(
+            lastPosition,
+            [enemy.position, ...newPositions],
+            noClip
+          );
           const randomDirectionIndex = Math.floor(
             Math.random() * availableDirections.length
           );

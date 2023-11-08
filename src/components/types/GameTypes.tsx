@@ -38,6 +38,7 @@ export enum EnemyType {
   ENEMY_NONE,
   ENEMY_ORC,
   ENEMY_SKELETON,
+  ENEMY_GHOST,
 }
 
 export enum EnemyStatus {

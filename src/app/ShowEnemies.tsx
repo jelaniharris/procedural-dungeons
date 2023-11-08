@@ -1,3 +1,4 @@
+import { Ghost } from '@/components/models/characters/CharacterGhost';
 import { Orc } from '@/components/models/characters/CharacterOrc';
 import { Skeleton } from '@/components/models/characters/CharacterSkeleton';
 import { EnemyType } from '@/components/types/GameTypes';
@@ -40,6 +41,21 @@ export const ShowEnemies = () => {
         case EnemyType.ENEMY_SKELETON:
           enemyElement = (
             <Skeleton
+              key={`${enemy.name}-${enemy.id}`}
+              position={new Vector3(enemy.position.x, 0, enemy.position.y)}
+              enemy={enemy}
+              enemyId={enemy.id}
+              ref={(el) => {
+                if (el) {
+                  enemiesRef.current[enemy.id] = el;
+                }
+              }}
+            />
+          );
+          break;
+        case EnemyType.ENEMY_GHOST:
+          enemyElement = (
+            <Ghost
               key={`${enemy.name}-${enemy.id}`}
               position={new Vector3(enemy.position.x, 0, enemy.position.y)}
               enemy={enemy}
