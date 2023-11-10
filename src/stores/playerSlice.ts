@@ -1,13 +1,13 @@
-import { Point2D } from '@/utils/Point2D';
-import { StateCreator } from 'zustand';
-import { MapSlice } from './mapSlice';
 import {
   Item,
   ItemType,
   LocationActionType,
   TileType,
 } from '@/components/types/GameTypes';
+import { Point2D } from '@/utils/Point2D';
 import { MathUtils } from 'three';
+import { StateCreator } from 'zustand';
+import { MapSlice } from './mapSlice';
 
 export interface PlayerSlice {
   playerPosition: Point2D;
@@ -20,7 +20,7 @@ export interface PlayerSlice {
   isDead: boolean;
   isTired: boolean;
   setDead: () => void;
-  adjustPlayer: (xOffset: number, yOffset: number) => boolean;
+  adjustPlayer: (xOffset: number, yOffset: number, noClip?: boolean) => boolean;
   checkPlayerLocation: () => PlayerLocationResults;
   adjustHealth: (amount: number) => boolean;
   atFullHealth: () => boolean;
@@ -66,7 +66,7 @@ export const createPlayerSlice: StateCreator<
   setDead() {
     set({ isDead: true });
   },
-  adjustPlayer(xOffset: number, yOffset: number) {
+  adjustPlayer(xOffset: number, yOffset: number, noClip = false) {
     const isBlockWallOrNull = get().isBlockWallOrNull;
     const currentMapData = get().mapData;
     const oldPlayerData = get().playerPosition;
@@ -75,6 +75,7 @@ export const createPlayerSlice: StateCreator<
     let currentPlayerRotation = get().playerRotation;
 
     if (
+      !noClip &&
       isBlockWallOrNull(
         currentMapData[playerData.x + xOffset][playerData.y + yOffset]
       )
@@ -82,7 +83,7 @@ export const createPlayerSlice: StateCreator<
       return false;
     }
 
-    console.log('[adjustPlayer] Old position:', playerData);
+    //console.log('[adjustPlayer] Old position:', playerData);
 
     playerData.x = playerData.x + xOffset;
     playerData.y = playerData.y + yOffset;
@@ -99,7 +100,7 @@ export const createPlayerSlice: StateCreator<
       currentPlayerRotation = MathUtils.degToRad(180);
     }
 
-    console.log('[adjustPlayer] New position:', playerData);
+    //console.log('[adjustPlayer] New position:', playerData);
 
     set(() => ({
       playerPosition: playerData,

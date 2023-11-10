@@ -27,15 +27,16 @@ export const CharacterController = ({
     if (gameStatus != GameStatus.GAME_STARTED) {
       return false;
     }
+    const noClipMode = false;
 
     if (forwardPressed) {
-      movementValid = adjustPlayer(0, -1);
+      movementValid = adjustPlayer(0, -1, noClipMode);
     } else if (downPressed) {
-      movementValid = adjustPlayer(0, 1);
+      movementValid = adjustPlayer(0, 1, noClipMode);
     } else if (rightPressed) {
-      movementValid = adjustPlayer(1, 0);
+      movementValid = adjustPlayer(1, 0, noClipMode);
     } else if (leftPressed) {
-      movementValid = adjustPlayer(-1, 0);
+      movementValid = adjustPlayer(-1, 0, noClipMode);
     }
 
     if (movementValid) {

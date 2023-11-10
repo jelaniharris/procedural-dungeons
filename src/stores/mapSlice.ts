@@ -1,16 +1,27 @@
 import {
+  BlockTestOptions,
   Direction,
+  EnemyTraits,
   GameStatus,
   Item,
   ItemType,
   MapArea,
   POSITION_OFFSETS,
+  SplitData,
+  SplitType,
   TileType,
   WallType,
 } from '@/components/types/GameTypes';
+import { Room } from '@/utils/Bounds2d';
 import { LootChance } from '@/utils/LootChance';
 import { Point2D } from '@/utils/Point2D';
+import { Queue } from '@/utils/Queue';
 import { checkPointInPoints, pointInAreas } from '@/utils/gridUtils';
+import {
+  getRandomRangeInt,
+  randomizeFloorOrWall,
+} from '@/utils/randomGenerator';
+import { getSetIntersection, popRandomItemFromSet } from '@/utils/setUtils';
 import { createRef } from 'react';
 import { MathUtils } from 'three';
 import { StateCreator } from 'zustand';
@@ -29,12 +40,25 @@ export interface MapSlice {
   determineValidDirections: (
     point: Point2D,
     excludedPoints?: Point2D[],
-    noClip?: boolean
+    traits?: EnemyTraits
   ) => Direction[];
-  isBlockWallOrNull: (e: TileType | null, noClip?: boolean) => boolean;
+  isBlockWallOrNull: (
+    e: TileType | null,
+    options?: BlockTestOptions
+  ) => boolean;
+  checkAllLocationsForWalls: (
+    mapData: (TileType | null)[][],
+    locations: Point2D[]
+  ) => boolean;
+  countSurroundingWalls: (
+    mapData: (TileType | null)[][],
+    location: Point2D
+  ) => number;
+
   determineWallType: (
     x: number,
-    y: number
+    y: number,
+    tileType?: TileType
   ) => { rotation: number; wallType: WallType };
   generateMap: (
     mapData: (TileType | null)[][],
@@ -52,6 +76,29 @@ export interface MapSlice {
   // Areas
   getAreasFromMap: (mapData: (TileType | null)[][]) => MapArea[];
   getAdjacentArea: (location: Point2D) => MapArea;
+  generateDoors: (
+    mapData: (TileType | null)[][],
+    seed: number,
+    allMapAreas: MapArea[]
+  ) => void;
+
+  // Rooms
+  binarySplitMap: (
+    mapData: (TileType | null)[][],
+    seed: number,
+    minWidth: number,
+    minHeight: number
+  ) => { rooms: Room[]; splits: SplitData[] };
+  createRooms: (
+    mapData: (TileType | null)[][],
+    seed: number,
+    rooms: Room[]
+    //splits: SplitData[]
+  ) => void;
+  isBlockDoorCandidate: (
+    mapData: (TileType | null)[][],
+    location: Point2D
+  ) => boolean;
 
   // Items
   items: Item[];
@@ -109,6 +156,9 @@ export const createMapSlice: StateCreator<
 
     const generatorSeeds = {
       map: randomGen(),
+      rooms: randomGen(),
+      roomContents: randomGen(),
+      roomDoors: randomGen(),
       exit: randomGen(),
       item: randomGen(),
       playerPosition: randomGen(),
@@ -140,8 +190,22 @@ export const createMapSlice: StateCreator<
     console.debug('[resetStage] Stage has been reset');
 
     get().generateMap(currentMapData, generatorSeeds['map']);
+
+    const { rooms } = get().binarySplitMap(
+      currentMapData,
+      generatorSeeds['rooms'],
+      6,
+      6
+    );
+    get().createRooms(currentMapData, generatorSeeds['roomContents'], rooms);
+
     const allMapAreas: MapArea[] = get().getAreasFromMap(currentMapData);
     fillMapGaps(currentMapData, allMapAreas);
+    get().generateDoors(
+      currentMapData,
+      generatorSeeds['roomDoors'],
+      allMapAreas
+    );
 
     set({
       mapData: currentMapData,
@@ -155,8 +219,8 @@ export const createMapSlice: StateCreator<
     generateHazards();
   },
   resetMap: () => {
-    const mapNumRows = 14 + 3 * get().currentLevel;
-    const mapNumCols = 14 + 3 * get().currentLevel;
+    const mapNumRows = 15 + 3 * get().currentLevel;
+    const mapNumCols = 15 + 3 * get().currentLevel;
 
     const newMap: (TileType | null)[][] = [];
 
@@ -189,18 +253,51 @@ export const createMapSlice: StateCreator<
 
     return currentMapData[x][y];
   },
-  isBlockWallOrNull: (e: TileType | null, noClip = false) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  isBlockWallOrNull: (
+    e: TileType | null,
+    options: BlockTestOptions | undefined
+  ): boolean => {
     // No clip on, then only consider wall edges as impassible
-    if (noClip) {
+    if (options && options.noClip) {
       return e == null || e == TileType.TILE_WALL_EDGE;
     }
 
-    return e == null || e == TileType.TILE_WALL || e == TileType.TILE_WALL_EDGE;
+    return (
+      e == null ||
+      e == TileType.TILE_WALL ||
+      e == TileType.TILE_WALL_EDGE ||
+      (options && (!options.canInteract || options.doorIsWall)
+        ? e == TileType.TILE_WALL_DOOR
+        : false)
+    );
+  },
+  countSurroundingWalls: (
+    mapData: (TileType | null)[][],
+    location: Point2D
+  ) => {
+    const isBlockWallOrNull = get().isBlockWallOrNull;
+    let countOfWalls = 0;
+    // Calculate the location of the currounded coordinates
+    const surroundingCoordinates = [
+      { x: location.x, y: location.y - 1 },
+      { x: location.x + 1, y: location.y },
+      { x: location.x, y: location.y + 1 },
+      { x: location.x - 1, y: location.y },
+    ];
+
+    surroundingCoordinates.forEach((coordinate) => {
+      if (isBlockWallOrNull(mapData[coordinate.x][coordinate.y])) {
+        countOfWalls++;
+      }
+    });
+
+    return countOfWalls;
   },
   determineValidDirections: (
     point: Point2D,
     excludedPoints?: Point2D[],
-    noClip = false
+    traits = EnemyTraits.NONE
   ) => {
     const getTilePosition = get().getTilePosition;
     const isBlockWallOrNull = get().isBlockWallOrNull;
@@ -225,14 +322,20 @@ export const createMapSlice: StateCreator<
         continue;
       }
 
-      if (!isBlockWallOrNull(dirTile, noClip)) {
+      if (
+        !isBlockWallOrNull(dirTile, {
+          noClip: (traits & EnemyTraits.NOCLIP) == EnemyTraits.NOCLIP,
+          canInteract:
+            (traits & EnemyTraits.OPENDOORS) == EnemyTraits.OPENDOORS,
+        })
+      ) {
         validDirections.push(posOff.direction);
       }
     }
 
     return validDirections;
   },
-  determineWallType: (x: number, y: number) => {
+  determineWallType: (x: number, y: number, tileType?: TileType) => {
     let rotation = 0;
     let wallType: WallType = WallType.WALL_OPEN;
     const getTilePosition = get().getTilePosition;
@@ -247,19 +350,19 @@ export const createMapSlice: StateCreator<
     // N E S W
     let bitwiseWalls = 0;
 
-    if (isBlockWallOrNull(northBlock)) {
+    if (isBlockWallOrNull(northBlock, { doorIsWall: true })) {
       bitwiseWalls = bitwiseWalls | 8; // 1000
     }
 
-    if (isBlockWallOrNull(eastBlock)) {
+    if (isBlockWallOrNull(eastBlock, { doorIsWall: true })) {
       bitwiseWalls = bitwiseWalls | 4; // 0100
     }
 
-    if (isBlockWallOrNull(southBlock)) {
+    if (isBlockWallOrNull(southBlock, { doorIsWall: true })) {
       bitwiseWalls = bitwiseWalls | 2; // 0010
     }
 
-    if (isBlockWallOrNull(westBlock)) {
+    if (isBlockWallOrNull(westBlock, { doorIsWall: true })) {
       bitwiseWalls = bitwiseWalls | 1; // 0001
     }
     switch (bitwiseWalls) {
@@ -271,10 +374,17 @@ export const createMapSlice: StateCreator<
       case 5:
         // 1 0 1 0 = 10
         // 0 1 0 1 = 5
-        if (bitwiseWalls == 10) {
-          rotation = 90;
+        if (tileType === TileType.TILE_WALL_DOOR) {
+          if (bitwiseWalls == 5) {
+            rotation = 90;
+          }
+          wallType = WallType.WALL_DOOR;
+        } else {
+          if (bitwiseWalls == 10) {
+            rotation = 90;
+          }
+          wallType = WallType.WALL_TWO_SIDED;
         }
-        wallType = WallType.WALL_TWO_SIDED;
         break;
       case 8:
       case 4:
@@ -350,26 +460,15 @@ export const createMapSlice: StateCreator<
 
     for (let y = 0; y < mapNumRows; y++) {
       for (let x = 0; x < mapNumCols; x++) {
+        // If already a wall then don't do anything
         if (
           mapData[x][y] == TileType.TILE_WALL ||
           mapData[x][y] == TileType.TILE_WALL_EDGE
         ) {
           continue;
         }
-        const rand = Math.floor(mapRandomGenerator() * 4);
-        let tileType: TileType = TileType.TILE_NONE;
 
-        switch (rand) {
-          case 0:
-          case 1:
-          case 2:
-            tileType = TileType.TILE_FLOOR;
-            break;
-
-          case 3:
-            tileType = TileType.TILE_WALL;
-            break;
-        }
+        const tileType = randomizeFloorOrWall(mapRandomGenerator, 0.2);
 
         if (!mapData[x]) {
           mapData[x] = [];
@@ -381,6 +480,57 @@ export const createMapSlice: StateCreator<
     console.debug('[generateMap] Generated Map');
 
     return mapData;
+  },
+  checkAllLocationsForWalls(
+    mapData: (TileType | null)[][],
+    locations: Point2D[]
+  ) {
+    const isBlockWallOrNull = get().isBlockWallOrNull;
+    for (const location of locations) {
+      if (!isBlockWallOrNull(mapData[location.x][location.y])) {
+        return false;
+      }
+    }
+
+    return true;
+  },
+  isBlockDoorCandidate(mapData: (TileType | null)[][], location: Point2D) {
+    const checkAllLocationsForWalls = get().checkAllLocationsForWalls;
+    const countSurroundingWalls = get().countSurroundingWalls;
+    let isCandidate = false;
+
+    // Check north south direction
+    const northSouthCoordinates = [
+      { x: location.x, y: location.y - 1 },
+      { x: location.x, y: location.y + 1 },
+    ];
+
+    const eastWestCoordinates = [
+      { x: location.x - 1, y: location.y },
+      { x: location.x + 1, y: location.y },
+    ];
+
+    const northSouthSpan = checkAllLocationsForWalls(
+      mapData,
+      northSouthCoordinates
+    );
+    const eastWestSpan = checkAllLocationsForWalls(
+      mapData,
+      eastWestCoordinates
+    );
+
+    if (countSurroundingWalls(mapData, location) !== 2) {
+      return false;
+    }
+
+    if (
+      (northSouthSpan && !eastWestSpan) ||
+      (eastWestSpan && !northSouthSpan)
+    ) {
+      isCandidate = true;
+    }
+
+    return isCandidate;
   },
   getAdjacentArea(location: Point2D): MapArea {
     const getTilePosition = get().getTilePosition;
@@ -486,6 +636,211 @@ export const createMapSlice: StateCreator<
     //console.log('Areas from map', newAreas);
 
     return newAreas;
+  },
+  createRooms(
+    mapData: (TileType | null)[][],
+    seed: number,
+    rooms: Room[]
+    //splits: SplitData[]
+  ) {
+    const randomGen = get().generateGenerator(seed);
+    const MAP_WIDTH = mapData[0].length - 1;
+    const MAP_HEIGHT = mapData.length - 1;
+
+    for (const room of rooms) {
+      for (let x = room.left - 1; x <= room.right + 1; x++) {
+        for (let y = room.top - 1; y <= room.bottom + 1; y++) {
+          let desiredTile = TileType.TILE_NONE;
+          if (
+            x == room.left - 1 ||
+            x == room.right + 1 ||
+            y == room.top - 1 ||
+            y == room.bottom + 1
+          ) {
+            desiredTile = TileType.TILE_WALL;
+          } else {
+            desiredTile = randomizeFloorOrWall(
+              randomGen,
+              0.15,
+              TileType.TILE_FLOOR_ROOM
+            );
+          }
+
+          // If within bounds of the map
+          if (x >= 0 && x <= MAP_WIDTH && y >= 0 && y <= MAP_HEIGHT) {
+            if (mapData[x][y] === TileType.TILE_WALL_EDGE) {
+              continue;
+            }
+            mapData[x][y] = desiredTile;
+          }
+        }
+      }
+    }
+
+    /*for (const room of rooms) {
+      for (let x = room.left; x <= room.right; x++) {
+        for (let y = room.top; y <= room.bottom; y++) {
+          if (
+            //mapData[x][y] !== TileType.TILE_WALL ||
+            mapData[x][y] !== TileType.TILE_WALL_EDGE
+          ) {
+            mapData[x][y] = randomizeFloorOrWall(
+              randomGen,
+              0.1,
+              TileType.TILE_TEST
+            );
+          }
+        }
+      }
+    }*/
+
+    //console.log(mapData[0].length, mapData.length);
+    //console.log(rooms, splits);
+
+    // for (const split of splits) {
+    //   /*for (const room of rooms) {
+    //   const split = room.split;
+    //   if (!split) continue;*/
+    //   switch (split.type) {
+    //     case SplitType.HorizontalSplit:
+    //       for (let x = split.start; x <= split.end; x++) {
+    //         mapData[x][split.splitOriginAxis] = TileType.TILE_WALL;
+    //       }
+    //       break;
+    //     case SplitType.VerticalSplit:
+    //       for (let y = split.start; y <= split.end; y++) {
+    //         mapData[split.splitOriginAxis][y] = TileType.TILE_WALL;
+    //       }
+    //       break;
+    //   }
+    // }
+  },
+  binarySplitMap(
+    mapData: (TileType | null)[][],
+    seed: number,
+    minWidth: number,
+    minHeight: number
+  ): { rooms: Room[]; splits: SplitData[] } {
+    const randomGen = get().generateGenerator(seed);
+
+    const roomsQueue: Queue<Room> = new Queue();
+    const roomsList: Room[] = [];
+    const splits: SplitData[] = [];
+
+    const spaceToSplit: Room = new Room(
+      0,
+      mapData[0].length - 1,
+      0,
+      mapData.length - 1
+    );
+
+    const SplitHorizontally = (
+      minHeight: number,
+      roomsQueue: Queue<Room>,
+      room: Room
+    ): SplitData => {
+      // Split anywhere in the middle, but not at the edges
+      const ySplit = getRandomRangeInt(randomGen, room.top, room.bottom);
+      const room1 = new Room(room.left, room.right, room.top, ySplit - 1);
+      const room2 = new Room(room.left, room.right, ySplit + 1, room.bottom);
+      const splitInfo = {
+        type: SplitType.HorizontalSplit,
+        splitOriginAxis: ySplit,
+        start: room.left,
+        end: room.right,
+      };
+      room1.split = splitInfo;
+      room2.split = splitInfo;
+      roomsQueue.enqueue(room1);
+      roomsQueue.enqueue(room2);
+      return splitInfo;
+    };
+
+    const SplitVertically = (
+      minWidth: number,
+      roomsQueue: Queue<Room>,
+      room: Room
+    ) => {
+      // Split anywhere in the middle, but not at the edges
+      const xSplit = getRandomRangeInt(randomGen, room.left, room.right);
+      const room1 = new Room(room.left, xSplit - 1, room.top, room.bottom);
+      const room2 = new Room(xSplit + 1, room.right, room.top, room.bottom);
+      const splitInfo = {
+        type: SplitType.VerticalSplit,
+        splitOriginAxis: xSplit,
+        start: room.top,
+        end: room.bottom,
+      };
+      room1.split = splitInfo;
+      room2.split = splitInfo;
+      roomsQueue.enqueue(room1);
+      roomsQueue.enqueue(room2);
+      return splitInfo;
+    };
+
+    roomsQueue.enqueue(spaceToSplit);
+    while (roomsQueue.length > 0) {
+      const room = roomsQueue.dequeue();
+      let split;
+      if (room.getHeight() >= minHeight && room.getWidth() > minWidth) {
+        if (randomGen() < 0.5) {
+          // Split Horizontally
+          if (room.getHeight() >= minHeight * 2) {
+            split = SplitHorizontally(minHeight, roomsQueue, room);
+            splits.push(split);
+          } else if (room.getWidth() >= minWidth * 2) {
+            split = SplitVertically(minWidth, roomsQueue, room);
+            splits.push(split);
+          } else {
+            roomsList.push(room);
+          }
+        } else {
+          // Split Vertically
+          if (room.getWidth() >= minWidth * 2) {
+            split = SplitVertically(minWidth, roomsQueue, room);
+            splits.push(split);
+          } else if (room.getHeight() >= minHeight * 2) {
+            split = SplitHorizontally(minHeight, roomsQueue, room);
+            splits.push(split);
+          } else {
+            roomsList.push(room);
+          }
+        }
+      }
+    }
+    return { rooms: roomsList, splits };
+  },
+  generateDoors(
+    mapData: (TileType | null)[][],
+    seed: number,
+    allMapAreas: MapArea[]
+  ) {
+    const randomGen = get().generateGenerator(seed);
+    const isBlockDoorCandidate = get().isBlockDoorCandidate;
+    for (let areaA = 0; areaA < allMapAreas.length; areaA++) {
+      for (let areaB = areaA + 1; areaB < allMapAreas.length; areaB++) {
+        const sharedWalls = getSetIntersection(
+          allMapAreas[areaA].adjacentWallsSet,
+          allMapAreas[areaB].adjacentWallsSet
+        );
+        if (sharedWalls.size == 0) {
+          continue;
+        }
+
+        let doorAmounts = Math.floor(randomGen() * 2) + 1;
+        while (doorAmounts > 0 && sharedWalls.size > 0) {
+          const position = popRandomItemFromSet(sharedWalls, randomGen);
+          const [x, y] = position.split(',');
+          const xPos = parseInt(x, 10);
+          const yPos = parseInt(y, 10);
+
+          if (isBlockDoorCandidate(mapData, { x: xPos, y: yPos })) {
+            mapData[xPos][yPos] = TileType.TILE_WALL_DOOR;
+            doorAmounts--;
+          }
+        }
+      }
+    }
   },
   fillMapGaps(mapData: (TileType | null)[][], allMapAreas: MapArea[]) {
     allMapAreas.forEach((area) => {

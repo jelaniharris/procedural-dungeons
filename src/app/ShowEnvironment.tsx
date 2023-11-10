@@ -1,5 +1,6 @@
 import { Column } from '@/components/models/Column';
 import Dirt from '@/components/models/Dirt';
+import Door from '@/components/models/Door';
 import Floor from '@/components/models/Floor';
 import FloorDetail from '@/components/models/Floor-detail';
 import { LShapeWall } from '@/components/models/LShape-Wall';
@@ -52,6 +53,7 @@ export const ShowEnvironment = () => {
           ];
           break;
         case TileType.TILE_FLOOR:
+        case TileType.TILE_FLOOR_ROOM:
           const randomFloor = Math.random();
           if (randomFloor < 0.8) {
             tile = [
@@ -70,10 +72,24 @@ export const ShowEnvironment = () => {
           }
 
           break;
+        case TileType.TILE_WALL_DOOR:
         case TileType.TILE_WALL:
         case TileType.TILE_WALL_EDGE:
-          const { rotation, wallType } = determineWallType(x, y);
+          const { rotation, wallType } = determineWallType(x, y, tileType);
           switch (wallType) {
+            case WallType.WALL_DOOR:
+              tile = [
+                <Door
+                  key={`door-${x}-${y}`}
+                  position={[tileXPos, 0, tileYPos]}
+                  rotation={[0, rotation, 0]}
+                />,
+                <Floor
+                  key={`doorfloor-${x}-${y}`}
+                  position={[tileXPos, 0, tileYPos]}
+                />,
+              ];
+              break;
             case WallType.WALL_ENCASED:
               // Fully encased, then convert to DIRT
               tile = [
