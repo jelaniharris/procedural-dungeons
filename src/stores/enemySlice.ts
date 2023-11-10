@@ -2,6 +2,7 @@ import {
   Direction,
   Enemy,
   EnemyStatus,
+  EnemyTraits,
   EnemyType,
   LocationActionType,
   TileType,
@@ -95,12 +96,18 @@ export const createEnemySlice: StateCreator<
         nextDirection: { x: 0, y: 0 },
         movementPoints: [],
         movementRange: 1,
+        traits: EnemyTraits.NONE,
         movementVariance: 0,
       };
 
       switch (randomEnemy) {
         case EnemyType.ENEMY_ORC:
-          newEnemy = { ...newEnemy, movementRange: 2, name: 'Orc' };
+          newEnemy = {
+            ...newEnemy,
+            movementRange: 2,
+            name: 'Orc',
+            traits: EnemyTraits.OPENDOORS,
+          };
           break;
         case EnemyType.ENEMY_SKELETON:
           newEnemy = { ...newEnemy, movementVariance: 1, name: 'Skeleton' };
@@ -111,6 +118,7 @@ export const createEnemySlice: StateCreator<
             movementRange: 1,
             movementVariance: 2,
             name: 'Ghost',
+            traits: EnemyTraits.NOCLIP,
           };
           break;
         default:
@@ -138,7 +146,6 @@ export const createEnemySlice: StateCreator<
 
     for (const enemy of enemies) {
       const newPositions = [];
-      const noClip = enemy.type == EnemyType.ENEMY_GHOST;
       //enemy.movementPoints = [];
       if (enemy.status == EnemyStatus.STATUS_ROAMING) {
         const variance = randomIntFromInterval(
@@ -157,7 +164,7 @@ export const createEnemySlice: StateCreator<
           const availableDirections = determineValidDirections(
             lastPosition,
             [enemy.position, ...newPositions],
-            noClip
+            enemy.traits
           );
           const randomDirectionIndex = Math.floor(
             Math.random() * availableDirections.length

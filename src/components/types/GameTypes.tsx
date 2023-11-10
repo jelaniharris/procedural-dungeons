@@ -5,9 +5,11 @@ export enum TileType {
   TILE_TEST,
   TILE_WATER,
   TILE_FLOOR,
+  TILE_FLOOR_ROOM,
   TILE_DIRT,
   TILE_WALL,
   TILE_WALL_EDGE,
+  TILE_WALL_DOOR,
   TILE_EXIT,
 }
 
@@ -28,6 +30,7 @@ export enum WallType {
   WALL_TRI_SIDED,
   WALL_L_SHAPE,
   WALL_ENCASED,
+  WALL_DOOR,
 }
 
 export enum HazardType {
@@ -98,6 +101,12 @@ export const POSITION_OFFSETS = [
   },
 ];
 
+export enum EnemyTraits {
+  NONE = 0,
+  NOCLIP = 1 << 0,
+  OPENDOORS = 1 << 1,
+}
+
 export type Enemy = {
   id: number;
   type: EnemyType;
@@ -105,6 +114,7 @@ export type Enemy = {
   name?: string;
   status: EnemyStatus;
   nextDirection: Point2D;
+  traits: EnemyTraits;
   movementRange: number;
   movementVariance: number;
   movementPoints: Point2D[];
@@ -170,6 +180,18 @@ export type MapArea = {
   adjacentWallsSet: Set<string>;
 };
 
+export enum SplitType {
+  HorizontalSplit,
+  VerticalSplit,
+}
+
+export type SplitData = {
+  type: SplitType;
+  splitOriginAxis: number;
+  start: number;
+  end: number;
+};
+
 export type WorldDataType = {
   numRows: number;
   numCols: number;
@@ -188,4 +210,10 @@ export enum Controls {
 export type PlayerLocalData = {
   name: string;
   discriminator: number;
+};
+
+export type BlockTestOptions = {
+  noClip?: boolean;
+  canInteract?: boolean;
+  doorIsWall?: boolean;
 };
