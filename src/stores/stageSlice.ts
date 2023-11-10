@@ -17,7 +17,8 @@ import { PlayerSlice } from './playerSlice';
 export type PerformTurnProps = {
   enemyLocationResultCallback?: (
     location: LocationActionType,
-    enemy: Enemy
+    position?: Point2D,
+    enemy?: Enemy
   ) => void;
 };
 

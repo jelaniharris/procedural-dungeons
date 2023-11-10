@@ -3,16 +3,22 @@ import { SpikeTrap } from '@/components/models/SpikeTrap';
 import { HazardType } from '@/components/types/GameTypes';
 import { GameState, useStore } from '@/stores/useStore';
 import { Vector3 } from 'three';
+import { shallow } from 'zustand/shallow';
 
 export const ShowHazards = () => {
-  const { hazards } = useStore((store: GameState) => ({
-    hazards: store.hazards,
-  }));
+  const { hazards } = useStore(
+    (store: GameState) => ({
+      hazards: store.hazards,
+    }),
+    shallow
+  );
 
   const worldHazards: JSX.Element[] = [];
   if (!hazards) {
     return <></>;
   }
+
+  console.log('[ShowHazards] Rendering');
 
   hazards.forEach((hazard, id) => {
     const keyName = `hazard-${id}`;

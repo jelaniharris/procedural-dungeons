@@ -1,6 +1,5 @@
 import { Column } from '@/components/models/Column';
 import Dirt from '@/components/models/Dirt';
-import Door from '@/components/models/Door';
 import Floor from '@/components/models/Floor';
 import FloorDetail from '@/components/models/Floor-detail';
 import { LShapeWall } from '@/components/models/LShape-Wall';
@@ -37,12 +36,10 @@ export const ShowEnvironment = () => {
   const TILE_W = 1;
 
   for (let y = 0; y < numRows; y++) {
-    const offsetX = 0;
-
     for (let x = 0; x < numCols; x++) {
       const tileType: TileType = mapData[x][y] || TileType.TILE_NONE;
 
-      const tileXPos = x * TILE_W + offsetX;
+      const tileXPos = x * TILE_W;
       const tileYPos = y * TILE_W;
 
       let tile: React.JSX.Element[] | null = null;
@@ -78,12 +75,8 @@ export const ShowEnvironment = () => {
           const { rotation, wallType } = determineWallType(x, y, tileType);
           switch (wallType) {
             case WallType.WALL_DOOR:
+              // Actual door is an game object, so just fill in the floor for now
               tile = [
-                <Door
-                  key={`door-${x}-${y}`}
-                  position={[tileXPos, 0, tileYPos]}
-                  rotation={[0, rotation, 0]}
-                />,
                 <Floor
                   key={`doorfloor-${x}-${y}`}
                   position={[tileXPos, 0, tileYPos]}

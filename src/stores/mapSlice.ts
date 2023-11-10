@@ -1,6 +1,7 @@
 import {
   BlockTestOptions,
   Direction,
+  DoorLocation,
   EnemyTraits,
   GameStatus,
   Item,
@@ -100,6 +101,9 @@ export interface MapSlice {
     location: Point2D
   ) => boolean;
 
+  // Doors
+  doors: DoorLocation[];
+
   // Items
   items: Item[];
   itemIndex: number;
@@ -129,6 +133,7 @@ export const createMapSlice: StateCreator<
   numRows: 5,
   numCols: 5,
   items: [],
+  doors: [],
   itemIndex: 0,
   itemsRefs: allItemRefs,
   resetStage: (hardReset = false) => {
@@ -374,14 +379,18 @@ export const createMapSlice: StateCreator<
       case 5:
         // 1 0 1 0 = 10
         // 0 1 0 1 = 5
+        let spinDirection = 90;
+        if (Math.random() < 0.5) {
+          spinDirection = 270;
+        }
         if (tileType === TileType.TILE_WALL_DOOR) {
           if (bitwiseWalls == 5) {
-            rotation = 90;
+            rotation = spinDirection;
           }
           wallType = WallType.WALL_DOOR;
         } else {
           if (bitwiseWalls == 10) {
-            rotation = 90;
+            rotation = spinDirection;
           }
           wallType = WallType.WALL_TWO_SIDED;
         }
@@ -815,6 +824,7 @@ export const createMapSlice: StateCreator<
     seed: number,
     allMapAreas: MapArea[]
   ) {
+    const createdDoors: DoorLocation[] = [];
     const randomGen = get().generateGenerator(seed);
     const isBlockDoorCandidate = get().isBlockDoorCandidate;
     for (let areaA = 0; areaA < allMapAreas.length; areaA++) {
@@ -835,12 +845,17 @@ export const createMapSlice: StateCreator<
           const yPos = parseInt(y, 10);
 
           if (isBlockDoorCandidate(mapData, { x: xPos, y: yPos })) {
+            createdDoors.push({
+              position: { x: xPos, y: yPos },
+            });
             mapData[xPos][yPos] = TileType.TILE_WALL_DOOR;
             doorAmounts--;
           }
         }
       }
     }
+
+    set({ doors: createdDoors });
   },
   fillMapGaps(mapData: (TileType | null)[][], allMapAreas: MapArea[]) {
     allMapAreas.forEach((area) => {

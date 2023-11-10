@@ -107,6 +107,11 @@ export enum EnemyTraits {
   OPENDOORS = 1 << 1,
 }
 
+export enum DoorStatus {
+  CLOSED,
+  OPENED,
+}
+
 export type Enemy = {
   id: number;
   type: EnemyType;
@@ -141,10 +146,11 @@ export type Hazard = BaseGameObject & {
 };
 
 export enum LocationActionType {
-  NOTHING,
-  COLLECTED_ITEM,
-  TOUCHED_PLAYER,
-  AT_EXIT,
+  NOTHING = 0,
+  COLLECTED_ITEM = 1 << 0,
+  TOUCHED_PLAYER = 1 << 1,
+  AT_EXIT = 1 << 2,
+  AT_DOOR = 1 << 3,
 }
 
 export type Point3D = {
@@ -167,6 +173,10 @@ export type ItemLocationType = {
   type: ItemType;
   ref?: React.ReactNode;
   id?: number;
+};
+
+export type DoorLocation = {
+  position: Point2D;
 };
 
 export type PlayerType = {

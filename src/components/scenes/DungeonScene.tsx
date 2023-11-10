@@ -4,8 +4,10 @@ import { ShowDangerIndicators } from '@/app/ShowDangerIndicators';
 import { ShowEnemies } from '@/app/ShowEnemies';
 import { ShowEnemyIntention } from '@/app/ShowEnemyIntentions';
 import { ShowHazards } from '@/app/ShowHazards';
+import { ShowInteractables } from '@/app/ShowInteractables';
 import { ShowItems } from '@/app/ShowItems';
 import { GameState, playAudio, useStore } from '@/stores/useStore';
+import { Point2D } from '@/utils/Point2D';
 import { Environment, Stats } from '@react-three/drei';
 import { EffectComposer, Vignette } from '@react-three/postprocessing';
 import React, { Suspense, useCallback, useState } from 'react';
@@ -13,6 +15,7 @@ import { ShowEnvironment } from '../../app/ShowEnvironment';
 import { AmbientSound } from '../AmbientSound';
 import Player from '../entities/Player';
 import {
+  DOOR_OPEN,
   EXIT_GREED,
   EXIT_NEED,
   ON_TICK,
@@ -83,6 +86,7 @@ const DungeonScene = () => {
     unsubscribeAllHandlers,
     getAllRegistryById,
     gameMode,
+    findGameObjectsByXY,
   } = useGame();
   const [mapTone, setMapTone] = useState<string>('#FFFFFF');
 
@@ -91,11 +95,28 @@ const DungeonScene = () => {
   const aiTurn = useCallback(() => {
     const enemyLocationResult = (
       locationResult: LocationActionType,
-      enemy: Enemy
+      position?: Point2D,
+      enemy?: Enemy
     ) => {
-      switch (locationResult) {
-        case LocationActionType.TOUCHED_PLAYER: {
-          publish(PLAYER_TOUCHED_ENEMY, { enemy: enemy });
+      if (!enemy) {
+        return;
+      }
+
+      if (
+        (locationResult & LocationActionType.TOUCHED_PLAYER) ===
+        LocationActionType.TOUCHED_PLAYER
+      ) {
+        publish(PLAYER_TOUCHED_ENEMY, { enemy: enemy });
+      }
+
+      if (
+        position &&
+        (locationResult & LocationActionType.AT_DOOR) ===
+          LocationActionType.AT_DOOR
+      ) {
+        const gameObjects = findGameObjectsByXY(position.x, position.y);
+        for (const gObj of gameObjects) {
+          gObj.publish(DOOR_OPEN);
         }
       }
     };
@@ -116,43 +137,59 @@ const DungeonScene = () => {
 
       if (moved) {
         const locationAction = checkPlayerLocation();
-        switch (locationAction.result) {
-          case LocationActionType.COLLECTED_ITEM:
-            switch (locationAction.item?.type) {
-              case ItemType.ITEM_COIN:
-                playAudio('coin.wav');
-                addScore(10);
-                break;
-              case ItemType.ITEM_CHALICE:
-                playAudio('coin.wav');
-                addScore(25);
-                break;
-              case ItemType.ITEM_CROWN:
-                playAudio('coin.wav');
-                addScore(150);
-                break;
-              case ItemType.ITEM_POTION:
-                playAudio('bottle.wav', 0.5);
-                adjustHealth(1);
-                break;
-              case ItemType.ITEM_CHEST:
-                playAudio('coin.wav');
-                addScore(10);
-                break;
-              case ItemType.ITEM_CHICKEN:
-                playAudio('eat_01.ogg');
-                modifyEnergy(30);
-                addScore(5);
-                break;
-            }
-            break;
-          case LocationActionType.AT_EXIT:
-            console.log('AT EXIT');
-            publish(PLAYER_REACHED_EXIT);
-            break;
-          case LocationActionType.NOTHING:
-          default:
-            break;
+
+        if (
+          (locationAction.result & LocationActionType.COLLECTED_ITEM) ===
+          LocationActionType.COLLECTED_ITEM
+        ) {
+          switch (locationAction.item?.type) {
+            case ItemType.ITEM_COIN:
+              playAudio('coin.wav');
+              addScore(10);
+              break;
+            case ItemType.ITEM_CHALICE:
+              playAudio('coin.wav');
+              addScore(25);
+              break;
+            case ItemType.ITEM_CROWN:
+              playAudio('coin.wav');
+              addScore(150);
+              break;
+            case ItemType.ITEM_POTION:
+              playAudio('bottle.wav', 0.5);
+              adjustHealth(1);
+              break;
+            case ItemType.ITEM_CHEST:
+              playAudio('coin.wav');
+              addScore(10);
+              break;
+            case ItemType.ITEM_CHICKEN:
+              playAudio('eat_01.ogg');
+              modifyEnergy(30);
+              addScore(5);
+              break;
+          }
+        }
+
+        if (
+          (locationAction.result & LocationActionType.AT_DOOR) ===
+          LocationActionType.AT_DOOR
+        ) {
+          const gameObjects = findGameObjectsByXY(
+            locationAction.position.x,
+            locationAction.position.y
+          );
+          for (const gObj of gameObjects) {
+            gObj.publish(DOOR_OPEN);
+          }
+        }
+
+        if (
+          (locationAction.result & LocationActionType.AT_EXIT) ===
+          LocationActionType.AT_EXIT
+        ) {
+          console.log('AT EXIT');
+          publish(PLAYER_REACHED_EXIT);
         }
       }
 
@@ -263,6 +300,7 @@ const DungeonScene = () => {
         <ShowEnemyIntention />
         <ShowDangerIndicators />
         <ShowHazards />
+        <ShowInteractables />
       </Suspense>
     </>
   );

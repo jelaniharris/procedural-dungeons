@@ -14,6 +14,9 @@ export const ON_TICK = 'on-tick';
 
 export const CHANGE_SCENE = 'change-scene';
 
+export const DOOR_OPEN = 'door-open';
+export const DOOR_CLOSE = 'door-close';
+
 export type ChangeSceneEvent = ConsumerEvent<
   'change-scene',
   { nextScene: string }
@@ -37,3 +40,6 @@ export type PlayerDamagedTrapEvent = ConsumerEvent<
 export type PlayerDiedEvent = ConsumerEvent<'player-died', { enemy: Enemy }>;
 
 export type OnTickEvent = ConsumerEvent<'on-tick'>;
+
+export type DoorOpenEvent = ConsumerEvent<'door-open'>;
+export type DoorCloseEvent = ConsumerEvent<'door-close'>;

@@ -1,20 +1,23 @@
+import { Euler } from '@react-three/fiber';
 import React, {
   Dispatch,
   RefObject,
   SetStateAction,
   useLayoutEffect,
   useMemo,
+  useRef,
+  useState,
 } from 'react';
-import { useRef, useState } from 'react';
 import * as THREE from 'three';
-import useGame from '../useGame';
 import createPubSub, { PubSub } from '../../utils/pubSub';
+import useGame from '../useGame';
 
 export interface GameObjectProps {
   name?: string;
   displayName?: string;
   disabled?: boolean;
-  position?: THREE.Vector3;
+  position: THREE.Vector3;
+  rotation?: Euler;
   children?: React.ReactNode;
 }
 
@@ -22,6 +25,7 @@ export interface GameObjectContextValue extends PubSub {
   id: symbol;
   name: Readonly<string | undefined>;
   nodeRef: RefObject<THREE.Group>;
+  position: THREE.Vector3;
 }
 
 export type GameObjectRef = Pick<GameObjectProps, 'name'> & {
@@ -30,6 +34,7 @@ export type GameObjectRef = Pick<GameObjectProps, 'name'> & {
   setDisabled: Dispatch<SetStateAction<boolean>>;
   subscribe: PubSub['subscribe'];
   publish: PubSub['publish'];
+  position: GameObjectContextValue['position'];
 };
 
 export const GameObjectContext =
@@ -40,6 +45,7 @@ const GameObject = ({
   //displayName,
   children,
   position,
+  rotation,
   disabled: initialDisabled = false,
 }: GameObjectProps) => {
   const identifier = useRef(Symbol('GameObject'));
@@ -56,14 +62,15 @@ const GameObject = ({
       setDisabled,
       subscribe: pubSub.subscribe,
       publish: pubSub.publish,
+      position,
     }),
-    [disabled, name]
+    [disabled, name, position, pubSub]
   );
 
   useLayoutEffect(() => {
     const id = identifier.current;
     registerGameObject(id, gameObjectRef);
-    return () => unregisterGameObject(id);
+    return () => unregisterGameObject(id, gameObjectRef);
   }, [registerGameObject, unregisterGameObject, gameObjectRef]);
 
   const contextValue: GameObjectContextValue = {
@@ -71,11 +78,12 @@ const GameObject = ({
     name,
     ...pubSub,
     nodeRef: node,
+    position,
   };
 
   return (
     <GameObjectContext.Provider value={contextValue}>
-      <group ref={node} position={position}>
+      <group ref={node} position={position} rotation={rotation}>
         {!disabled && children}
       </group>
     </GameObjectContext.Provider>

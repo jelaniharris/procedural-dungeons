@@ -37,7 +37,8 @@ export interface EnemyLocationResultsCallback {
 export type AiMoveProps = {
   enemyLocationResultCallback?: (
     location: LocationActionType,
-    enemy: Enemy
+    position?: Point2D,
+    enemy?: Enemy
   ) => void;
 };
 
@@ -222,16 +223,28 @@ export const createEnemySlice: StateCreator<
 
     return enemies;
   },
-  checkEnemyLocation(enemyPosition: Point2D): LocationActionType {
+  checkEnemyLocation(enemyPosition: Point2D, enemy: Enemy): LocationActionType {
+    const mapData = get().mapData;
     const playerPosition = get().playerPosition;
+    let locationDetails: LocationActionType = LocationActionType.NOTHING;
 
+    // If enemy is at player position, then
     if (
       enemyPosition.x == playerPosition.x &&
       enemyPosition.y == playerPosition.y
     ) {
-      return LocationActionType.TOUCHED_PLAYER;
+      locationDetails = locationDetails | LocationActionType.TOUCHED_PLAYER;
     }
-    return LocationActionType.NOTHING;
+
+    // If enemy is at a door and they can open doors
+    if (
+      mapData[enemyPosition.x][enemyPosition.y] == TileType.TILE_WALL_DOOR &&
+      (enemy.traits & EnemyTraits.OPENDOORS) == EnemyTraits.OPENDOORS
+    ) {
+      locationDetails = locationDetails | LocationActionType.AT_DOOR;
+    }
+
+    return locationDetails;
   },
   async aiMove({ enemyLocationResultCallback }: AiMoveProps) {
     const currentEnemies = get().enemies;
@@ -250,17 +263,19 @@ export const createEnemySlice: StateCreator<
 
           // Check the next location has the player
           const locationResult = checkEnemyLocation(nextLocation, enemy);
-          if (
-            enemyLocationResultCallback &&
-            locationResult == LocationActionType.TOUCHED_PLAYER
-          ) {
-            enemyLocationResultCallback(locationResult, enemy);
-            enemy.movementPoints = [];
-            enemyHasMovementLeft = false;
-          } else {
-            currentEnemies[i].position.x = nextLocation.x;
-            currentEnemies[i].position.y = nextLocation.y;
+          if (enemyLocationResultCallback && enemy && locationResult !== 0) {
+            enemyLocationResultCallback(locationResult, nextLocation, enemy);
+            if (
+              (locationResult & LocationActionType.TOUCHED_PLAYER) ==
+              LocationActionType.TOUCHED_PLAYER
+            ) {
+              enemy.movementPoints = [];
+              enemyHasMovementLeft = false;
+            }
           }
+
+          currentEnemies[i].position.x = nextLocation.x;
+          currentEnemies[i].position.y = nextLocation.y;
         }
       }
     });

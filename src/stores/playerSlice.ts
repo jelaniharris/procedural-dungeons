@@ -26,13 +26,14 @@ export interface PlayerSlice {
   atFullHealth: () => boolean;
   addScore: (score: number) => void;
   modifyEnergy: (amount: number) => void;
-  isPlayerAtExit: () => boolean;
+  isPlayerAtTileType: (tileType: TileType) => boolean;
   resetPlayer: () => void;
 }
 
 export type PlayerLocationResults = {
   result: LocationActionType;
-  item?: Item;
+  position: Point2D;
+  item?: Item | null;
 };
 
 export const createPlayerSlice: StateCreator<
@@ -132,14 +133,11 @@ export const createPlayerSlice: StateCreator<
 
     set(() => ({ energy: newEnergy, isTired: newEnergy <= 0 }));
   },
-  isPlayerAtExit() {
+  isPlayerAtTileType(tileType: TileType) {
     const currentMapData = get().mapData;
     const currentPlayerData = get().playerPosition;
 
-    if (
-      currentMapData[currentPlayerData.x][currentPlayerData.y] ==
-      TileType.TILE_EXIT
-    ) {
+    if (currentMapData[currentPlayerData.x][currentPlayerData.y] == tileType) {
       return true;
     }
     return false;
@@ -151,12 +149,14 @@ export const createPlayerSlice: StateCreator<
     const atFullHealth = get().atFullHealth;
     const items = get().items;
     const getItemPositionOnGrid = get().getItemPositionOnGrid;
-    const isPlayerAtExit = get().isPlayerAtExit;
+    const isPlayerAtTileType = get().isPlayerAtTileType;
+    const locationResults: PlayerLocationResults = {
+      result: LocationActionType.NOTHING,
+      position: currentPlayerData,
+    };
+    let locationDetails: LocationActionType = LocationActionType.NOTHING;
 
-    if (isPlayerAtExit()) {
-      return { result: LocationActionType.AT_EXIT };
-    }
-
+    // Check if the current position has an item
     const itemAtLocation = getItemPosition(
       currentPlayerData.x,
       currentPlayerData.y
@@ -164,28 +164,47 @@ export const createPlayerSlice: StateCreator<
 
     if (itemAtLocation) {
       console.log(
-        'Item at location: ',
+        '[checkPlayerLocation] Item at location: ',
         itemAtLocation.type,
         ' - ',
         itemAtLocation.id
       );
       const oldItems = [...items];
-
-      if (itemAtLocation.type == ItemType.ITEM_POTION && atFullHealth()) {
-        return { result: LocationActionType.NOTHING };
+      let itemCollectable: boolean = false;
+      switch (itemAtLocation.type) {
+        case ItemType.ITEM_POTION:
+          if (!atFullHealth()) {
+            itemCollectable = true;
+          }
+          break;
+        default:
+          itemCollectable = true;
+          break;
       }
 
-      delete oldItems[
-        getItemPositionOnGrid(currentPlayerData.x, currentPlayerData.y)
-      ];
-      set({ items: oldItems });
+      if (itemCollectable) {
+        delete oldItems[
+          getItemPositionOnGrid(currentPlayerData.x, currentPlayerData.y)
+        ];
+        set({ items: oldItems });
 
-      return {
-        result: LocationActionType.COLLECTED_ITEM,
-        item: itemAtLocation,
-      };
+        locationDetails = locationDetails | LocationActionType.COLLECTED_ITEM;
+        locationResults.item = itemAtLocation;
+      }
     }
 
-    return { result: LocationActionType.NOTHING };
+    // Check if player is at a door
+    if (isPlayerAtTileType(TileType.TILE_WALL_DOOR)) {
+      locationDetails = locationDetails | LocationActionType.AT_DOOR;
+    }
+
+    // Check if player is at exit
+    if (isPlayerAtTileType(TileType.TILE_EXIT)) {
+      locationDetails = locationDetails | LocationActionType.AT_EXIT;
+    }
+
+    locationResults.result = locationResults.result | locationDetails;
+
+    return locationResults;
   },
 });
