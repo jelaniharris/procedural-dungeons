@@ -44,7 +44,7 @@ export default function Door(props: JSX.IntrinsicElements['group']) {
   const { actions, mixer } = useAnimations(animations, groupRef);
   const doorStatus = useRef<DoorStatus>(DoorStatus.CLOSED);
   const currentPhase = useRef(0);
-  const maxPhase = 4;
+  const maxPhase = 5;
 
   useGameObjectEvent<OnTickEvent>('on-tick', () => {
     if (doorStatus.current == DoorStatus.OPENED) {
