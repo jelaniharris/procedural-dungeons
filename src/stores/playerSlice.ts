@@ -1,4 +1,5 @@
 import {
+  Enemy,
   Item,
   ItemType,
   LocationActionType,
@@ -7,7 +8,9 @@ import {
 import { Point2D } from '@/utils/Point2D';
 import { MathUtils } from 'three';
 import { StateCreator } from 'zustand';
+import { EnemySlice } from './enemySlice';
 import { MapSlice } from './mapSlice';
+import { playAudio } from './useStore';
 
 export interface PlayerSlice {
   playerPosition: Point2D;
@@ -16,6 +19,8 @@ export interface PlayerSlice {
   energy: number;
   maxEnergy: number;
   health: number;
+  attacks: number;
+  maxAttacks: number;
   maxHealth: number;
   isDead: boolean;
   isTired: boolean;
@@ -24,10 +29,14 @@ export interface PlayerSlice {
   checkPlayerLocation: () => PlayerLocationResults;
   adjustHealth: (amount: number) => boolean;
   atFullHealth: () => boolean;
+  adjustAttacks: (amount: number) => boolean;
+  atMaxAttacks: () => boolean;
   addScore: (score: number) => void;
   modifyEnergy: (amount: number) => void;
   isPlayerAtTileType: (tileType: TileType) => boolean;
   resetPlayer: () => void;
+  canPlayerAttackEnemy: () => boolean;
+  playerPerformAttack: (enemy: Enemy) => void;
 }
 
 export type PlayerLocationResults = {
@@ -37,7 +46,7 @@ export type PlayerLocationResults = {
 };
 
 export const createPlayerSlice: StateCreator<
-  PlayerSlice & MapSlice,
+  PlayerSlice & MapSlice & EnemySlice,
   [],
   [],
   PlayerSlice
@@ -46,6 +55,8 @@ export const createPlayerSlice: StateCreator<
   score: 0,
   energy: 10,
   maxEnergy: 100,
+  attacks: 1,
+  maxAttacks: 2,
   isDead: false,
   playerRotation: 0,
   health: 2,
@@ -54,10 +65,12 @@ export const createPlayerSlice: StateCreator<
   resetPlayer() {
     const resetSet = {
       score: 0,
-      energy: 25,
+      energy: 50,
       maxEnergy: 100,
       isDead: false,
       playerRotation: 0,
+      attacks: 0,
+      maxAttacks: 2,
       health: 2,
       maxHealth: 2,
       isTired: false,
@@ -112,12 +125,24 @@ export const createPlayerSlice: StateCreator<
   addScore(amount: number) {
     set((store) => ({ score: store.score + amount }));
   },
+  adjustAttacks(amount: number): boolean {
+    const currentAttacks = get().attacks;
+    const maxAttacks = get().maxAttacks;
+    const newAttacks = currentAttacks + amount;
+    set(() => ({ attacks: Math.max(0, Math.min(newAttacks, maxAttacks)) }));
+    return newAttacks != 0;
+  },
   adjustHealth(amount: number): boolean {
     const currentHealth = get().health;
     const maxHealth = get().maxHealth;
     const newHealth = currentHealth + amount;
     set(() => ({ health: Math.max(0, Math.min(newHealth, maxHealth)) }));
     return newHealth != 0;
+  },
+  atMaxAttacks() {
+    const currentAttacks = get().attacks;
+    const maxAttacks = get().maxAttacks;
+    return currentAttacks === maxAttacks;
   },
   atFullHealth() {
     const currentHealth = get().health;
@@ -147,6 +172,7 @@ export const createPlayerSlice: StateCreator<
     const getItemPosition = get().getItemPosition;
     const currentPlayerData = get().playerPosition;
     const atFullHealth = get().atFullHealth;
+    const atMaxAttacks = get().atMaxAttacks;
     const items = get().items;
     const getItemPositionOnGrid = get().getItemPositionOnGrid;
     const isPlayerAtTileType = get().isPlayerAtTileType;
@@ -174,6 +200,11 @@ export const createPlayerSlice: StateCreator<
       switch (itemAtLocation.type) {
         case ItemType.ITEM_POTION:
           if (!atFullHealth()) {
+            itemCollectable = true;
+          }
+          break;
+        case ItemType.ITEM_WEAPON:
+          if (!atMaxAttacks()) {
             itemCollectable = true;
           }
           break;
@@ -206,5 +237,22 @@ export const createPlayerSlice: StateCreator<
     locationResults.result = locationResults.result | locationDetails;
 
     return locationResults;
+  },
+  canPlayerAttackEnemy: () => {
+    const attacks = get().attacks;
+    if (attacks > 0) {
+      return true;
+    }
+    return false;
+  },
+  playerPerformAttack: (enemy: Enemy) => {
+    const adjustAttacks = get().adjustAttacks;
+    const removeEnemy = get().removeEnemy;
+
+    //TODO Check if enemy is facing the other way
+
+    removeEnemy(enemy);
+    playAudio('mnstr1.ogg', 0.5);
+    adjustAttacks(-1);
   },
 });

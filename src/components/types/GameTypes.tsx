@@ -21,6 +21,7 @@ export enum ItemType {
   ITEM_CROWN,
   ITEM_POTION,
   ITEM_CHICKEN,
+  ITEM_WEAPON,
 }
 
 export enum WallType {
@@ -48,6 +49,7 @@ export enum EnemyStatus {
   STATUS_NONE,
   STATUS_ROAMING,
   STATUS_HUNTING,
+  STATUS_DEAD,
 }
 
 export enum Direction {

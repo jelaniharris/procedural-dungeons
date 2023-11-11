@@ -6,6 +6,7 @@ import {
   FaLayerGroup as FloorIcon,
   FaHeart as HeartIcon,
 } from 'react-icons/fa';
+import { GiPlainDagger as AttacksIcon } from 'react-icons/gi';
 import { GameStatus } from '../types/GameTypes';
 import { EndScreen } from './EndScreen';
 import { ExitOption } from './ExitOption';
@@ -17,6 +18,9 @@ export const FooterHud = () => {
   const isTired = useStore((store: GameState) => store.isTired);
   const health = useStore((store: GameState) => store.health);
   const maxHealth = useStore((store: GameState) => store.maxHealth);
+  const attacks = useStore((store: GameState) => store.attacks);
+  const maxAttacks = useStore((store: GameState) => store.maxAttacks);
+  const maxEnergy = useStore((store: GameState) => store.maxEnergy);
   const showExitDialog = useStore((store: GameState) => store.showExitDialog);
   const gameStatus = useStore((store: GameState) => store.gameStatus);
 
@@ -87,12 +91,20 @@ export const FooterHud = () => {
                 iconClass="text-yellow-300 py-1"
                 icon={<EnergyIcon />}
               >
-                {energy}
+                {energy}/{maxEnergy}
               </PanelLabel>
             </ContentPanel>
             <ContentPanel className="flex justify-center items-center flex-nowrap">
               <PanelLabel iconClass="text-red-600 py-1" icon={<HeartIcon />}>
                 {health}/{maxHealth}
+              </PanelLabel>
+            </ContentPanel>
+            <ContentPanel className="flex justify-center items-center flex-nowrap">
+              <PanelLabel
+                iconClass="text-slate-300 py-1"
+                icon={<AttacksIcon />}
+              >
+                {attacks}/{maxAttacks}
               </PanelLabel>
             </ContentPanel>
           </section>

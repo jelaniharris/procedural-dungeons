@@ -959,6 +959,7 @@ export const createMapSlice: StateCreator<
     lootGen.add(ItemType.ITEM_COIN, 65);
     lootGen.add(ItemType.ITEM_CHICKEN, 25);
     lootGen.add(ItemType.ITEM_CHALICE, 20, 10);
+    lootGen.add(ItemType.ITEM_WEAPON, 20);
     lootGen.add(ItemType.ITEM_CROWN, 15, 1);
     lootGen.add(ItemType.ITEM_POTION, 10, 2);
 
@@ -994,6 +995,15 @@ export const createMapSlice: StateCreator<
             ...newItem,
             rotates: true,
             name: 'chalice',
+            modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(15) },
+          };
+          break;
+        case ItemType.ITEM_WEAPON:
+          newItem = {
+            ...newItem,
+            rotates: true,
+            name: 'dagger',
+            modelPositionOffset: { x: 0, y: 0.3, z: 0 },
             modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(15) },
           };
           break;

@@ -66,6 +66,16 @@ const DungeonScene = () => {
   const setDead = useStore((state: GameState) => state.setDead);
   const setGameStatus = useStore((state: GameState) => state.setGameStatus);
   const setPaused = useStore((state: GameState) => state.setPaused);
+  const adjustAttacks = useStore((state: GameState) => state.adjustAttacks);
+  const getEnemiesAtPlayerLocation = useStore(
+    (state: GameState) => state.getEnemiesAtPlayerLocation
+  );
+  const canPlayerAttackEnemy = useStore(
+    (state: GameState) => state.canPlayerAttackEnemy
+  );
+  const playerPerformAttack = useStore(
+    (state: GameState) => state.playerPerformAttack
+  );
   const recordLocalAttempt = useStore(
     (state: GameState) => state.recordLocalAttempt
   );
@@ -138,29 +148,41 @@ const DungeonScene = () => {
       if (moved) {
         const locationAction = checkPlayerLocation();
 
+        // Check if enemies are at the current location
+        const enemies = getEnemiesAtPlayerLocation();
+        enemies.forEach((enemy) => {
+          if (canPlayerAttackEnemy()) {
+            playerPerformAttack(enemy);
+          }
+        });
+
         if (
           (locationAction.result & LocationActionType.COLLECTED_ITEM) ===
           LocationActionType.COLLECTED_ITEM
         ) {
           switch (locationAction.item?.type) {
             case ItemType.ITEM_COIN:
-              playAudio('coin.wav');
+              playAudio('coin.ogg');
               addScore(10);
               break;
             case ItemType.ITEM_CHALICE:
-              playAudio('coin.wav');
+              playAudio('coin.ogg');
               addScore(25);
               break;
             case ItemType.ITEM_CROWN:
-              playAudio('coin.wav');
+              playAudio('coin.ogg');
               addScore(150);
               break;
             case ItemType.ITEM_POTION:
-              playAudio('bottle.wav', 0.5);
+              playAudio('bottle.ogg', 0.5);
               adjustHealth(1);
               break;
+            case ItemType.ITEM_WEAPON:
+              playAudio('sword-unsheathe.ogg', 0.5);
+              adjustAttacks(1);
+              break;
             case ItemType.ITEM_CHEST:
-              playAudio('coin.wav');
+              playAudio('coin.ogg');
               addScore(10);
               break;
             case ItemType.ITEM_CHICKEN:

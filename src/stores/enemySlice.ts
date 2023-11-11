@@ -27,6 +27,9 @@ export interface EnemySlice {
     enemyPosition: Point2D,
     enemy: Enemy
   ) => LocationActionType;
+  getEnemiesAtLocation: (location: Point2D) => Enemy[];
+  getEnemiesAtPlayerLocation: () => Enemy[];
+  removeEnemy: (enemy: Enemy) => void;
 }
 
 export interface EnemyLocationResultsCallback {
@@ -223,6 +226,22 @@ export const createEnemySlice: StateCreator<
 
     return enemies;
   },
+  getEnemiesAtPlayerLocation(): Enemy[] {
+    const playerPosition = get().playerPosition;
+    return get().getEnemiesAtLocation(playerPosition);
+  },
+  getEnemiesAtLocation(location: Point2D): Enemy[] {
+    const enemies = get().enemies;
+    const enemiesAtLocation = [];
+
+    for (const enemy of enemies) {
+      if (enemy.position.x == location.x && enemy.position.y == location.y) {
+        enemiesAtLocation.push(enemy);
+      }
+    }
+
+    return enemiesAtLocation;
+  },
   checkEnemyLocation(enemyPosition: Point2D, enemy: Enemy): LocationActionType {
     const mapData = get().mapData;
     const playerPosition = get().playerPosition;
@@ -284,5 +303,27 @@ export const createEnemySlice: StateCreator<
 
     set({ enemies: currentEnemies });
     return enemyHasMovementLeft;
+  },
+  removeEnemy: (enemy: Enemy) => {
+    const enemies = get().enemies;
+    const oldEnemies = [...enemies];
+
+    console.log('Looking for enemy: ', enemy);
+    const index = oldEnemies.findIndex(
+      (searchEnemy) => searchEnemy.id == enemy.id
+    );
+    console.log('Found enemy: ', oldEnemies[index]);
+    if (index > 0) {
+      oldEnemies[index] = {
+        ...oldEnemies[index],
+        status: EnemyStatus.STATUS_DEAD,
+        movementPoints: [],
+      };
+
+      //delete oldEnemies[index];
+      set({ enemies: oldEnemies });
+      return true;
+    }
+    return false;
   },
 });
