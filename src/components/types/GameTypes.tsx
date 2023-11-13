@@ -127,6 +127,16 @@ export type Enemy = {
   movementPoints: Point2D[];
 };
 
+export enum DestructableType {
+  BARREL,
+  POTTERY,
+}
+
+export type Destructable = {
+  id: number;
+  type: DestructableType;
+};
+
 export enum GameStatus {
   GAME_NONE,
   GAME_STARTED,

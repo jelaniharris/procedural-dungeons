@@ -1,5 +1,7 @@
 import {
   BlockTestOptions,
+  Destructable,
+  DestructableType,
   Direction,
   DoorLocation,
   EnemyTraits,
@@ -34,6 +36,7 @@ import { StageSlice } from './stageSlice';
 
 export interface MapSlice {
   mapData: (TileType | null)[][];
+  destructables: Map<string, Destructable>;
   numRows: number;
   numCols: number;
   resetStage: (hard: boolean) => void;
@@ -134,6 +137,7 @@ export const createMapSlice: StateCreator<
   numCols: 5,
   items: [],
   doors: [],
+  destructables: new Map<string, Destructable>(),
   itemIndex: 0,
   itemsRefs: allItemRefs,
   resetStage: (hardReset = false) => {
@@ -655,6 +659,7 @@ export const createMapSlice: StateCreator<
     const randomGen = get().generateGenerator(seed);
     const MAP_WIDTH = mapData[0].length - 1;
     const MAP_HEIGHT = mapData.length - 1;
+    const addedDestructables: Map<string, Destructable> = get().destructables;
 
     for (const room of rooms) {
       for (let x = room.left - 1; x <= room.right + 1; x++) {
@@ -673,6 +678,13 @@ export const createMapSlice: StateCreator<
               0.15,
               TileType.TILE_FLOOR_ROOM
             );
+            if (desiredTile != TileType.TILE_FLOOR_ROOM && randomGen() < 0.3) {
+              addedDestructables.set(`${x},${y}`, {
+                id: Math.random() * 10000,
+                type: DestructableType.BARREL,
+              });
+              desiredTile = TileType.TILE_FLOOR_ROOM;
+            }
           }
 
           // If within bounds of the map
@@ -685,6 +697,8 @@ export const createMapSlice: StateCreator<
         }
       }
     }
+
+    set({ destructables: addedDestructables });
 
     /*for (const room of rooms) {
       for (let x = room.left; x <= room.right; x++) {
@@ -837,7 +851,7 @@ export const createMapSlice: StateCreator<
           continue;
         }
 
-        let doorAmounts = Math.floor(randomGen() * 2) + 1;
+        let doorAmounts = Math.floor(randomGen() * 3) + 1;
         while (doorAmounts > 0 && sharedWalls.size > 0) {
           const position = popRandomItemFromSet(sharedWalls, randomGen);
           const [x, y] = position.split(',');

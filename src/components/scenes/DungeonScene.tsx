@@ -1,6 +1,7 @@
 'use client';
 
 import { ShowDangerIndicators } from '@/app/ShowDangerIndicators';
+import { ShowDestructables } from '@/app/ShowDestructables';
 import { ShowEnemies } from '@/app/ShowEnemies';
 import { ShowEnemyIntention } from '@/app/ShowEnemyIntentions';
 import { ShowHazards } from '@/app/ShowHazards';
@@ -217,7 +218,19 @@ const DungeonScene = () => {
 
       aiTurn();
     },
-    [advanceStage, aiTurn, checkPlayerLocation]
+    [
+      addScore,
+      adjustAttacks,
+      adjustHealth,
+      aiTurn,
+      canPlayerAttackEnemy,
+      checkPlayerLocation,
+      findGameObjectsByXY,
+      getEnemiesAtPlayerLocation,
+      modifyEnergy,
+      playerPerformAttack,
+      publish,
+    ]
   );
 
   React.useEffect(() => {
@@ -323,6 +336,7 @@ const DungeonScene = () => {
         <ShowDangerIndicators />
         <ShowHazards />
         <ShowInteractables />
+        <ShowDestructables />
       </Suspense>
     </>
   );
