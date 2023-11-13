@@ -151,7 +151,7 @@ const DungeonScene = () => {
         // Check if enemies are at the current location
         const enemies = getEnemiesAtPlayerLocation();
         enemies.forEach((enemy) => {
-          if (canPlayerAttackEnemy()) {
+          if (canPlayerAttackEnemy(enemy)) {
             playerPerformAttack(enemy);
           }
         });

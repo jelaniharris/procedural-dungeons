@@ -1,5 +1,6 @@
 import {
   Enemy,
+  EnemyStatus,
   Item,
   ItemType,
   LocationActionType,
@@ -35,7 +36,7 @@ export interface PlayerSlice {
   modifyEnergy: (amount: number) => void;
   isPlayerAtTileType: (tileType: TileType) => boolean;
   resetPlayer: () => void;
-  canPlayerAttackEnemy: () => boolean;
+  canPlayerAttackEnemy: (enemy: Enemy) => boolean;
   playerPerformAttack: (enemy: Enemy) => void;
 }
 
@@ -238,8 +239,13 @@ export const createPlayerSlice: StateCreator<
 
     return locationResults;
   },
-  canPlayerAttackEnemy: () => {
+  canPlayerAttackEnemy: (enemy: Enemy) => {
     const attacks = get().attacks;
+
+    if (enemy.status == EnemyStatus.STATUS_DEAD) {
+      return false;
+    }
+
     if (attacks > 0) {
       return true;
     }

@@ -1,35 +1,62 @@
-import * as THREE from 'three';
-import React, { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
-import { useGLTF } from '@react-three/drei';
-import { GLTF } from 'three-stdlib';
 import { Enemy } from '@/components/types/GameTypes';
+import { useAnimations, useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import * as THREE from 'three';
+import { GLTF } from 'three-stdlib';
+
+interface GLTFAction extends THREE.AnimationClip {
+  name: ActionName;
+}
 
 type GLTFResult = GLTF & {
   nodes: {
-    mesh_0: THREE.Mesh;
-    mesh_0_1: THREE.Mesh;
-    ['Mesh_arm-left_Instance']: THREE.Mesh;
-    ['Mesh_arm-left_Instance_1']: THREE.Mesh;
-    ['Mesh_arm-right_Instance']: THREE.Mesh;
-    ['Mesh_arm-right_Instance_1']: THREE.Mesh;
-    ['Mesh_leg-left_(%reverse)_Instance']: THREE.Mesh;
-    ['Mesh_leg-left_(%reverse)_Instance_1']: THREE.Mesh;
-    ['Mesh_leg-right_(%reverse)_Instance']: THREE.Mesh;
-    ['Mesh_leg-right_(%reverse)_Instance_1']: THREE.Mesh;
-    mesh_5: THREE.Mesh;
-    mesh_5_1: THREE.Mesh;
-    mesh_5_2: THREE.Mesh;
-    mesh_5_3: THREE.Mesh;
+    ['leg-left']: THREE.Mesh;
+    ['leg-right']: THREE.Mesh;
+    torso: THREE.Mesh;
+    ['arm-left']: THREE.Mesh;
+    ['arm-right']: THREE.Mesh;
+    head: THREE.Mesh;
   };
   materials: {
-    brown: THREE.MeshStandardMaterial;
-    dark: THREE.MeshStandardMaterial;
-    green: THREE.MeshStandardMaterial;
-    yellow: THREE.MeshStandardMaterial;
-    ['default']: THREE.MeshStandardMaterial;
+    colormap: THREE.MeshStandardMaterial;
   };
+  animations: GLTFAction[];
 };
+
+type ActionName =
+  | 'static'
+  | 'idle'
+  | 'walk'
+  | 'sprint'
+  | 'jump'
+  | 'fall'
+  | 'crouch'
+  | 'sit'
+  | 'drive'
+  | 'die'
+  | 'pick-up'
+  | 'emote-yes'
+  | 'emote-no'
+  | 'holding-right'
+  | 'holding-left'
+  | 'holding-both'
+  | 'holding-right-shoot'
+  | 'holding-left-shoot'
+  | 'holding-both-shoot'
+  | 'attack-melee-right'
+  | 'attack-melee-left'
+  | 'attack-kick-right'
+  | 'attack-kick-left'
+  | 'interact-right'
+  | 'interact-left';
 
 interface OrcProps {
   enemy: Enemy;
@@ -43,28 +70,23 @@ export const Orc = forwardRef(function Orc(
   const position = useMemo(() => props.position, []);
   const MovementSpeed = 0.32;
 
-  //const orc = useRef<THREE.Group>(null);
   const orc = useRef<THREE.Group>(null);
   useImperativeHandle(forwardedRef, () => orc.current);
 
-  //const enemies = useStore((store: GameState) => store.enemies, shallow);
-
-  //const enemy = props.enemy; //enemies[props.enemyId];
-  //console.log('Rendering enemy:', enemy);
-
-  const { nodes, materials } = useGLTF(
-    '/models/characters/character-orc.glb'
+  const { nodes, materials, animations } = useGLTF(
+    '/models/characters/orc/character-orc.glb'
   ) as GLTFResult;
-
-  /*
-  const { actions } = useAnimations(animations,group);
-  const [animation, setAnimation] = useState("idle");
+  const { actions } = useAnimations(animations, orc);
+  const [animation, setAnimation] = useState<ActionName>('idle');
 
   useEffect(() => {
-    actions[animation].reset().fadeIn(0.32).play();
-    return () => actions[animation]?.fadeOut(0.32);
-  })
-  */
+    if (!actions) {
+      return () => {};
+    } else {
+      actions[animation]?.reset().fadeIn(0.32).play();
+      return () => actions[animation]?.fadeOut(0.32);
+    }
+  }, [actions, animation]);
 
   useFrame(() => {
     if (!orc || !orc.current || !props.position) {
@@ -80,72 +102,63 @@ export const Orc = forwardRef(function Orc(
       //orc.current?.position.lerp(props.position as THREE.Vector3, 0.2);
       orc.current.position.sub(direction);
       orc.current.lookAt(propsPosition);
-      //setAnimation("walk")
+      setAnimation('walk');
     } else {
-      // setAnimation("idle")
+      if (props.enemy.movementPoints.length > 0) {
+        setAnimation('walk');
+      } else {
+        setAnimation('idle');
+      }
     }
   });
 
   return (
-    <group {...props} position={position} ref={orc} dispose={null}>
-      <group position={[0, 0.176, 0]}>
-        <mesh geometry={nodes.mesh_0.geometry} material={materials.brown} />
-        <mesh geometry={nodes.mesh_0_1.geometry} material={materials.dark} />
-        <group position={[-0.1, 0.112, -0.011]}>
-          <mesh
-            geometry={nodes['Mesh_arm-left_Instance'].geometry}
-            material={materials.brown}
-          />
-          <mesh
-            geometry={nodes['Mesh_arm-left_Instance_1'].geometry}
-            material={materials.green}
-          />
-        </group>
-        <group position={[0.1, 0.112, -0.011]}>
-          <mesh
-            geometry={nodes['Mesh_arm-right_Instance'].geometry}
-            material={materials.brown}
-          />
-          <mesh
-            geometry={nodes['Mesh_arm-right_Instance_1'].geometry}
-            material={materials.green}
-          />
-        </group>
-        <group position={[-0.084, 0, 0]}>
-          <mesh
-            geometry={nodes['Mesh_leg-left_(%reverse)_Instance'].geometry}
-            material={materials.dark}
-          />
-          <mesh
-            geometry={nodes['Mesh_leg-left_(%reverse)_Instance_1'].geometry}
-            material={materials.brown}
-          />
-        </group>
-        <group position={[0.084, 0, 0]}>
-          <mesh
-            geometry={nodes['Mesh_leg-right_(%reverse)_Instance'].geometry}
-            material={materials.brown}
-          />
-          <mesh
-            geometry={nodes['Mesh_leg-right_(%reverse)_Instance_1'].geometry}
-            material={materials.dark}
-          />
-        </group>
-        <group position={[0, 0.167, -0.026]}>
-          <mesh geometry={nodes.mesh_5.geometry} material={materials.dark} />
-          <mesh geometry={nodes.mesh_5_1.geometry} material={materials.green} />
-          <mesh
-            geometry={nodes.mesh_5_2.geometry}
-            material={materials.yellow}
-          />
-          <mesh
-            geometry={nodes.mesh_5_3.geometry}
-            material={materials['default']}
-          />
+    <group ref={orc} {...props} position={position} dispose={null}>
+      <group name="character-orc">
+        <group name="character-orc_1">
+          <group name="root">
+            <mesh
+              name="leg-left"
+              geometry={nodes['leg-left'].geometry}
+              material={materials.colormap}
+              position={[0.084, 0.176, -0.024]}
+            />
+            <mesh
+              name="leg-right"
+              geometry={nodes['leg-right'].geometry}
+              material={materials.colormap}
+              position={[-0.084, 0.176, -0.024]}
+            />
+            <mesh
+              name="torso"
+              geometry={nodes.torso.geometry}
+              material={materials.colormap}
+              position={[0, 0.176, -0.024]}
+            >
+              <mesh
+                name="arm-left"
+                geometry={nodes['arm-left'].geometry}
+                material={materials.colormap}
+                position={[0.1, 0.112, 0.011]}
+              />
+              <mesh
+                name="arm-right"
+                geometry={nodes['arm-right'].geometry}
+                material={materials.colormap}
+                position={[-0.1, 0.112, 0.011]}
+              />
+              <mesh
+                name="head"
+                geometry={nodes.head.geometry}
+                material={materials.colormap}
+                position={[0, 0.167, 0.026]}
+              />
+            </mesh>
+          </group>
         </group>
       </group>
     </group>
   );
 });
 
-useGLTF.preload('/models/characters/character-orc.glb');
+useGLTF.preload('/models/characters/orc/character-orc.glb');
