@@ -79,11 +79,13 @@ export function CharacterPlayer(props: JSX.IntrinsicElements['group']) {
     if (!human || !human.current) {
       return;
     }
+    const propsPosition = props.position as THREE.Vector3;
     if (
       props.position &&
-      human.current?.position.distanceTo(props.position as THREE.Vector3) > 0.1
+      human.current?.position.distanceTo(propsPosition) > 0.1
     ) {
-      human.current?.position.lerp(props.position as THREE.Vector3, 0.1);
+      human.current.lookAt(propsPosition);
+      human.current?.position.lerp(propsPosition, 0.1);
       setAnimation('walk');
     } else {
       setAnimation('idle');
