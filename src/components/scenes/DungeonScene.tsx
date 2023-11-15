@@ -20,18 +20,23 @@ import {
   EXIT_GREED,
   EXIT_NEED,
   ON_TICK,
+  PLAYER_ATTEMPT_MOVE,
   PLAYER_DAMAGED_TRAP,
   PLAYER_DIED,
   PLAYER_MOVED,
   PLAYER_REACHED_EXIT,
   PLAYER_TOUCHED_ENEMY,
+  PlayerAttemptMoveEvent,
   PlayerDamagedTrapEvent,
 } from '../types/EventTypes';
 import {
+  DestructableType,
   Enemy,
   GameStatus,
   ItemType,
   LocationActionType,
+  POSITION_OFFSETS,
+  WalkableType,
 } from '../types/GameTypes';
 import useGame from '../useGame';
 
@@ -68,6 +73,11 @@ const DungeonScene = () => {
   const setGameStatus = useStore((state: GameState) => state.setGameStatus);
   const setPaused = useStore((state: GameState) => state.setPaused);
   const adjustAttacks = useStore((state: GameState) => state.adjustAttacks);
+  const checkIfWalkable = useStore((state: GameState) => state.checkIfWalkable);
+  const adjustPlayer = useStore((state: GameState) => state.adjustPlayer);
+  const reduceHealthDestructible = useStore(
+    (state: GameState) => state.reduceHealthDestructible
+  );
   const getEnemiesAtPlayerLocation = useStore(
     (state: GameState) => state.getEnemiesAtPlayerLocation
   );
@@ -304,6 +314,54 @@ const DungeonScene = () => {
         }
       });
 
+      subscribe<PlayerAttemptMoveEvent>(
+        PLAYER_ATTEMPT_MOVE,
+        ({ currentPosition, desiredDirection }) => {
+          console.log(currentPosition, desiredDirection);
+
+          // Find offset
+          const desiredOffset = POSITION_OFFSETS.find(
+            (offset) => offset.direction == desiredDirection
+          );
+          if (desiredOffset) {
+            console.log(desiredOffset);
+            const nextPosition: Point2D = {
+              x: currentPosition.x + desiredOffset.position.x,
+              y: currentPosition.y + desiredOffset.position.y,
+            };
+
+            const checkWalkable = checkIfWalkable(nextPosition);
+
+            if (checkWalkable.result) {
+              const movementValid = adjustPlayer(
+                desiredOffset.position.x,
+                desiredOffset.position.y
+              );
+
+              if (movementValid) {
+                publish('player-moved', { moved: true });
+              }
+            } else {
+              switch (checkWalkable.type) {
+                case WalkableType.BLOCK_DESTRUCTIBLE:
+                  const result = reduceHealthDestructible(nextPosition);
+                  if (result != DestructableType.NONE) {
+                    console.log('Destroyed');
+                  }
+                  break;
+                case WalkableType.BLOCK_WALL:
+                case WalkableType.BLOCK_NONE:
+                default:
+                  break;
+              }
+            }
+          } else {
+            // Direction is none, stall was pressed?
+            publish('player-moved', { moved: false });
+          }
+        }
+      );
+
       subscribe(PLAYER_MOVED, ({ moved }) => {
         if (moved) {
           playAudio('stepstone_1.wav', 0.2);
@@ -317,6 +375,10 @@ const DungeonScene = () => {
       unsubscribeAllHandlers(PLAYER_MOVED);
       unsubscribeAllHandlers(PLAYER_DIED);
       unsubscribeAllHandlers(PLAYER_DAMAGED_TRAP);
+      unsubscribeAllHandlers(PLAYER_ATTEMPT_MOVE);
+      unsubscribeAllHandlers(PLAYER_REACHED_EXIT);
+      unsubscribeAllHandlers(EXIT_GREED);
+      unsubscribeAllHandlers(EXIT_NEED);
     };
   }, []);
 

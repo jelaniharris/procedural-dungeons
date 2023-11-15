@@ -1,11 +1,13 @@
+import { Point2D } from '@/utils/Point2D';
 import { ConsumerEvent } from '@/utils/pubSub';
-import { Enemy, Hazard } from './GameTypes';
+import { Direction, Enemy, Hazard } from './GameTypes';
 
 export const PLAYER_MOVED = 'player-moved';
 export const PLAYER_TOUCHED_ENEMY = 'player-touched-enemy';
 export const PLAYER_DIED = 'player-died';
 export const PLAYER_DAMAGED_TRAP = 'player-damaged-trap';
 export const PLAYER_REACHED_EXIT = 'player-reached-exit';
+export const PLAYER_ATTEMPT_MOVE = 'player-attempt-move';
 
 export const EXIT_GREED = 'exit-greed';
 export const EXIT_NEED = 'exit-need';
@@ -25,6 +27,11 @@ export type ChangeSceneEvent = ConsumerEvent<
 export type PlayerMovedEvent = ConsumerEvent<
   'player-moved',
   { moved: boolean }
+>;
+
+export type PlayerAttemptMoveEvent = ConsumerEvent<
+  'player-attempt-move',
+  { currentPosition: Point2D; desiredDirection: Direction }
 >;
 
 export type PlayerTouchedEnemyEvent = ConsumerEvent<

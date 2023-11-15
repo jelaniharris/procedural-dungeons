@@ -1,16 +1,17 @@
 import { useStore } from '@/stores/useStore';
 import { useKeyboardControls } from '@react-three/drei';
 import { useCallback, useEffect } from 'react';
-import { Controls, GameStatus } from './types/GameTypes';
+import {
+  PLAYER_ATTEMPT_MOVE,
+  PlayerAttemptMoveEvent,
+} from './types/EventTypes';
+import { Controls, Direction, GameStatus } from './types/GameTypes';
 import useGame from './useGame';
 
-export const CharacterController = ({
-  children,
-}: {
-  children?: React.ReactNode;
-}) => {
+export const CharacterController = () => {
   const adjustPlayer = useStore((store) => store.adjustPlayer);
   const gameStatus = useStore((store) => store.gameStatus);
+  const getPlayerLocation = useStore((store) => store.getPlayerLocation);
 
   const { publish } = useGame();
 
@@ -23,23 +24,48 @@ export const CharacterController = ({
   const stallPressed = useKeyboardControls<Controls>((state) => state.stall);
 
   const moveDirection = useCallback(() => {
-    let movementValid = false;
+    //let movementValid = false;
     if (gameStatus != GameStatus.GAME_STARTED) {
       return false;
     }
-    const noClipMode = false;
+    //const noClipMode = false;
 
-    if (forwardPressed) {
-      movementValid = adjustPlayer(0, -1, noClipMode);
-    } else if (downPressed) {
-      movementValid = adjustPlayer(0, 1, noClipMode);
-    } else if (rightPressed) {
-      movementValid = adjustPlayer(1, 0, noClipMode);
-    } else if (leftPressed) {
-      movementValid = adjustPlayer(-1, 0, noClipMode);
+    if (!getPlayerLocation) {
+      return;
     }
 
-    if (movementValid) {
+    if (forwardPressed) {
+      //movementValid = adjustPlayer(0, -1, noClipMode);
+      publish<PlayerAttemptMoveEvent>(PLAYER_ATTEMPT_MOVE, {
+        currentPosition: getPlayerLocation(),
+        desiredDirection: Direction.DIR_NORTH,
+      });
+    } else if (downPressed) {
+      //movementValid = adjustPlayer(0, 1, noClipMode);
+      publish<PlayerAttemptMoveEvent>(PLAYER_ATTEMPT_MOVE, {
+        currentPosition: getPlayerLocation(),
+        desiredDirection: Direction.DIR_SOUTH,
+      });
+    } else if (rightPressed) {
+      //movementValid = adjustPlayer(1, 0, noClipMode);
+      publish<PlayerAttemptMoveEvent>(PLAYER_ATTEMPT_MOVE, {
+        currentPosition: getPlayerLocation(),
+        desiredDirection: Direction.DIR_EAST,
+      });
+    } else if (leftPressed) {
+      //movementValid = adjustPlayer(-1, 0, noClipMode);
+      publish<PlayerAttemptMoveEvent>(PLAYER_ATTEMPT_MOVE, {
+        currentPosition: getPlayerLocation(),
+        desiredDirection: Direction.DIR_WEST,
+      });
+    } else if (stallPressed) {
+      publish<PlayerAttemptMoveEvent>(PLAYER_ATTEMPT_MOVE, {
+        currentPosition: getPlayerLocation(),
+        desiredDirection: Direction.DIR_NONE,
+      });
+    }
+
+    /*if (movementValid) {
       if (forwardPressed || downPressed || rightPressed || leftPressed) {
         console.debug(
           `[CharacterController|Component] Moving ${forwardPressed}|${rightPressed}|${downPressed}|${leftPressed}`
@@ -54,12 +80,13 @@ export const CharacterController = ({
         console.debug(`[CharacterController|Component] wait`);
         publish('player-moved', { moved: false });
       }
-    }
+    }*/
   }, [
     adjustPlayer,
     downPressed,
     forwardPressed,
     gameStatus,
+    getPlayerLocation,
     leftPressed,
     publish,
     rightPressed,
@@ -70,5 +97,5 @@ export const CharacterController = ({
     moveDirection();
   }, [moveDirection]);
 
-  return <>{children}</>;
+  return <></>;
 };

@@ -103,7 +103,7 @@ export const POSITION_OFFSETS = [
   },
 ];
 
-export enum EnemyTraits {
+export enum UnitTraits {
   NONE = 0,
   NOCLIP = 1 << 0,
   OPENDOORS = 1 << 1,
@@ -121,15 +121,22 @@ export type Enemy = {
   name?: string;
   status: EnemyStatus;
   nextDirection: Point2D;
-  traits: EnemyTraits;
+  traits: UnitTraits;
   movementRange: number;
   movementVariance: number;
   movementPoints: Point2D[];
 };
 
 export enum DestructableType {
+  NONE,
   BARREL,
   POTTERY,
+}
+
+export enum WalkableType {
+  BLOCK_NONE,
+  BLOCK_WALL,
+  BLOCK_DESTRUCTIBLE,
 }
 
 export type Destructable = {

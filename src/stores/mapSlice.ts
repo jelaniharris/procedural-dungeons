@@ -4,7 +4,6 @@ import {
   DestructableType,
   Direction,
   DoorLocation,
-  EnemyTraits,
   GameStatus,
   Item,
   ItemType,
@@ -13,6 +12,8 @@ import {
   SplitData,
   SplitType,
   TileType,
+  UnitTraits,
+  WalkableType,
   WallType,
 } from '@/components/types/GameTypes';
 import { Room } from '@/utils/Bounds2d';
@@ -44,7 +45,7 @@ export interface MapSlice {
   determineValidDirections: (
     point: Point2D,
     excludedPoints?: Point2D[],
-    traits?: EnemyTraits
+    traits?: UnitTraits
   ) => Direction[];
   isBlockWallOrNull: (
     e: TileType | null,
@@ -76,6 +77,10 @@ export interface MapSlice {
     mapData: (TileType | null)[][],
     allMapAreas: MapArea[]
   ) => (TileType | null)[][];
+  checkIfWalkable: (
+    location: Point2D,
+    hasTraits?: UnitTraits
+  ) => { result: boolean; type: WalkableType };
 
   // Areas
   getAreasFromMap: (mapData: (TileType | null)[][]) => MapArea[];
@@ -103,6 +108,9 @@ export interface MapSlice {
     mapData: (TileType | null)[][],
     location: Point2D
   ) => boolean;
+
+  // Destructibles
+  reduceHealthDestructible: (location: Point2D) => DestructableType;
 
   // Doors
   doors: DoorLocation[];
@@ -241,11 +249,13 @@ export const createMapSlice: StateCreator<
         newMap[x][y] = TileType.TILE_NONE;
       }
     }
+    get().destructables.clear();
 
     set({
       mapData: newMap,
       numRows: mapNumRows,
       numCols: mapNumCols,
+      doors: [],
     });
   },
   getTilePosition: (x: number, y: number) => {
@@ -281,6 +291,42 @@ export const createMapSlice: StateCreator<
         : false)
     );
   },
+  reduceHealthDestructible: (location: Point2D) => {
+    const destructables = get().destructables;
+    const locationString = `${location.x},${location.y}`;
+    if (destructables.has(locationString)) {
+      const preType =
+        destructables.get(locationString)?.type || DestructableType.NONE;
+      destructables.delete(locationString);
+      return preType;
+    }
+    return DestructableType.NONE;
+  },
+  checkIfWalkable: (
+    location: Point2D,
+    hasTraits: UnitTraits = UnitTraits.NONE
+  ) => {
+    const mapData = get().mapData;
+    const isBlockWallOrNull = get().isBlockWallOrNull;
+    const destructables = get().destructables;
+
+    const hasNoClip = (hasTraits & UnitTraits.NOCLIP) === UnitTraits.NOCLIP;
+
+    // If location is a wall
+    if (
+      !(isBlockWallOrNull(mapData[location.x][location.y]),
+      { hasNoClip: hasNoClip })
+    ) {
+      return { result: false, type: WalkableType.BLOCK_WALL };
+    }
+
+    // If location is a barrel
+    if (destructables.has(`${location.x},${location.y}`)) {
+      return { result: false, type: WalkableType.BLOCK_DESTRUCTIBLE };
+    }
+
+    return { result: true, type: WalkableType.BLOCK_NONE };
+  },
   countSurroundingWalls: (
     mapData: (TileType | null)[][],
     location: Point2D
@@ -306,7 +352,7 @@ export const createMapSlice: StateCreator<
   determineValidDirections: (
     point: Point2D,
     excludedPoints?: Point2D[],
-    traits = EnemyTraits.NONE
+    traits = UnitTraits.NONE
   ) => {
     const getTilePosition = get().getTilePosition;
     const isBlockWallOrNull = get().isBlockWallOrNull;
@@ -333,9 +379,8 @@ export const createMapSlice: StateCreator<
 
       if (
         !isBlockWallOrNull(dirTile, {
-          noClip: (traits & EnemyTraits.NOCLIP) == EnemyTraits.NOCLIP,
-          canInteract:
-            (traits & EnemyTraits.OPENDOORS) == EnemyTraits.OPENDOORS,
+          noClip: (traits & UnitTraits.NOCLIP) == UnitTraits.NOCLIP,
+          canInteract: (traits & UnitTraits.OPENDOORS) == UnitTraits.OPENDOORS,
         })
       ) {
         validDirections.push(posOff.direction);

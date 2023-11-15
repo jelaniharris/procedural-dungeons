@@ -4,8 +4,8 @@ Command: npx gltfjsx@6.2.10 ./public/character-human.glb -t
 */
 
 import { useAnimations, useGLTF } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Vector3 } from '@react-three/fiber';
+import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Group } from 'three';
 import { GLTF } from 'three-stdlib';
@@ -56,16 +56,25 @@ type ActionName =
   | 'interact-right'
   | 'interact-left';
 
-export function CharacterPlayer(props: JSX.IntrinsicElements['group']) {
+type CharacterPlayerProps = {
+  desiredPosition?: Vector3;
+};
+
+export function CharacterPlayer(
+  props: JSX.IntrinsicElements['group'] & CharacterPlayerProps
+) {
   const human = useRef<Group>(null);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const position = useMemo(() => props.position, []);
+  //const position = useMemo(() => props.position, []);
   const { nodes, materials, animations } = useGLTF(
     '/models/characters/human/character-human.glb'
   ) as GLTFResult;
-  const { actions } = useAnimations(animations, human);
-  const [animation, setAnimation] = useState<ActionName>('idle');
+  //const { nodeRef } = useGameObject();
 
+  const { actions } = useAnimations(animations, human);
+  const [animation /*, setAnimation*/] = useState<ActionName>('idle');
+
+  // Transition through animations
   useEffect(() => {
     if (!actions) {
       return () => {};
@@ -75,7 +84,7 @@ export function CharacterPlayer(props: JSX.IntrinsicElements['group']) {
     }
   }, [actions, animation]);
 
-  useFrame(() => {
+  /*useFrame(() => {
     if (!human || !human.current) {
       return;
     }
@@ -90,10 +99,10 @@ export function CharacterPlayer(props: JSX.IntrinsicElements['group']) {
     } else {
       setAnimation('idle');
     }
-  });
+  });*/
 
   return (
-    <group {...props} position={position} dispose={null} ref={human}>
+    <group {...props} dispose={null} ref={human}>
       <group name="character-human">
         <group name="character-human_1">
           <group name="root">

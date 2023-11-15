@@ -26,6 +26,7 @@ export interface PlayerSlice {
   isDead: boolean;
   isTired: boolean;
   setDead: () => void;
+  getPlayerLocation: () => Point2D;
   adjustPlayer: (xOffset: number, yOffset: number, noClip?: boolean) => boolean;
   checkPlayerLocation: () => PlayerLocationResults;
   adjustHealth: (amount: number) => boolean;
@@ -81,6 +82,10 @@ export const createPlayerSlice: StateCreator<
   setDead() {
     set({ isDead: true });
   },
+  getPlayerLocation: () => {
+    const playerPosition = get().playerPosition;
+    return playerPosition;
+  },
   adjustPlayer(xOffset: number, yOffset: number, noClip = false) {
     const isBlockWallOrNull = get().isBlockWallOrNull;
     const currentMapData = get().mapData;
@@ -104,15 +109,15 @@ export const createPlayerSlice: StateCreator<
     playerData.y = playerData.y + yOffset;
 
     if (xOffset < 0) {
-      currentPlayerRotation = MathUtils.degToRad(90);
-    } else if (xOffset > 0) {
       currentPlayerRotation = MathUtils.degToRad(270);
+    } else if (xOffset > 0) {
+      currentPlayerRotation = MathUtils.degToRad(90);
     }
 
     if (yOffset < 0) {
-      currentPlayerRotation = MathUtils.degToRad(0);
-    } else if (yOffset > 0) {
       currentPlayerRotation = MathUtils.degToRad(180);
+    } else if (yOffset > 0) {
+      currentPlayerRotation = MathUtils.degToRad(0);
     }
 
     //console.log('[adjustPlayer] New position:', playerData);

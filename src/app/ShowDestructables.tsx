@@ -3,9 +3,10 @@ import { Barrel } from '@/components/models/Barrel';
 import { DestructableType } from '@/components/types/GameTypes';
 import { useStore } from '@/stores/useStore';
 import { Vector3 } from 'three/src/math/Vector3';
+import { shallow } from 'zustand/shallow';
 
 export const ShowDestructables = () => {
-  const destructables = useStore((state) => state.destructables);
+  const destructables = useStore((state) => state.destructables, shallow);
 
   const worldDestructables: React.JSX.Element[] = [];
 

@@ -2,10 +2,10 @@ import {
   Direction,
   Enemy,
   EnemyStatus,
-  EnemyTraits,
   EnemyType,
   LocationActionType,
   TileType,
+  UnitTraits,
 } from '@/components/types/GameTypes';
 import { LootChance } from '@/utils/LootChance';
 import { Point2D } from '@/utils/Point2D';
@@ -100,7 +100,7 @@ export const createEnemySlice: StateCreator<
         nextDirection: { x: 0, y: 0 },
         movementPoints: [],
         movementRange: 1,
-        traits: EnemyTraits.NONE,
+        traits: UnitTraits.NONE,
         movementVariance: 0,
       };
 
@@ -110,7 +110,7 @@ export const createEnemySlice: StateCreator<
             ...newEnemy,
             movementRange: 2,
             name: 'Orc',
-            traits: EnemyTraits.OPENDOORS,
+            traits: UnitTraits.OPENDOORS,
           };
           break;
         case EnemyType.ENEMY_SKELETON:
@@ -122,7 +122,7 @@ export const createEnemySlice: StateCreator<
             movementRange: 1,
             movementVariance: 2,
             name: 'Ghost',
-            traits: EnemyTraits.NOCLIP,
+            traits: UnitTraits.NOCLIP,
           };
           break;
         default:
@@ -258,7 +258,7 @@ export const createEnemySlice: StateCreator<
     // If enemy is at a door and they can open doors
     if (
       mapData[enemyPosition.x][enemyPosition.y] == TileType.TILE_WALL_DOOR &&
-      (enemy.traits & EnemyTraits.OPENDOORS) == EnemyTraits.OPENDOORS
+      (enemy.traits & UnitTraits.OPENDOORS) == UnitTraits.OPENDOORS
     ) {
       locationDetails = locationDetails | LocationActionType.AT_DOOR;
     }
