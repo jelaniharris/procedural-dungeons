@@ -61,7 +61,7 @@ const NameChangeScreen = () => {
             id="username"
             value={data.name}
           />
-          <div className="flex flex-row items-center gap-3 ">
+          <div className="flex flex-row items-center gap-4">
             <Button type="submit">Assign Name</Button>
           </div>
         </form>
