@@ -14,6 +14,7 @@ import { EffectComposer, Vignette } from '@react-three/postprocessing';
 import React, { Suspense, useCallback, useState } from 'react';
 import { ShowEnvironment } from '../../app/ShowEnvironment';
 import { AmbientSound } from '../AmbientSound';
+import { MoveableObjectRef } from '../entities/MoveableObject';
 import Player from '../entities/Player';
 import {
   DOOR_OPEN,
@@ -31,6 +32,7 @@ import {
 } from '../types/EventTypes';
 import {
   DestructableType,
+  Direction,
   Enemy,
   GameStatus,
   ItemType,
@@ -74,7 +76,6 @@ const DungeonScene = () => {
   const setPaused = useStore((state: GameState) => state.setPaused);
   const adjustAttacks = useStore((state: GameState) => state.adjustAttacks);
   const checkIfWalkable = useStore((state: GameState) => state.checkIfWalkable);
-  const adjustPlayer = useStore((state: GameState) => state.adjustPlayer);
   const reduceHealthDestructible = useStore(
     (state: GameState) => state.reduceHealthDestructible
   );
@@ -108,6 +109,7 @@ const DungeonScene = () => {
     getAllRegistryById,
     gameMode,
     findGameObjectsByXY,
+    findGameObjectByName,
   } = useGame();
   const [mapTone, setMapTone] = useState<string>('#FFFFFF');
 
@@ -243,6 +245,75 @@ const DungeonScene = () => {
     ]
   );
 
+  const playerAttemptMove = useCallback(
+    async (currentPosition: Point2D, desiredDirection: Direction) => {
+      console.log(
+        'Current Pos:',
+        currentPosition,
+        ' Desired Direction:',
+        desiredDirection
+      );
+
+      const playerGO = findGameObjectByName('player');
+      if (!playerGO) {
+        console.log("Couldn't find player GO");
+        return;
+      }
+
+      // Find offset
+      const desiredOffset = POSITION_OFFSETS.find(
+        (offset) => offset.direction == desiredDirection
+      );
+      if (desiredOffset) {
+        console.log(desiredOffset);
+        const nextPosition: Point2D = {
+          x: currentPosition.x + desiredOffset.position.x,
+          y: currentPosition.y + desiredOffset.position.y,
+        };
+
+        const checkWalkable = checkIfWalkable(nextPosition);
+
+        if (checkWalkable.result) {
+          console.log(checkWalkable.type);
+          const movementRef =
+            playerGO.getComponent<MoveableObjectRef>('Moveable');
+
+          const moved = await movementRef.move(nextPosition, 'move');
+
+          if (moved) {
+            publish('player-moved', { moved: true });
+          }
+
+          /*const movementValid = adjustPlayer(
+          desiredOffset.position.x,
+          desiredOffset.position.y
+        );
+
+        if (movementValid) {
+          publish('player-moved', { moved: true });
+        }*/
+        } else {
+          switch (checkWalkable.type) {
+            case WalkableType.BLOCK_DESTRUCTIBLE:
+              const result = reduceHealthDestructible(nextPosition);
+              if (result != DestructableType.NONE) {
+                console.log('Destroyed');
+              }
+              break;
+            case WalkableType.BLOCK_WALL:
+            case WalkableType.BLOCK_NONE:
+            default:
+              break;
+          }
+        }
+      } else {
+        // Direction is none, stall was pressed?
+        publish('player-moved', { moved: false });
+      }
+    },
+    [checkIfWalkable, findGameObjectByName, publish, reduceHealthDestructible]
+  );
+
   React.useEffect(() => {
     const party = async () => {
       startGame(gameMode);
@@ -317,48 +388,7 @@ const DungeonScene = () => {
       subscribe<PlayerAttemptMoveEvent>(
         PLAYER_ATTEMPT_MOVE,
         ({ currentPosition, desiredDirection }) => {
-          console.log(currentPosition, desiredDirection);
-
-          // Find offset
-          const desiredOffset = POSITION_OFFSETS.find(
-            (offset) => offset.direction == desiredDirection
-          );
-          if (desiredOffset) {
-            console.log(desiredOffset);
-            const nextPosition: Point2D = {
-              x: currentPosition.x + desiredOffset.position.x,
-              y: currentPosition.y + desiredOffset.position.y,
-            };
-
-            const checkWalkable = checkIfWalkable(nextPosition);
-
-            if (checkWalkable.result) {
-              const movementValid = adjustPlayer(
-                desiredOffset.position.x,
-                desiredOffset.position.y
-              );
-
-              if (movementValid) {
-                publish('player-moved', { moved: true });
-              }
-            } else {
-              switch (checkWalkable.type) {
-                case WalkableType.BLOCK_DESTRUCTIBLE:
-                  const result = reduceHealthDestructible(nextPosition);
-                  if (result != DestructableType.NONE) {
-                    console.log('Destroyed');
-                  }
-                  break;
-                case WalkableType.BLOCK_WALL:
-                case WalkableType.BLOCK_NONE:
-                default:
-                  break;
-              }
-            }
-          } else {
-            // Direction is none, stall was pressed?
-            publish('player-moved', { moved: false });
-          }
+          playerAttemptMove(currentPosition, desiredDirection);
         }
       );
 

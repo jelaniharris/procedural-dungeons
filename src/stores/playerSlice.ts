@@ -27,6 +27,7 @@ export interface PlayerSlice {
   isTired: boolean;
   setDead: () => void;
   getPlayerLocation: () => Point2D;
+  movePlayerLocation: (location: Point2D, noClip?: boolean) => boolean;
   adjustPlayer: (xOffset: number, yOffset: number, noClip?: boolean) => boolean;
   checkPlayerLocation: () => PlayerLocationResults;
   adjustHealth: (amount: number) => boolean;
@@ -85,6 +86,12 @@ export const createPlayerSlice: StateCreator<
   getPlayerLocation: () => {
     const playerPosition = get().playerPosition;
     return playerPosition;
+  },
+  movePlayerLocation(location: Point2D, noClip = false) {
+    const playerPosition = get().playerPosition;
+    const xOffset = location.x - playerPosition.x;
+    const yOffset = location.y - playerPosition.y;
+    return get().adjustPlayer(xOffset, yOffset, noClip);
   },
   adjustPlayer(xOffset: number, yOffset: number, noClip = false) {
     const isBlockWallOrNull = get().isBlockWallOrNull;

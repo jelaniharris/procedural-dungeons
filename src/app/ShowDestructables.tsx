@@ -2,7 +2,6 @@ import GameObject from '@/components/entities/GameObject';
 import { Barrel } from '@/components/models/Barrel';
 import { DestructableType } from '@/components/types/GameTypes';
 import { useStore } from '@/stores/useStore';
-import { Vector3 } from 'three/src/math/Vector3';
 import { shallow } from 'zustand/shallow';
 
 export const ShowDestructables = () => {
@@ -22,7 +21,7 @@ export const ShowDestructables = () => {
           <GameObject
             key={keyName}
             name={keyName}
-            position={new Vector3(objX, 0, objY)}
+            transform={{ x: objX, y: objY }}
           >
             <Barrel key={keyName} />
           </GameObject>

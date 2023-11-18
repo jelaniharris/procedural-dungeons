@@ -2,7 +2,6 @@ import GameObject from '@/components/entities/GameObject';
 import { SpikeTrap } from '@/components/models/SpikeTrap';
 import { HazardType } from '@/components/types/GameTypes';
 import { GameState, useStore } from '@/stores/useStore';
-import { Vector3 } from 'three';
 import { shallow } from 'zustand/shallow';
 
 export const ShowHazards = () => {
@@ -28,9 +27,7 @@ export const ShowHazards = () => {
           <GameObject
             key={keyName}
             name={keyName}
-            position={
-              new Vector3(hazard.worldPosition.x, 0, hazard.worldPosition.y)
-            }
+            transform={hazard.worldPosition}
           >
             <SpikeTrap data={hazard} />
           </GameObject>

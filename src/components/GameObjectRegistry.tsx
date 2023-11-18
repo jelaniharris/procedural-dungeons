@@ -7,4 +7,5 @@ export interface GameObjectRegistryUtils {
   unregisterGameObject: (identifer: symbol, ref: GameObjectRef) => void;
   getAllRegistryById: () => GameObjectRegistry;
   findGameObjectsByXY: (x: number, y: number) => GameObjectRef[];
+  findGameObjectByName: (name: string) => GameObjectRef | undefined;
 }

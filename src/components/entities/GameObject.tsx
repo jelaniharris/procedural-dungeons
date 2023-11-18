@@ -1,8 +1,10 @@
+import { Point2D } from '@/utils/Point2D';
 import { Euler } from '@react-three/fiber';
 import React, {
   Dispatch,
   RefObject,
   SetStateAction,
+  useCallback,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -11,21 +13,23 @@ import React, {
 import * as THREE from 'three';
 import createPubSub, { PubSub } from '../../utils/pubSub';
 import useGame from '../useGame';
+import { ComponentRegistryUtils } from './useComponentRegistry';
 
 export interface GameObjectProps {
   name?: string;
   displayName?: string;
   disabled?: boolean;
-  position: THREE.Vector3;
+  transform: Point2D;
   rotation?: Euler;
   children?: React.ReactNode;
 }
 
-export interface GameObjectContextValue extends PubSub {
+export interface GameObjectContextValue extends ComponentRegistryUtils, PubSub {
   id: symbol;
   name: Readonly<string | undefined>;
   nodeRef: RefObject<THREE.Group>;
-  position: THREE.Vector3;
+  transform: Point2D;
+  getRef: () => GameObjectRef;
 }
 
 export type GameObjectRef = Pick<GameObjectProps, 'name'> & {
@@ -34,7 +38,8 @@ export type GameObjectRef = Pick<GameObjectProps, 'name'> & {
   setDisabled: Dispatch<SetStateAction<boolean>>;
   subscribe: PubSub['subscribe'];
   publish: PubSub['publish'];
-  position: GameObjectContextValue['position'];
+  transform: GameObjectContextValue['transform'];
+  getComponent: ComponentRegistryUtils['getComponent'];
 };
 
 export const GameObjectContext =
@@ -44,15 +49,35 @@ const GameObject = ({
   name,
   //displayName,
   children,
-  position,
+  transform,
   rotation,
   disabled: initialDisabled = false,
 }: GameObjectProps) => {
   const identifier = useRef(Symbol('GameObject'));
   const node = useRef(null);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [registry] = useState(() => new Map<string, any>());
+
   const [disabled, setDisabled] = useState(initialDisabled);
   const { registerGameObject, unregisterGameObject } = useGame();
   const [pubSub] = useState(() => createPubSub());
+
+  // Register component utils
+  const registryUtils = useMemo<ComponentRegistryUtils>(
+    () => ({
+      registerComponent(name, api) {
+        registry.set(name, api);
+      },
+      unregisterComponent(name) {
+        registry.delete(name);
+      },
+      getComponent(name) {
+        return registry.get(name);
+      },
+    }),
+    [registry]
+  );
 
   const gameObjectRef = useMemo<GameObjectRef>(
     () => ({
@@ -62,10 +87,13 @@ const GameObject = ({
       setDisabled,
       subscribe: pubSub.subscribe,
       publish: pubSub.publish,
-      position,
+      transform,
+      getComponent: registryUtils.getComponent,
     }),
-    [disabled, name, position, pubSub]
+    [disabled, name, transform, pubSub, registryUtils]
   );
+
+  const getRef = useCallback(() => gameObjectRef, [gameObjectRef]);
 
   useLayoutEffect(() => {
     const id = identifier.current;
@@ -78,12 +106,18 @@ const GameObject = ({
     name,
     ...pubSub,
     nodeRef: node,
-    position,
+    getRef,
+    transform,
+    ...registryUtils,
   };
 
   return (
     <GameObjectContext.Provider value={contextValue}>
-      <group ref={node} position={position} rotation={rotation}>
+      <group
+        ref={node}
+        position={[transform.x, 0, transform.y]}
+        rotation={rotation}
+      >
         {!disabled && children}
       </group>
     </GameObjectContext.Provider>

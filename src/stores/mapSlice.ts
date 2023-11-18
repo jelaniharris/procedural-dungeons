@@ -249,13 +249,13 @@ export const createMapSlice: StateCreator<
         newMap[x][y] = TileType.TILE_NONE;
       }
     }
-    get().destructables.clear();
 
     set({
       mapData: newMap,
       numRows: mapNumRows,
       numCols: mapNumCols,
       doors: [],
+      destructables: new Map<string, Destructable>(),
     });
   },
   getTilePosition: (x: number, y: number) => {
@@ -272,24 +272,31 @@ export const createMapSlice: StateCreator<
 
     return currentMapData[x][y];
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isBlockWallOrNull: (
     e: TileType | null,
     options: BlockTestOptions | undefined
   ): boolean => {
     // No clip on, then only consider wall edges as impassible
-    if (options && options.noClip) {
-      return e == null || e == TileType.TILE_WALL_EDGE;
+    if (options) {
+      // If no clip on, the only consider wall edges as impassible
+      if (options.noClip) {
+        // If empty tilespace, or wall edge
+        return e == null || e == TileType.TILE_WALL_EDGE;
+      }
+
+      // IF tile is wall door tile
+      if (e == TileType.TILE_WALL_DOOR) {
+        // If they can't interact
+        if (!options.canInteract) {
+          return false;
+        }
+        if (options.doorIsWall) {
+          return true;
+        }
+      }
     }
 
-    return (
-      e == null ||
-      e == TileType.TILE_WALL ||
-      e == TileType.TILE_WALL_EDGE ||
-      (options && (!options.canInteract || options.doorIsWall)
-        ? e == TileType.TILE_WALL_DOOR
-        : false)
-    );
+    return e == null || e == TileType.TILE_WALL || e == TileType.TILE_WALL_EDGE;
   },
   reduceHealthDestructible: (location: Point2D) => {
     const destructables = get().destructables;
@@ -298,6 +305,9 @@ export const createMapSlice: StateCreator<
       const preType =
         destructables.get(locationString)?.type || DestructableType.NONE;
       destructables.delete(locationString);
+      set(() => ({
+        destructables: new Map<string, Destructable>(destructables),
+      }));
       return preType;
     }
     return DestructableType.NONE;
@@ -314,13 +324,12 @@ export const createMapSlice: StateCreator<
 
     // If location is a wall
     if (
-      !(isBlockWallOrNull(mapData[location.x][location.y]),
-      { hasNoClip: hasNoClip })
+      isBlockWallOrNull(mapData[location.x][location.y], { noClip: hasNoClip })
     ) {
       return { result: false, type: WalkableType.BLOCK_WALL };
     }
 
-    // If location is a barrel
+    // If location has a barrel
     if (destructables.has(`${location.x},${location.y}`)) {
       return { result: false, type: WalkableType.BLOCK_DESTRUCTIBLE };
     }

@@ -44,6 +44,10 @@ export default function Game({ children }: GameProps) {
     () => new Map()
   );
 
+  const [registryByName] = useState<GameObjectRegistry<GameObjectRef>>(
+    () => new Map()
+  );
+
   const ClientJoystick = dynamic(
     () => import('./Joystick').then((module) => module.default),
     { ssr: false }
@@ -65,9 +69,13 @@ export default function Game({ children }: GameProps) {
       registerGameObject(identifier: symbol, ref: GameObjectRef) {
         // Register game object by id
         registryById.set(identifier, ref);
+        // register by name
+        if (ref.name) {
+          registryByName.set(ref.name, ref);
+        }
         // register by x, y
-        const { position } = ref;
-        const xy = `${position.x},${position.z}`;
+        const { transform } = ref;
+        const xy = `${transform.x},${transform.y}`;
         const xyList = registryByXY.get(xy) || [];
         xyList.push(ref);
         registryByXY.set(xy, xyList);
@@ -75,9 +83,13 @@ export default function Game({ children }: GameProps) {
       unregisterGameObject(identifier: symbol, ref: GameObjectRef) {
         // unregister by id
         registryById.delete(identifier);
+        // unregister by name
+        if (ref.name) {
+          registryByName.delete(ref.name);
+        }
         // unregister by x, y
-        const { position } = ref;
-        const xy = `${position.x},${position.z}`;
+        const { transform } = ref;
+        const xy = `${transform.x},${transform.y}`;
         const xyList = registryByXY.get(xy);
         xyList?.splice(xyList.indexOf(ref), 1);
       },
@@ -89,8 +101,11 @@ export default function Game({ children }: GameProps) {
           registryByXY.get(`${x},${y}`)?.filter((obj) => !obj.disabled) || []
         );
       },
+      findGameObjectByName(name) {
+        return registryByName.get(name);
+      },
     }),
-    [registryById]
+    [registryById, registryByXY]
   );
 
   const contextValue: GameContextValue = {
