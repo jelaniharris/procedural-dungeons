@@ -5,14 +5,17 @@ import { getPlayerLocalData } from '@/utils/playerUtils';
 import { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import Button from '../input/Button';
-import { CHANGE_SCENE } from '../types/EventTypes';
+import {
+  CHANGE_SCENE,
+  EVENT_STARTGAME,
+  EventStartGameEvent,
+} from '../types/EventTypes';
 import { RunData } from '../types/RecordTypes';
 import useGame from '../useGame';
 import CenterScreenContainer from './CenterScreen';
 
 export const EndScreen = () => {
   const score = useStore((store: GameState) => store.score);
-  const startGame = useStore((store: GameState) => store.startGame);
   const isDead = useStore((store: GameState) => store.isDead);
   const gameType = useStore((store: GameState) => store.gameType);
   const seed = useStore((store: GameState) => store.seed);
@@ -55,7 +58,7 @@ export const EndScreen = () => {
   }, [gameType, isDead, score, seed]);
 
   const restartGame = () => {
-    startGame(gameType);
+    publish<EventStartGameEvent>(EVENT_STARTGAME, { gameType: gameType });
   };
 
   const backToMainMenu = () => {

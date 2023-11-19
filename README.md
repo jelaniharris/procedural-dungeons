@@ -8,6 +8,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 [https://opengameart.org/content/80-cc0-creature-sfx](Hurt and Eating Sounds by RubberDuck)
 [https://quaternius.com/](Chicken Leg, Chalice, Crown by Quaternius)
 [https://opengameart.org/content/rpg-sound-pack](Bottle sound by artisticdude)
+(Game Over by Oiboo)[https://opengameart.org/content/game-over-bad-chest-sfx]
 
 ## Getting Started
 

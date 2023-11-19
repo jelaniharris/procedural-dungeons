@@ -18,8 +18,14 @@ import { MoveableObjectRef } from '../entities/MoveableObject';
 import Player from '../entities/Player';
 import {
   DOOR_OPEN,
+  ENTITY_ALIVE,
+  ENTITY_DIED,
+  EVENT_STARTGAME,
   EXIT_GREED,
   EXIT_NEED,
+  EntityAliveEvent,
+  EntityDiedEvent,
+  EventStartGameEvent,
   ON_TICK,
   PLAYER_ATTEMPT_MOVE,
   PLAYER_DAMAGED_TRAP,
@@ -274,7 +280,6 @@ const DungeonScene = () => {
         const checkWalkable = checkIfWalkable(nextPosition);
 
         if (checkWalkable.result) {
-          console.log(checkWalkable.type);
           const movementRef =
             playerGO.getComponent<MoveableObjectRef>('Moveable');
 
@@ -316,8 +321,6 @@ const DungeonScene = () => {
 
   React.useEffect(() => {
     const party = async () => {
-      startGame(gameMode);
-
       const randomTone = Math.floor(Math.random() * 6);
 
       switch (randomTone) {
@@ -340,6 +343,14 @@ const DungeonScene = () => {
           break;
       }
 
+      subscribe<EventStartGameEvent>(EVENT_STARTGAME, ({ gameType }) => {
+        startGame(gameType);
+        const playerGO = findGameObjectByName('player');
+        if (playerGO) {
+          playerGO.publish<EntityAliveEvent>(ENTITY_ALIVE);
+        }
+      });
+
       subscribe(EXIT_GREED, () => {
         setShowExitDialog(false);
         advanceStage();
@@ -360,7 +371,14 @@ const DungeonScene = () => {
       });
 
       subscribe(PLAYER_DIED, ({}) => {
+        const playerGO = findGameObjectByName('player');
         console.log('Player has died');
+
+        if (playerGO) {
+          playerGO.publish<EntityDiedEvent>(ENTITY_DIED);
+        }
+
+        playAudio('game_over_bad_chest.ogg');
         setDead();
         recordLocalAttempt();
         setGameStatus(GameStatus.GAME_ENDED);
@@ -398,8 +416,12 @@ const DungeonScene = () => {
         }
         playerMoved(moved);
       });
+
+      publish<EventStartGameEvent>(EVENT_STARTGAME, { gameType: gameMode });
     };
+
     party();
+
     return () => {
       unsubscribeAllHandlers(PLAYER_TOUCHED_ENEMY);
       unsubscribeAllHandlers(PLAYER_MOVED);
@@ -409,6 +431,7 @@ const DungeonScene = () => {
       unsubscribeAllHandlers(PLAYER_REACHED_EXIT);
       unsubscribeAllHandlers(EXIT_GREED);
       unsubscribeAllHandlers(EXIT_NEED);
+      unsubscribeAllHandlers(EVENT_STARTGAME);
     };
   }, []);
 

@@ -9,8 +9,13 @@ export const PLAYER_DAMAGED_TRAP = 'player-damaged-trap';
 export const PLAYER_REACHED_EXIT = 'player-reached-exit';
 export const PLAYER_ATTEMPT_MOVE = 'player-attempt-move';
 
+export const ENTITY_DIED = 'entity-died';
+export const ENTITY_ALIVE = 'entity-alive';
+
 export const EXIT_GREED = 'exit-greed';
 export const EXIT_NEED = 'exit-need';
+
+export const EVENT_STARTGAME = 'start-game';
 
 export const ON_TICK = 'on-tick';
 
@@ -18,6 +23,21 @@ export const CHANGE_SCENE = 'change-scene';
 
 export const DOOR_OPEN = 'door-open';
 export const DOOR_CLOSE = 'door-close';
+
+export type EntityDiedEvent = ConsumerEvent<'entity-died'>;
+export type EntityAliveEvent = ConsumerEvent<'entity-alive'>;
+
+export type EventStartGameEvent = ConsumerEvent<
+  'start-game',
+  {
+    gameType: string;
+  }
+>;
+
+export type PlayAnimation = ConsumerEvent<
+  'play-animation',
+  { animation: string }
+>;
 
 export type ChangeSceneEvent = ConsumerEvent<
   'change-scene',

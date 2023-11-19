@@ -5,6 +5,12 @@ Command: npx gltfjsx@6.2.10 ./public/character-human.glb -t
 
 import { MovedEvent, MovingEvent } from '@/components/entities/MoveableObject';
 import useGameObjectEvent from '@/components/entities/useGameObjectEvent';
+import {
+  ENTITY_ALIVE,
+  ENTITY_DIED,
+  EntityAliveEvent,
+  EntityDiedEvent,
+} from '@/components/types/EventTypes';
 import { useStore } from '@/stores/useStore';
 import { useAnimations, useGLTF } from '@react-three/drei';
 import { Vector3 } from '@react-three/fiber';
@@ -73,6 +79,9 @@ export function CharacterPlayer(
   const { nodes, materials, animations } = useGLTF(
     '/models/characters/human/character-human.glb'
   ) as GLTFResult;
+  const { actions } = useAnimations(animations, human);
+  const [animation, setAnimation] = useState<ActionName>('idle');
+
   //const { nodeRef } = useGameObject();
 
   useGameObjectEvent<MovingEvent>(
@@ -92,8 +101,21 @@ export function CharacterPlayer(
     movePlayerLocation(data, false);
   });
 
-  const { actions } = useAnimations(animations, human);
-  const [animation /*, setAnimation*/] = useState<ActionName>('idle');
+  useGameObjectEvent<EntityDiedEvent>(ENTITY_DIED, () => {
+    actions[animation]?.fadeOut(0.32);
+    const anim = actions['die']?.reset().setLoop(THREE.LoopOnce, 1).play();
+    if (anim) {
+      anim.clampWhenFinished = true;
+    }
+  });
+
+  useGameObjectEvent<EntityAliveEvent>(ENTITY_ALIVE, () => {
+    // Reverse the die animation
+    actions['die']?.fadeOut(0.32);
+    console.log('[CharacterPlayer] SO ALIVE RIGHT NOW');
+    actions['idle']?.reset().fadeIn(0.32).play();
+    setAnimation('idle');
+  });
 
   // Transition through animations
   useEffect(() => {
