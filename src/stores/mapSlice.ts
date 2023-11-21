@@ -1026,10 +1026,10 @@ export const createMapSlice: StateCreator<
 
     lootGen.add(ItemType.ITEM_COIN, 65);
     lootGen.add(ItemType.ITEM_CHICKEN, 25);
-    lootGen.add(ItemType.ITEM_CHALICE, 20, 10);
+    lootGen.add(ItemType.ITEM_CHALICE, 17, 10);
     lootGen.add(ItemType.ITEM_WEAPON, 20);
     lootGen.add(ItemType.ITEM_CROWN, 15, 1);
-    lootGen.add(ItemType.ITEM_POTION, 10, 2);
+    lootGen.add(ItemType.ITEM_POTION, 8, 2);
 
     while (emptySpots.length != 0 && numberItems > 0) {
       const point = emptySpots.shift();
