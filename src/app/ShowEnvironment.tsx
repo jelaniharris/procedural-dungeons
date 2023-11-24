@@ -57,6 +57,7 @@ export const ShowEnvironment = () => {
               <Floor
                 key={`tile-${x}-${y}`}
                 position={[tileXPos, 0, tileYPos]}
+                variant={tileType === TileType.TILE_FLOOR_ROOM ? 1 : 0}
               />,
             ];
           } else {
@@ -64,10 +65,10 @@ export const ShowEnvironment = () => {
               <FloorDetail
                 key={`tiledetail-${x}-${y}`}
                 position={[tileXPos, 0, tileYPos]}
+                variant={tileType === TileType.TILE_FLOOR_ROOM ? 1 : 0}
               />,
             ];
           }
-
           break;
         case TileType.TILE_WALL_DOOR:
         case TileType.TILE_WALL:
