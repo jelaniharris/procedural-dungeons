@@ -15,17 +15,60 @@ import { MathUtils } from 'three';
 import { shallow } from 'zustand/shallow';
 
 export const ShowEnvironment = () => {
-  const { mapData, numCols, numRows, determineWallType } = useStore(
-    (state) => ({
-      mapData: state.mapData,
-      numCols: state.numCols,
-      numRows: state.numRows,
-      determineWallType: state.determineWallType,
-    }),
-    shallow
-  );
+  const { mapData, numCols, numRows, determineWallType, getTilePosition } =
+    useStore(
+      (state) => ({
+        mapData: state.mapData,
+        numCols: state.numCols,
+        numRows: state.numRows,
+        determineWallType: state.determineWallType,
+        getTilePosition: state.getTilePosition,
+      }),
+      shallow
+    );
 
   const worldTiles: React.JSX.Element[] = [];
+
+  const determineDynamicFlooring = (xPos: number, yPos: number) => {
+    const tileXPos = xPos * TILE_W;
+    const tileYPos = yPos * TILE_W;
+
+    const surroundingCoordinates = [
+      { x: xPos, y: yPos - 1 },
+      { x: xPos + 1, y: yPos },
+      { x: xPos, y: yPos + 1 },
+      { x: xPos - 1, y: yPos },
+    ];
+
+    const floorTypeAmount = new Map<TileType, number>();
+
+    for (const coord of surroundingCoordinates) {
+      const tile = getTilePosition(coord.x, coord.y);
+
+      if (tile !== null) {
+        if (tile === TileType.TILE_FLOOR || tile === TileType.TILE_FLOOR_ROOM) {
+          const amount = floorTypeAmount.get(tile) || 0;
+          floorTypeAmount.set(tile, amount + 1);
+        }
+      }
+    }
+
+    let variant = 0;
+    if (
+      (floorTypeAmount.get(TileType.TILE_FLOOR_ROOM) || 0) >=
+      (floorTypeAmount.get(TileType.TILE_FLOOR) || 0)
+    ) {
+      variant = 1;
+    }
+
+    return (
+      <Floor
+        key={`columnfloor-${xPos}-${yPos}`}
+        position={[tileXPos, 0, tileYPos]}
+        variant={variant}
+      />
+    );
+  };
 
   if (!mapData || mapData.length == 0) {
     return <></>;
@@ -81,6 +124,7 @@ export const ShowEnvironment = () => {
                 <Floor
                   key={`doorfloor-${x}-${y}`}
                   position={[tileXPos, 0, tileYPos]}
+                  variant={1}
                 />,
               ];
               break;
@@ -101,10 +145,7 @@ export const ShowEnvironment = () => {
                     key={`column-${x}-${y}`}
                     position={[tileXPos, 0, tileYPos]}
                   />,
-                  <Floor
-                    key={`columnfloor-${x}-${y}`}
-                    position={[tileXPos, 0, tileYPos]}
-                  />,
+                  determineDynamicFlooring(tileXPos, tileYPos),
                 ];
               } else {
                 tile = [
