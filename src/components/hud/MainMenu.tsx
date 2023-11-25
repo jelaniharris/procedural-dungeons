@@ -13,6 +13,7 @@ import MainScreen from './Menu/MainScreen';
 import NameChangeScreen from './Menu/NameChangeScreen';
 import PlayScreen from './Menu/PlayScreen';
 import ScoresScreen from './Menu/ScoresScreen';
+import { SettingsScreen } from './SettingsScreen';
 
 export interface MainMenuContextValue {
   currentScreen: string[];
@@ -58,6 +59,10 @@ const MainMenu = () => {
     [currentScreen, playerData, publish, setCurrentHud]
   );
 
+  const settingsMenuCallback = () => {
+    mainMenuApi.popScreen();
+  };
+
   useEffect(() => {
     const player = getPlayerLocalData();
     setPlayerData(player);
@@ -69,6 +74,13 @@ const MainMenu = () => {
         return <MainScreen />;
       case 'play':
         return <PlayScreen />;
+      case 'settings':
+        return (
+          <SettingsScreen
+            backToMenuCallback={settingsMenuCallback}
+            backToMenuText="Back to Menu"
+          />
+        );
       case 'scores':
         return <ScoresScreen />;
       case 'name':

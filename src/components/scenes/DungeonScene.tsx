@@ -7,7 +7,7 @@ import { ShowEnemyIntention } from '@/app/ShowEnemyIntentions';
 import { ShowHazards } from '@/app/ShowHazards';
 import { ShowInteractables } from '@/app/ShowInteractables';
 import { ShowItems } from '@/app/ShowItems';
-import { GameState, playAudio, useStore } from '@/stores/useStore';
+import { GameState, useStore } from '@/stores/useStore';
 import { Point2D } from '@/utils/Point2D';
 import { Environment, Stats } from '@react-three/drei';
 import { EffectComposer, Vignette } from '@react-three/postprocessing';
@@ -104,6 +104,8 @@ const DungeonScene = () => {
   const resetDangerZones = useStore(
     (state: GameState) => state.resetDangerZones
   );
+
+  const playAudio = useStore((state: GameState) => state.playAudio);
 
   const checkPlayerLocation = useStore(
     (state: GameState) => state.checkPlayerLocation

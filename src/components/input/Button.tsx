@@ -6,7 +6,6 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   variant?: ButtonVariant;
-  classname?: string;
   disabled?: boolean;
   loading?: boolean;
 }

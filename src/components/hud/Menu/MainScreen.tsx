@@ -12,7 +12,7 @@ const MainScreen = () => {
       <Button onClick={() => pushToScreen('play')}>Play Game</Button>
       <Button disabled>Tutorial</Button>
       <Button onClick={() => pushToScreen('scores')}>Scores</Button>
-      <Button disabled>Settings</Button>
+      <Button onClick={() => pushToScreen('settings')}>Settings</Button>
       <div className="flex-auto"></div>
     </>
   );

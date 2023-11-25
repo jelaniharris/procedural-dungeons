@@ -5,13 +5,16 @@ import {
   FaBolt as EnergyIcon,
   FaLayerGroup as FloorIcon,
   FaHeart as HeartIcon,
+  FaCog as SettingsIcon,
 } from 'react-icons/fa';
 import { GiPlainDagger as AttacksIcon } from 'react-icons/gi';
+import Button from '../input/Button';
 import { GameStatus } from '../types/GameTypes';
 import { EndScreen } from './EndScreen';
 import { ExitOption } from './ExitOption';
+import { SettingsScreen } from './SettingsScreen';
 
-export const FooterHud = () => {
+export const GameHud = () => {
   const currentLevel = useStore((store: GameState) => store.currentLevel);
   const score = useStore((store: GameState) => store.score);
   const energy = useStore((store: GameState) => store.energy);
@@ -22,6 +25,12 @@ export const FooterHud = () => {
   const maxAttacks = useStore((store: GameState) => store.maxAttacks);
   const maxEnergy = useStore((store: GameState) => store.maxEnergy);
   const showExitDialog = useStore((store: GameState) => store.showExitDialog);
+  const showSettingsDialog = useStore(
+    (store: GameState) => store.showSettingsDialog
+  );
+  const setShowSettingsDialog = useStore(
+    (store: GameState) => store.setShowSettingsDialog
+  );
   const gameStatus = useStore((store: GameState) => store.gameStatus);
 
   const PanelLabel = ({
@@ -60,23 +69,60 @@ export const FooterHud = () => {
     );
   };
 
+  const showSettings = () => {
+    setShowSettingsDialog(true);
+  };
+
+  const backToGame = () => {
+    setShowSettingsDialog(false);
+  };
+
+  if (showSettingsDialog) {
+    return (
+      <>
+        <SettingsScreen
+          backToMenuCallback={backToGame}
+          backToMenuText={'Back To Game'}
+        />
+      </>
+    );
+  }
+
   return (
     <>
       {showExitDialog && <ExitOption />}
       {gameStatus == GameStatus.GAME_ENDED && <EndScreen />}
       {gameStatus != GameStatus.GAME_ENDED && !showExitDialog && (
         <>
-          <section className="fixed w-full flex gap-8 justify-center top-4">
-            <ContentPanel className="bg-slate-800 bg-opacity-80">
-              <PanelLabel iconClass="text-white-400 py-1" icon={<FloorIcon />}>
-                Floor {currentLevel}
-              </PanelLabel>
-            </ContentPanel>
-            <ContentPanel className="bg-slate-800 bg-opacity-80">
-              <PanelLabel iconClass="text-yellow-400 py-1" icon={<CoinIcon />}>
-                {score}
-              </PanelLabel>
-            </ContentPanel>
+          <section className="fixed w-full flex gap-8 justify-between top-4">
+            <div></div>
+            <div className="flex gap-8">
+              {' '}
+              <ContentPanel className="bg-slate-800 bg-opacity-80">
+                <PanelLabel
+                  iconClass="text-white-400 py-1"
+                  icon={<FloorIcon />}
+                >
+                  Floor {currentLevel}
+                </PanelLabel>
+              </ContentPanel>
+              <ContentPanel className="bg-slate-800 bg-opacity-80">
+                <PanelLabel
+                  iconClass="text-yellow-400 py-1"
+                  icon={<CoinIcon />}
+                >
+                  {score}
+                </PanelLabel>
+              </ContentPanel>
+            </div>
+            <div className="mr-5">
+              <Button
+                className="bg-slate-800 hover:bg-slate-600"
+                onClick={showSettings}
+              >
+                <SettingsIcon />
+              </Button>
+            </div>
           </section>
           <section className="fixed w-full flex justify-center bottom-20 ">
             {isTired && (

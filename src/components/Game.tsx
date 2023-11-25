@@ -11,7 +11,7 @@ import {
   GameObjectRegistryUtils,
 } from './GameObjectRegistry';
 import { GameObjectRef } from './entities/GameObject';
-import { FooterHud } from './hud/FooterHud';
+import { GameHud } from './hud/GameHud';
 import { Loading } from './hud/Loading';
 import MainMenu from './hud/MainMenu';
 import { Controls } from './types/GameTypes';
@@ -142,7 +142,7 @@ export default function Game({ children }: GameProps) {
           <>
             <ClientJoystick />
             <div className="relative">
-              <FooterHud />
+              <GameHud />
             </div>
           </>
         )}

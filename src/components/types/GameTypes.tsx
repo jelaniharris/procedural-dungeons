@@ -144,6 +144,13 @@ export type Destructable = {
   type: DestructableType;
 };
 
+export type GameSettings = {
+  sound: boolean;
+  soundVolume: number;
+  music: boolean;
+  musicVolume: number;
+};
+
 export enum GameStatus {
   GAME_NONE,
   GAME_STARTED,

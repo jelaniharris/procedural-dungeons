@@ -1,5 +1,6 @@
 import {
   Enemy,
+  GameSettings,
   GameStatus,
   LocationActionType,
 } from '@/components/types/GameTypes';
@@ -27,7 +28,9 @@ export interface StageSlice {
   dangerZones: Point2D[];
   gameType: string;
   showExitDialog: boolean;
+  showSettingsDialog: boolean;
   gameStatus: GameStatus;
+  settings: GameSettings;
   isPaused: boolean;
   setGameStatus: (newStatus: GameStatus) => void;
   advanceStage: () => void;
@@ -35,11 +38,15 @@ export interface StageSlice {
   resetDangerZones: () => void;
   addLocationsToDangerZones: (locations: Point2D[]) => void;
   setShowExitDialog: (showDialog: boolean) => void;
+  setShowSettingsDialog: (showDialog: boolean) => void;
   setPaused: (newPauseStatus: boolean) => void;
   // Attempts
   getAttemptData: () => RunData;
   recordLocalAttempt: () => void;
   getLocalAttempts: () => RunData[];
+  // Settings
+  getSettings: () => GameSettings;
+  saveSettings: (settings: GameSettings) => void;
 }
 
 export const createStageSlice: StateCreator<
@@ -55,9 +62,16 @@ export const createStageSlice: StateCreator<
 > = (set, get) => ({
   currentLevel: 0,
   showExitDialog: false,
+  showSettingsDialog: false,
   isPaused: false,
   gameStatus: GameStatus.GAME_NONE,
   dangerZones: [],
+  settings: {
+    sound: true,
+    music: true,
+    musicVolume: 50,
+    soundVolume: 50,
+  },
   gameType: 'daily',
   advanceStage() {
     const resetStage = get().resetStage;
@@ -75,6 +89,11 @@ export const createStageSlice: StateCreator<
   setShowExitDialog(showDialog: boolean) {
     set({
       showExitDialog: showDialog,
+    });
+  },
+  setShowSettingsDialog(showDialog: boolean) {
+    set({
+      showSettingsDialog: showDialog,
     });
   },
   resetDangerZones() {
@@ -173,5 +192,29 @@ export const createStageSlice: StateCreator<
       allAttempts = [];
     }
     return allAttempts;
+  },
+  getLocalSettings() {
+    let settings: GameSettings;
+    const allSettings = localStorage.getItem('settings');
+    if (allSettings) {
+      settings = JSON.parse(allSettings);
+      console.log('Loding game settings: ', settings);
+    } else {
+      settings = {
+        sound: true,
+        music: true,
+        soundVolume: 50,
+        musicVolume: 50,
+      };
+    }
+    set({ settings: settings });
+    return settings;
+  },
+  getSettings() {
+    return get().settings;
+  },
+  saveSettings(settings: GameSettings) {
+    set({ settings: settings });
+    localStorage.setItem('settings', JSON.stringify(settings));
   },
 });

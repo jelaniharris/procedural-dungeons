@@ -9,9 +9,9 @@ import {
 import { Point2D } from '@/utils/Point2D';
 import { MathUtils } from 'three';
 import { StateCreator } from 'zustand';
+import { AudioSlice } from './audioSlice';
 import { EnemySlice } from './enemySlice';
 import { MapSlice } from './mapSlice';
-import { playAudio } from './useStore';
 
 export interface PlayerSlice {
   playerPosition: Point2D;
@@ -49,7 +49,7 @@ export type PlayerLocationResults = {
 };
 
 export const createPlayerSlice: StateCreator<
-  PlayerSlice & MapSlice & EnemySlice,
+  PlayerSlice & MapSlice & EnemySlice & AudioSlice,
   [],
   [],
   PlayerSlice
@@ -266,6 +266,7 @@ export const createPlayerSlice: StateCreator<
   playerPerformAttack: (enemy: Enemy) => {
     const adjustAttacks = get().adjustAttacks;
     const removeEnemy = get().removeEnemy;
+    const playAudio = get().playAudio;
 
     //TODO Check if enemy is facing the other way
 

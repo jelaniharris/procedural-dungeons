@@ -46,8 +46,6 @@ export default function Floor(
     }
   }, [materials.colormap, props.variant, variationTexture]);
 
-  console.log('Mat', floorMaterial, props.variant);
-
   return (
     <group {...props} dispose={null}>
       <mesh geometry={nodes.floor_1.geometry} material={floorMaterial}></mesh>

@@ -1,5 +1,6 @@
 import { getDailyUniqueSeed } from '@/utils/seed';
 import { createWithEqualityFn } from 'zustand/traditional';
+import { AudioSlice, createAudioSlice } from './audioSlice';
 import { EnemySlice, createEnemySlice } from './enemySlice';
 import { GeneratorSlice, createGeneratorSlice } from './generatorSlice';
 import { HazardSlice, createHazardSlice } from './hazardSlice';
@@ -13,18 +14,10 @@ export interface GameState
     StageSlice,
     HazardSlice,
     GeneratorSlice,
+    AudioSlice,
     EnemySlice {
   startGame: (startGameType: string | null) => void;
 }
-
-export const playAudio = (path: string, volume = 1, callback?: () => void) => {
-  const audio = new Audio(`./sounds/${path}`);
-  if (callback) {
-    audio.addEventListener('ended', callback);
-  }
-  audio.volume = volume;
-  audio.play();
-};
 
 export const useStore = createWithEqualityFn<GameState>(
   (...args) => ({
@@ -34,6 +27,7 @@ export const useStore = createWithEqualityFn<GameState>(
     ...createEnemySlice(...args),
     ...createHazardSlice(...args),
     ...createGeneratorSlice(...args),
+    ...createAudioSlice(...args),
     startGame: (startGameType: string | null) => {
       const [set, get] = [args[0], args[1]];
 
