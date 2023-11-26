@@ -87,17 +87,17 @@ export function CharacterPlayer(
   useGameObjectEvent<MovingEvent>(
     'moving',
     ({ currentPosition, nextPosition }) => {
-      console.log(
+      /*console.log(
         'Current position: ',
         currentPosition,
         ' Going to ',
         nextPosition
-      );
+      );*/
     }
   );
 
   useGameObjectEvent<MovedEvent>('moved', (data) => {
-    console.log('Finished moving to:', data);
+    //console.log('Finished moving to:', data);
     movePlayerLocation(data, false);
   });
 

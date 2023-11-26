@@ -5,7 +5,11 @@ import { GameState, useStore } from '@/stores/useStore';
 import nipplejs from 'nipplejs';
 import { useCallback, useEffect, useRef } from 'react';
 import { shallow } from 'zustand/shallow';
-import { GameStatus } from './types/GameTypes';
+import {
+  PLAYER_ATTEMPT_MOVE,
+  PlayerAttemptMoveEvent,
+} from './types/EventTypes';
+import { Direction, GameStatus } from './types/GameTypes';
 import useGame from './useGame';
 
 export type JoyStickData = {
@@ -17,9 +21,10 @@ const Joystick = () => {
   const thisElement = useRef<HTMLDivElement | null>(null);
   const lastData = useRef<JoyStickData>({ distance: 0, angle: '' });
   const joystickManager = useRef<nipplejs.JoystickManager | null>(null);
-  const adjustPlayer = useStore((store) => store.adjustPlayer);
+  const joystiq = useRef<nipplejs.Joystick | null>(null);
   const gameStatus = useStore((store) => store.gameStatus, shallow);
   const isPaused = useStore((store: GameState) => store.isPaused, shallow);
+  const getPlayerLocation = useStore((store) => store.getPlayerLocation);
 
   const { publish } = useGame();
 
@@ -31,33 +36,38 @@ const Joystick = () => {
   };
 
   const getJoystickDeactivation = useCallback(() => {
-    let movementValid = false;
-
-    /*if (gameStatus != GameStatus.GAME_STARTED) {
-      return;
-    }*/
-
     if (lastData.current.distance > 5) {
       switch (lastData.current.angle) {
         case 'up':
-          movementValid = adjustPlayer(0, -1);
+          publish<PlayerAttemptMoveEvent>(PLAYER_ATTEMPT_MOVE, {
+            currentPosition: getPlayerLocation(),
+            desiredDirection: Direction.DIR_NORTH,
+          });
           break;
         case 'right':
-          movementValid = adjustPlayer(1, 0);
+          publish<PlayerAttemptMoveEvent>(PLAYER_ATTEMPT_MOVE, {
+            currentPosition: getPlayerLocation(),
+            desiredDirection: Direction.DIR_EAST,
+          });
           break;
         case 'left':
-          movementValid = adjustPlayer(-1, 0);
+          publish<PlayerAttemptMoveEvent>(PLAYER_ATTEMPT_MOVE, {
+            currentPosition: getPlayerLocation(),
+            desiredDirection: Direction.DIR_WEST,
+          });
           break;
         case 'down':
-          movementValid = adjustPlayer(0, 1);
+          publish<PlayerAttemptMoveEvent>(PLAYER_ATTEMPT_MOVE, {
+            currentPosition: getPlayerLocation(),
+            desiredDirection: Direction.DIR_SOUTH,
+          });
           break;
       }
-
-      if (movementValid) {
-        publish('player-moved', { moved: true });
-      }
     } else {
-      publish('player-moved', { moved: false });
+      publish<PlayerAttemptMoveEvent>(PLAYER_ATTEMPT_MOVE, {
+        currentPosition: getPlayerLocation(),
+        desiredDirection: Direction.DIR_NONE,
+      });
     }
 
     lastData.current = {
@@ -65,51 +75,69 @@ const Joystick = () => {
       distance: 0,
     };
     //setJoyData({ data });
-  }, [adjustPlayer, gameStatus, publish]);
+  }, [getPlayerLocation, publish]);
 
-  useEffect(() => {
+  const createManager = useCallback(() => {
     if (!thisElement.current) {
       return;
     }
 
-    if (!joystickManager.current) {
-      const manager = nipplejs.create({
-        size: 140,
-        zone: thisElement.current,
-        maxNumberOfNipples: 1,
-        restOpacity: 0.4,
-        mode: 'static',
-        threshold: 0.3,
-        restJoystick: true,
-        dynamicPage: true,
-        position: { top: '80%', left: '50%' },
-      });
+    //console.log('Creating joystiq manager');
 
-      manager.on('dir', getDirection);
-      manager.on('end', getJoystickDeactivation);
-
-      joystickManager.current = manager;
+    if (joystickManager.current) {
+      //console.log('Joystiq manager is already created');
+      return;
     }
+
+    const manager = nipplejs.create({
+      size: 140,
+      zone: thisElement.current,
+      maxNumberOfNipples: 1,
+      restOpacity: 0.4,
+      mode: 'static',
+      threshold: 0.3,
+      restJoystick: true,
+      dynamicPage: true,
+      position: { top: '80%', left: '50%' },
+    });
+
+    manager.on('dir', getDirection);
+    manager.on('end', getJoystickDeactivation);
+
+    joystickManager.current = manager;
+    joystiq.current = manager.get(0);
+
+    return () => {
+      manager.destroy();
+      joystickManager.current = null;
+    };
   }, [getJoystickDeactivation]);
 
   useEffect(() => {
-    if (joystickManager.current) {
-      const joystiq = joystickManager.current.get(0);
-      if (!joystiq) {
-        return;
-      }
+    createManager();
+  }, []);
 
+  useEffect(() => {
+    if (joystiq.current) {
+      //console.log('Has joystiq');
       if (gameStatus != GameStatus.GAME_STARTED) {
-        joystiq.remove();
+        joystiq.current.remove();
+        //console.log('Hiding joystiq because of non playing state');
       } else {
         if (isPaused) {
-          joystiq.remove();
+          joystiq.current.hide();
+          //console.log('Hide joystiq');
         } else {
-          joystiq.add();
+          joystiq.current.show();
+          //console.log('Show joystiq');
         }
       }
+    } else {
+      //console.log('No joystiq');
     }
   }, [isPaused, gameStatus]);
+
+  //console.log('[Joystiq] Render JoysTIQ');
 
   return <div ref={thisElement}></div>;
 };

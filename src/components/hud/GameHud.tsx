@@ -25,6 +25,7 @@ export const GameHud = () => {
   const maxAttacks = useStore((store: GameState) => store.maxAttacks);
   const maxEnergy = useStore((store: GameState) => store.maxEnergy);
   const showExitDialog = useStore((store: GameState) => store.showExitDialog);
+  const setGameStatus = useStore((store: GameState) => store.setGameStatus);
   const showSettingsDialog = useStore(
     (store: GameState) => store.showSettingsDialog
   );
@@ -71,10 +72,12 @@ export const GameHud = () => {
 
   const showSettings = () => {
     setShowSettingsDialog(true);
+    setGameStatus(GameStatus.GAME_MENU);
   };
 
   const backToGame = () => {
     setShowSettingsDialog(false);
+    setGameStatus(GameStatus.GAME_STARTED);
   };
 
   if (showSettingsDialog) {

@@ -154,6 +154,7 @@ export type GameSettings = {
 export enum GameStatus {
   GAME_NONE,
   GAME_STARTED,
+  GAME_MENU,
   GAME_EXITDECISION,
   GAME_ENDED,
 }
