@@ -21,13 +21,13 @@ import { LootChance } from '@/utils/LootChance';
 import { Point2D } from '@/utils/Point2D';
 import { Queue } from '@/utils/Queue';
 import { checkPointInPoints, pointInAreas } from '@/utils/gridUtils';
+import { assignItemDetails } from '@/utils/itemUtils';
 import {
   getRandomRangeInt,
   randomizeFloorOrWall,
 } from '@/utils/randomGenerator';
 import { getSetIntersection, popRandomItemFromSet } from '@/utils/setUtils';
 import { createRef } from 'react';
-import { MathUtils } from 'three';
 import { StateCreator } from 'zustand';
 import { AudioSlice } from './audioSlice';
 import { EnemySlice } from './enemySlice';
@@ -112,6 +112,10 @@ export interface MapSlice {
 
   // Destructibles
   reduceHealthDestructible: (location: Point2D) => DestructableType;
+  spawnDestructableItem: (
+    destructable: Destructable,
+    location: Point2D
+  ) => void;
 
   // Doors
   doors: DoorLocation[];
@@ -125,6 +129,7 @@ export interface MapSlice {
   getItemPositionOnGrid: (x: number, y: number) => number;
   getItemPosition: (x: number, y: number) => Item | null;
   resetItems: () => void;
+  addItem: (item: ItemType, location: Point2D) => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -303,17 +308,23 @@ export const createMapSlice: StateCreator<
   reduceHealthDestructible: (location: Point2D) => {
     const destructables = get().destructables;
     const playAudio = get().playAudio;
+    const spawnDestructableItem = get().spawnDestructableItem;
     const locationString = `${location.x},${location.y}`;
     if (destructables.has(locationString)) {
-      const preType =
-        destructables.get(locationString)?.type || DestructableType.NONE;
-      const newDestruct = new Map<string, Destructable>(destructables);
-      newDestruct.delete(locationString);
-      playAudio('wood_crack.ogg');
-      set(() => ({
-        destructables: newDestruct, // new Map<string, Destructable>(destructables),
-      }));
-      return preType;
+      const destructable = destructables.get(locationString);
+      if (destructable) {
+        const preType = destructable?.type || DestructableType.NONE;
+        const newDestruct = new Map<string, Destructable>(destructables);
+
+        spawnDestructableItem(destructable, location);
+
+        newDestruct.delete(locationString);
+        playAudio('wood_crack.ogg');
+        set(() => ({
+          destructables: newDestruct, // new Map<string, Destructable>(destructables),
+        }));
+        return preType;
+      }
     }
     return DestructableType.NONE;
   },
@@ -720,6 +731,15 @@ export const createMapSlice: StateCreator<
     const MAP_HEIGHT = mapData.length - 1;
     const addedDestructables: Map<string, Destructable> = get().destructables;
 
+    // Create a new LootChance generator
+    const lootGen = new LootChance<ItemType>();
+
+    lootGen.add(ItemType.ITEM_NONE, 50);
+    lootGen.add(ItemType.ITEM_COIN, 20);
+    lootGen.add(ItemType.ITEM_CHICKEN, 10);
+    lootGen.add(ItemType.ITEM_WEAPON, 5);
+    lootGen.add(ItemType.ITEM_POTION, 5);
+
     for (const room of rooms) {
       for (let x = room.left - 1; x <= room.right + 1; x++) {
         for (let y = room.top - 1; y <= room.bottom + 1; y++) {
@@ -738,9 +758,12 @@ export const createMapSlice: StateCreator<
               TileType.TILE_FLOOR_ROOM
             );
             if (desiredTile != TileType.TILE_FLOOR_ROOM && randomGen() < 0.3) {
+              const randomItemType = lootGen.choose(randomGen);
+
               addedDestructables.set(`${x},${y}`, {
                 id: Math.random() * 10000,
                 type: DestructableType.BARREL,
+                contains: randomItemType || ItemType.ITEM_NONE,
               });
               desiredTile = TileType.TILE_FLOOR_ROOM;
             }
@@ -1012,6 +1035,13 @@ export const createMapSlice: StateCreator<
       validSpot = true;
     }
   },
+  spawnDestructableItem(destructable: Destructable, location: Point2D) {
+    const addItem = get().addItem;
+
+    if (destructable.contains != ItemType.ITEM_NONE) {
+      addItem(destructable.contains, location);
+    }
+  },
   generateItems(seed: number) {
     const currentLevel = get().currentLevel;
     const getItemPositionOnGrid = get().getItemPositionOnGrid;
@@ -1046,60 +1076,7 @@ export const createMapSlice: StateCreator<
       // Choose the random item
       const randomItem = lootGen.choose(randomGen);
 
-      let newItem: Item = {
-        id: newItemIndex,
-        type: randomItem === null ? ItemType.ITEM_NONE : randomItem,
-        rotates: false,
-        position: point,
-        modelRotation: { x: 0, y: 0, z: 0 },
-        modelPositionOffset: { x: 0, y: 0, z: 0 },
-        name: 'coin',
-      };
-
-      switch (randomItem) {
-        case ItemType.ITEM_COIN:
-          newItem = { ...newItem, rotates: true, name: 'coin' };
-          break;
-        case ItemType.ITEM_CHICKEN:
-          newItem = { ...newItem, rotates: true, name: 'chicken_leg' };
-          break;
-        case ItemType.ITEM_CHALICE:
-          newItem = {
-            ...newItem,
-            rotates: true,
-            name: 'chalice',
-            modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(15) },
-          };
-          break;
-        case ItemType.ITEM_WEAPON:
-          newItem = {
-            ...newItem,
-            rotates: true,
-            name: 'dagger',
-            modelPositionOffset: { x: 0, y: 0.3, z: 0 },
-            modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(15) },
-          };
-          break;
-        case ItemType.ITEM_CROWN:
-          newItem = {
-            ...newItem,
-            rotates: true,
-            name: 'crown',
-            modelPositionOffset: { x: 0, y: 0.3, z: 0 },
-            modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(15) },
-          };
-          break;
-        case ItemType.ITEM_POTION:
-          newItem = {
-            ...newItem,
-            rotates: true,
-            name: 'potion',
-            modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(15) },
-          };
-          break;
-        default:
-          continue;
-      }
+      const newItem = assignItemDetails(randomItem, point, newItemIndex);
 
       if (newItem.type != ItemType.ITEM_NONE) {
         newItemData[
@@ -1117,6 +1094,23 @@ export const createMapSlice: StateCreator<
     });
 
     console.debug(`[generateItems] Generated ${newItemIndex + 1} items`);
+  },
+  addItem(itemType: ItemType, location: Point2D) {
+    const items = get().items;
+    let newItemIndex = get().itemIndex;
+    const getItemPositionOnGrid = get().getItemPositionOnGrid;
+
+    const newItem = assignItemDetails(itemType, location, newItemIndex);
+    const newItems = [...items];
+    newItems[getItemPositionOnGrid(newItem.position.x, newItem.position.y)] =
+      newItem;
+
+    newItemIndex++;
+
+    set({
+      itemIndex: newItemIndex,
+      items: newItems,
+    });
   },
   getItemPositionOnGrid(x: number, y: number) {
     const mapNumRows = get().numRows;

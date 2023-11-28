@@ -142,6 +142,7 @@ export enum WalkableType {
 export type Destructable = {
   id: number;
   type: DestructableType;
+  contains: ItemType;
 };
 
 export type GameSettings = {
