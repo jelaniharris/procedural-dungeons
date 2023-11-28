@@ -17,6 +17,7 @@ Move onto treasure to collect them
 
 ## Technologies Used
 
+- [React.js](https://reactjs.dev)
 - [Next.js](https://nextjs.org/)
 - [Three.js](https://threejs.org/)
 - [Three Drei](https://github.com/pmndrs/drei)
@@ -39,6 +40,7 @@ Move onto treasure to collect them
 - [Hurt and Eating Sounds by RubberDuck](https://opengameart.org/content/80-cc0-creature-sfx)
 - [Bottle sound by artisticdude](https://opengameart.org/content/rpg-sound-pack)
 - [Game Over by Oiboo](https://opengameart.org/content/game-over-bad-chest-sfx)
+- [Wood Breaking sound by Independent.Ni](https://opengameart.org/content/35-wooden-crackshitsdestructions)
 
 ## Getting Started
 

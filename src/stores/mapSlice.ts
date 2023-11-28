@@ -29,6 +29,7 @@ import { getSetIntersection, popRandomItemFromSet } from '@/utils/setUtils';
 import { createRef } from 'react';
 import { MathUtils } from 'three';
 import { StateCreator } from 'zustand';
+import { AudioSlice } from './audioSlice';
 import { EnemySlice } from './enemySlice';
 import { GeneratorSlice } from './generatorSlice';
 import { HazardSlice } from './hazardSlice';
@@ -135,6 +136,7 @@ export const createMapSlice: StateCreator<
     PlayerSlice &
     EnemySlice &
     HazardSlice &
+    AudioSlice &
     GeneratorSlice,
   [],
   [],
@@ -300,13 +302,16 @@ export const createMapSlice: StateCreator<
   },
   reduceHealthDestructible: (location: Point2D) => {
     const destructables = get().destructables;
+    const playAudio = get().playAudio;
     const locationString = `${location.x},${location.y}`;
     if (destructables.has(locationString)) {
       const preType =
         destructables.get(locationString)?.type || DestructableType.NONE;
-      destructables.delete(locationString);
+      const newDestruct = new Map<string, Destructable>(destructables);
+      newDestruct.delete(locationString);
+      playAudio('wood_crack.ogg');
       set(() => ({
-        destructables: new Map<string, Destructable>(destructables),
+        destructables: newDestruct, // new Map<string, Destructable>(destructables),
       }));
       return preType;
     }
