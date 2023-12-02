@@ -1049,7 +1049,7 @@ export const createMapSlice: StateCreator<
     const randomGen = get().generateGenerator(seed);
     const psuedoShuffle = get().shuffleArray;
 
-    let numberItems = 12 + currentLevel * 4;
+    let numberItems = 15 + currentLevel * 4;
     let emptySpots = get().getEmptyTiles();
     emptySpots = psuedoShuffle(emptySpots, randomGen);
 
