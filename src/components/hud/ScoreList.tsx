@@ -16,9 +16,16 @@ export const ScoreList = ({ gameType, seed }: ScoreListProps) => {
     { initialData: [] }
   );
 
-  const ScoreRow = ({ score }: { score: GetScoresResult }) => {
+  const ScoreRow = ({
+    score,
+    index,
+  }: {
+    score: GetScoresResult;
+    index: number;
+  }) => {
     return (
       <tr>
+        <td className="px-6 py-3">{`# ${index + 1}`}</td>
         <td className="px-6 py-3">{`${score.name}:${score.discriminator}`}</td>
         <td className="px-6 py-3">{score.score}</td>
         <td className="px-6 py-3">{score.level}</td>
@@ -34,6 +41,7 @@ export const ScoreList = ({ gameType, seed }: ScoreListProps) => {
     <table className="table-auto overflow-y-scroll rounded-lg bg-slate-200 bg-opacity-30 p-3 text-white">
       <thead className="rounded-lg bg-slate-400">
         <tr>
+          <th className="px-6 py-3">Rank</th>
           <th className="px-6 py-3">Name</th>
           <th className="px-6 py-3">Score</th>
           <th className="px-6 py-3">Level</th>
@@ -41,8 +49,8 @@ export const ScoreList = ({ gameType, seed }: ScoreListProps) => {
       </thead>
       <tbody className="">
         {data &&
-          data.map((score) => (
-            <ScoreRow key={`score-${uuidv4()}`} score={score} />
+          data.map((score, index) => (
+            <ScoreRow key={`score-${uuidv4()}`} score={score} index={index} />
           ))}
       </tbody>
     </table>
