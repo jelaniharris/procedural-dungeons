@@ -54,7 +54,8 @@ export class ScoreModel extends DynamoItem {
   }
 
   get gsi1sk(): string {
-    return `${this.score}`;
+    const paddedScore = this.score.toString().padStart(6, '0');
+    return `${paddedScore}`;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
