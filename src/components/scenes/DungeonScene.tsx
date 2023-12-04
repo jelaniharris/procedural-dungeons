@@ -209,7 +209,6 @@ const DungeonScene = () => {
             case ItemType.ITEM_CHICKEN:
               playAudio('eat_01.ogg');
               modifyEnergy(30);
-              addScore(5);
               break;
           }
         }

@@ -13,6 +13,7 @@ import MainScreen from './Menu/MainScreen';
 import NameChangeScreen from './Menu/NameChangeScreen';
 import PlayScreen from './Menu/PlayScreen';
 import ScoresScreen from './Menu/ScoresScreen';
+import TutorialScreen from './Menu/TutorialScreen';
 import { SettingsScreen } from './SettingsScreen';
 
 export interface MainMenuContextValue {
@@ -83,6 +84,8 @@ const MainMenu = () => {
         );
       case 'scores':
         return <ScoresScreen />;
+      case 'tutorial':
+        return <TutorialScreen />;
       case 'name':
         return <NameChangeScreen />;
       default:
