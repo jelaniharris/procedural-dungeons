@@ -34,7 +34,7 @@ const TutorialScreen = () => {
   const overviewPage = () => {
     return (
       <div className="text-white text-lg">
-        <h2 className="text-xl font-bold">Controls and Movement</h2>
+        <h2 className="text-xl font-bold pb-2">Controls and Movement</h2>
         <p>Move with WASD, wait a turn with SPACEBAR</p>
         <p>
           If on mobile, you can use the thimble in the middle to move. Drag and
@@ -45,14 +45,14 @@ const TutorialScreen = () => {
           Moving one space consumes 1 Energy. When your energy runs out, enemies
           move twice as fast.
         </p>
-        <h2 className="text-xl font-bold py-4">Enemy Movement</h2>
+        <h2 className="text-xl font-bold py-2">Enemy Movement</h2>
         <p>
           When you move, enemies move. Every turn enemies will display their
           intended movement plan on the ground. If you&apos;re standing in one
           of the spaces when they&apos;re attempting to move you&apos;ll take
           damage.
         </p>
-        <h2 className="text-xl font-bold py-4">Damage</h2>
+        <h2 className="text-xl font-bold py-2">Damage</h2>
         <p>
           You start off the game with 2 health. Being touched by enemies, or
           standing on an activated trap will cause damage. Once you run out of
@@ -68,7 +68,7 @@ const TutorialScreen = () => {
   const overviewPageTwo = () => {
     return (
       <div className="text-white text-lg">
-        <h2 className="text-xl font-bold">Exiting and Scoring</h2>
+        <h2 className="text-xl font-bold pb-2">Exiting and Scoring</h2>
         <p>
           Each dungeon floor has exit stairs. Reach the stairs and decide if you
           want to continue or leave.
