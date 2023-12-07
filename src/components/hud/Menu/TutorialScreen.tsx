@@ -37,9 +37,9 @@ const TutorialScreen = () => {
         <h2 className="text-xl font-bold pb-2">Controls and Movement</h2>
         <p>Move with WASD, wait a turn with SPACEBAR</p>
         <p>
-          If on mobile, you can use the thimble in the middle to move. Drag and
-          release on a direction to move that way. Tap on the middle thimble to
-          wait.
+          If on mobile, you can use the thimble at the bottom of the screen to
+          move. Drag and release on a direction to move your hero that way. Tap
+          on the middle thimble to wait.
         </p>
         <p>
           Moving one space consumes 1 Energy. When your energy runs out, enemies
@@ -75,8 +75,8 @@ const TutorialScreen = () => {
         </p>
         <p>
           <strong className="text-red-400">GREED: </strong>Continue further up
-          in the dungeon, where the enemies get numerous and the map gets
-          larger.
+          the dungeon. Each floor is more deadly as enemies get numerous and the
+          map gets larger.
         </p>
         <p>
           <strong className="text-green-400">NEED: </strong>Leave the dungeon
