@@ -22,6 +22,7 @@ export enum ItemType {
   ITEM_POTION,
   ITEM_CHICKEN,
   ITEM_WEAPON,
+  ITEM_APPLE,
 }
 
 export enum WallType {

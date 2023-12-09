@@ -736,7 +736,8 @@ export const createMapSlice: StateCreator<
 
     lootGen.add(ItemType.ITEM_NONE, 45);
     lootGen.add(ItemType.ITEM_COIN, 25);
-    lootGen.add(ItemType.ITEM_CHICKEN, 10);
+    lootGen.add(ItemType.ITEM_CHICKEN, 5);
+    lootGen.add(ItemType.ITEM_APPLE, 15);
     lootGen.add(ItemType.ITEM_WEAPON, 5);
     lootGen.add(ItemType.ITEM_POTION, 5);
 
@@ -1061,6 +1062,7 @@ export const createMapSlice: StateCreator<
 
     lootGen.add(ItemType.ITEM_COIN, 65);
     lootGen.add(ItemType.ITEM_CHICKEN, 25);
+    lootGen.add(ItemType.ITEM_APPLE, 10);
     lootGen.add(ItemType.ITEM_CHALICE, 17, 10);
     lootGen.add(ItemType.ITEM_WEAPON, 20);
     lootGen.add(ItemType.ITEM_CROWN, 15, 1);

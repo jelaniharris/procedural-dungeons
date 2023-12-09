@@ -102,7 +102,12 @@ const TutorialScreen = () => {
       {
         icon: 'ChickenIcon.png',
         name: 'Chicken',
-        description: 'Gives 30 Energy',
+        description: 'Gives 35 Energy',
+      },
+      {
+        icon: 'AppleIcon.png',
+        name: 'Dungeon Fruit',
+        description: 'Gives 15 Energy',
       },
     ];
 

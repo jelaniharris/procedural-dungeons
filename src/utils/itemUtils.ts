@@ -24,6 +24,14 @@ export const assignItemDetails = (
     case ItemType.ITEM_CHICKEN:
       newItem = { ...newItem, rotates: true, name: 'chicken_leg' };
       break;
+    case ItemType.ITEM_APPLE:
+      newItem = {
+        ...newItem,
+        rotates: true,
+        name: 'apple',
+        modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(15) },
+      };
+      break;
     case ItemType.ITEM_CHALICE:
       newItem = {
         ...newItem,
