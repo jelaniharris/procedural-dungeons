@@ -82,6 +82,9 @@ const DungeonScene = () => {
   const setPaused = useStore((state: GameState) => state.setPaused);
   const adjustAttacks = useStore((state: GameState) => state.adjustAttacks);
   const checkIfWalkable = useStore((state: GameState) => state.checkIfWalkable);
+  const modifyFloorSteps = useStore(
+    (state: GameState) => state.modifyFloorSteps
+  );
   const reduceHealthDestructible = useStore(
     (state: GameState) => state.reduceHealthDestructible
   );
@@ -289,6 +292,7 @@ const DungeonScene = () => {
             playerGO.getComponent<MoveableObjectRef>('Moveable');
 
           const moved = await movementRef.move(nextPosition, 'move');
+          modifyFloorSteps(-1);
 
           if (moved) {
             publish('player-moved', { moved: true });
@@ -309,6 +313,7 @@ const DungeonScene = () => {
               if (result != DestructableType.NONE) {
                 console.log('Destroyed');
                 publish('player-moved', { moved: false });
+                modifyFloorSteps(-1);
               }
               break;
             case WalkableType.BLOCK_WALL:
@@ -320,6 +325,7 @@ const DungeonScene = () => {
       } else {
         // Direction is none, stall was pressed?
         publish('player-moved', { moved: false });
+        modifyFloorSteps(-1);
       }
     },
     [checkIfWalkable, findGameObjectByName, publish, reduceHealthDestructible]

@@ -211,6 +211,9 @@ export const createMapSlice: StateCreator<
       }
     }
 
+    const stepsUntilHurryUp = Math.floor((mapNumRows * mapNumCols) / 3 / 5) * 5;
+    get().resetFloorSteps(stepsUntilHurryUp);
+
     console.debug('[resetStage] Stage has been reset');
 
     get().generateMap(currentMapData, generatorSeeds['map']);

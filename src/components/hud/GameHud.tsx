@@ -1,11 +1,13 @@
 import { GameState, useStore } from '@/stores/useStore';
 import { cn } from '@/utils/classnames';
 import {
+  FaClock as ClockIcon,
   FaCoins as CoinIcon,
   FaBolt as EnergyIcon,
   FaLayerGroup as FloorIcon,
   FaHeart as HeartIcon,
   FaCog as SettingsIcon,
+  FaSkull as SkullIcon,
 } from 'react-icons/fa';
 import { GiPlainDagger as AttacksIcon } from 'react-icons/gi';
 import Button from '../input/Button';
@@ -33,6 +35,7 @@ export const GameHud = () => {
     (store: GameState) => store.setShowSettingsDialog
   );
   const gameStatus = useStore((store: GameState) => store.gameStatus);
+  const floorSteps = useStore((store: GameState) => store.floorSteps);
 
   const PanelLabel = ({
     icon,
@@ -97,7 +100,7 @@ export const GameHud = () => {
       {gameStatus == GameStatus.GAME_ENDED && <EndScreen />}
       {gameStatus != GameStatus.GAME_ENDED && !showExitDialog && (
         <>
-          <section className="fixed w-full flex gap-8 justify-between top-4">
+          <section className="fixed w-full flex gap-8 justify-between top-2">
             <div></div>
             <div className="flex gap-8">
               {' '}
@@ -126,6 +129,18 @@ export const GameHud = () => {
                 <SettingsIcon />
               </Button>
             </div>
+          </section>
+          <section className="fixed w-full flex gap-8 justify-between top-16">
+            <div></div>
+            <ContentPanel className="bg-slate-800 bg-opacity-80">
+              <PanelLabel
+                iconClass="text-white-400 py-1"
+                icon={floorSteps > 0 ? <ClockIcon /> : <SkullIcon />}
+              >
+                {floorSteps > 0 ? floorSteps : '!!'}
+              </PanelLabel>
+            </ContentPanel>
+            <div></div>
           </section>
           <section className="fixed w-full flex justify-center bottom-20 ">
             {isTired && (

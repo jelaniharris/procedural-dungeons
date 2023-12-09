@@ -40,6 +40,10 @@ export interface StageSlice {
   setShowExitDialog: (showDialog: boolean) => void;
   setShowSettingsDialog: (showDialog: boolean) => void;
   setPaused: (newPauseStatus: boolean) => void;
+  // Floor Steps
+  floorSteps: number;
+  modifyFloorSteps: (amount: number) => void;
+  resetFloorSteps: (amount: number) => void;
   // Attempts
   getAttemptData: () => RunData;
   recordLocalAttempt: () => void;
@@ -64,6 +68,7 @@ export const createStageSlice: StateCreator<
   showExitDialog: false,
   showSettingsDialog: false,
   isPaused: false,
+  floorSteps: 0,
   gameStatus: GameStatus.GAME_NONE,
   dangerZones: [],
   settings: {
@@ -212,6 +217,14 @@ export const createStageSlice: StateCreator<
   },
   getSettings() {
     return get().settings;
+  },
+  modifyFloorSteps(amount: number) {
+    let nextStep = get().floorSteps + amount;
+    if (nextStep < 0) nextStep = 0;
+    set({ floorSteps: nextStep });
+  },
+  resetFloorSteps(amount: number) {
+    set({ floorSteps: amount });
   },
   saveSettings(settings: GameSettings) {
     set({ settings: settings });
