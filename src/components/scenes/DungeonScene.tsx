@@ -308,6 +308,7 @@ const DungeonScene = () => {
               const result = reduceHealthDestructible(nextPosition);
               if (result != DestructableType.NONE) {
                 console.log('Destroyed');
+                publish('player-moved', { moved: false });
               }
               break;
             case WalkableType.BLOCK_WALL:
