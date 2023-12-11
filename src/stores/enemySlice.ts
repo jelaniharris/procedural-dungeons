@@ -30,6 +30,11 @@ export interface EnemySlice {
   getEnemiesAtLocation: (location: Point2D) => Enemy[];
   getEnemiesAtPlayerLocation: () => Enemy[];
   removeEnemy: (enemy: Enemy) => void;
+  spawnEnemyData: (
+    location: Point2D,
+    enemyType: EnemyType,
+    newEnemyIndex: number
+  ) => Enemy | null;
 }
 
 export interface EnemyLocationResultsCallback {
@@ -44,6 +49,13 @@ export type AiMoveProps = {
     enemy?: Enemy
   ) => void;
 };
+
+export interface GenerateEnemyProps {
+  randomizer?: () => number;
+  randomSeed?: number;
+  emptySpots?: Point2D[];
+  spawnType?: EnemyType;
+}
 
 export const createEnemySlice: StateCreator<
   EnemySlice & MapSlice & StageSlice & PlayerSlice & GeneratorSlice,
@@ -61,11 +73,12 @@ export const createEnemySlice: StateCreator<
     const randomGen = get().generateGenerator(seed);
     const psuedoShuffle = get().shuffleArray;
     emptySpots = psuedoShuffle(emptySpots, randomGen);
+    const spawnEnemyData = get().spawnEnemyData;
 
     let newEnemyIndex = enemyIndex;
     const newEnemyData: Enemy[] = [];
 
-    let numberEnemies = 4 + currentLevel * 4;
+    let numberEnemies = 2 + currentLevel * 4;
 
     // Create a new LootChance generator
     const enemyTypeGenerator = new LootChance<EnemyType>();
@@ -89,50 +102,19 @@ export const createEnemySlice: StateCreator<
         continue;
       }
 
-      // Choose the random item
-      const randomEnemy = enemyTypeGenerator.choose(randomGen);
-
-      let newEnemy: Enemy = {
-        id: newEnemyIndex,
-        type: randomEnemy === null ? EnemyType.ENEMY_NONE : randomEnemy,
-        position: point,
-        status: EnemyStatus.STATUS_ROAMING,
-        nextDirection: { x: 0, y: 0 },
-        movementPoints: [],
-        movementRange: 1,
-        traits: UnitTraits.NONE,
-        movementVariance: 0,
-      };
-
-      switch (randomEnemy) {
-        case EnemyType.ENEMY_ORC:
-          newEnemy = {
-            ...newEnemy,
-            movementRange: 2,
-            name: 'Orc',
-            traits: UnitTraits.OPENDOORS,
-          };
-          break;
-        case EnemyType.ENEMY_SKELETON:
-          newEnemy = { ...newEnemy, movementVariance: 1, name: 'Skeleton' };
-          break;
-        case EnemyType.ENEMY_GHOST:
-          newEnemy = {
-            ...newEnemy,
-            movementRange: 1,
-            movementVariance: 2,
-            name: 'Ghost',
-            traits: UnitTraits.NOCLIP,
-          };
-          break;
-        default:
-          continue;
+      // Choose the random enemy
+      const randomEnemyType = enemyTypeGenerator.choose(randomGen);
+      if (randomEnemyType === null) {
+        continue;
       }
 
-      newEnemyData.push(newEnemy);
+      const newEnemy = spawnEnemyData(point, randomEnemyType, newEnemyIndex);
+      if (newEnemy) {
+        newEnemyData.push(newEnemy);
+        newEnemyIndex++;
+      }
 
       numberEnemies--;
-      newEnemyIndex++;
     }
 
     set({
@@ -141,6 +123,70 @@ export const createEnemySlice: StateCreator<
     });
 
     console.debug(`[generateEnemies] Generated ${newEnemyIndex + 1} enemies`);
+  },
+  spawnEnemyData(
+    location: Point2D,
+    enemyType: EnemyType,
+    newEnemyIndex: number
+  ) {
+    // Choose the random item
+    let newEnemy: Enemy | null = {
+      id: newEnemyIndex,
+      type: enemyType === null ? EnemyType.ENEMY_NONE : enemyType,
+      position: location,
+      status: EnemyStatus.STATUS_ROAMING,
+      nextDirection: { x: 0, y: 0 },
+      movementPoints: [],
+      movementRange: 1,
+      traits: UnitTraits.NONE,
+      movementVariance: 0,
+    };
+
+    switch (newEnemy.type) {
+      case EnemyType.ENEMY_ORC:
+        newEnemy = {
+          ...newEnemy,
+          movementRange: 2,
+          name: 'Orc',
+          traits: UnitTraits.OPENDOORS,
+        };
+        break;
+      case EnemyType.ENEMY_SKELETON:
+        newEnemy = { ...newEnemy, movementVariance: 1, name: 'Skeleton' };
+        break;
+      case EnemyType.ENEMY_GHOST:
+        newEnemy = {
+          ...newEnemy,
+          movementRange: 1,
+          movementVariance: 2,
+          name: 'Ghost',
+          traits: UnitTraits.NOCLIP,
+        };
+        break;
+      default:
+        newEnemy = null;
+        break;
+    }
+    return newEnemy;
+  },
+  spawnEnemy(location: Point2D, spawnType: EnemyType) {
+    const enemyIndex = get().enemyIndex;
+    let newEnemyIndex = enemyIndex;
+    const enemies = get().enemies;
+    const spawnEnemyData = get().spawnEnemyData;
+
+    const newEnemyData = [...enemies];
+
+    const newEnemy = spawnEnemyData(location, spawnType, newEnemyIndex);
+    if (newEnemy) {
+      newEnemyData.push(newEnemy);
+      newEnemyIndex++;
+    }
+
+    set({
+      enemyIndex: newEnemyIndex,
+      enemies: newEnemyData,
+    });
   },
   aiCalculateNewDirection(enemies: Enemy[]) {
     const determineValidDirections = get().determineValidDirections;

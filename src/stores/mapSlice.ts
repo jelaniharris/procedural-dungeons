@@ -130,6 +130,7 @@ export interface MapSlice {
   getItemPosition: (x: number, y: number) => Item | null;
   resetItems: () => void;
   addItem: (item: ItemType, location: Point2D) => void;
+  checkDangerState: () => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1140,5 +1141,12 @@ export const createMapSlice: StateCreator<
       return items[location];
     }
     return null;
+  },
+  checkDangerState() {
+    const floorSteps = get().floorSteps;
+
+    if (floorSteps < 0 && floorSteps % 9 == 0) {
+      console.log('Spawning enemy');
+    }
   },
 });

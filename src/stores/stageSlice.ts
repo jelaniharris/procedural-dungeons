@@ -219,8 +219,8 @@ export const createStageSlice: StateCreator<
     return get().settings;
   },
   modifyFloorSteps(amount: number) {
-    let nextStep = get().floorSteps + amount;
-    if (nextStep < 0) nextStep = 0;
+    const nextStep = get().floorSteps + amount;
+    //if (nextStep < 0) nextStep = 0;
     set({ floorSteps: nextStep });
   },
   resetFloorSteps(amount: number) {

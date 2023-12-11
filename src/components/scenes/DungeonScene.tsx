@@ -109,6 +109,9 @@ const DungeonScene = () => {
   );
 
   const playAudio = useStore((state: GameState) => state.playAudio);
+  const checkDangerState = useStore(
+    (state: GameState) => state.checkDangerState
+  );
 
   const checkPlayerLocation = useStore(
     (state: GameState) => state.checkPlayerLocation
@@ -153,6 +156,9 @@ const DungeonScene = () => {
           gObj.publish(DOOR_OPEN);
         }
       }
+
+      // If in danger mode, spawn a new enemy every 9 steps
+      checkDangerState();
     };
     resetDangerZones();
 
