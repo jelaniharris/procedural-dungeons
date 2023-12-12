@@ -1197,14 +1197,14 @@ export const createMapSlice: StateCreator<
       location,
       warningType: SpawnWarningType.WARNING_ENEMY,
       enemyType: EnemyType.ENEMY_GHOST,
-      timer: 2,
+      timer: 3,
     });
     return true;
   },
   checkDangerState() {
     const floorSteps = get().floorSteps;
 
-    if (/*floorSteps < 0 &&*/ floorSteps % 3 == 0) {
+    if (floorSteps < 0 && floorSteps % 6 == 0) {
       console.log('Spawning enemy');
       get().executeDangerMode();
     }

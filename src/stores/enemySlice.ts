@@ -35,6 +35,7 @@ export interface EnemySlice {
     enemyType: EnemyType,
     newEnemyIndex: number
   ) => Enemy | null;
+  spawnEnemy: (location: Point2D, spawnType: EnemyType) => void;
 }
 
 export interface EnemyLocationResultsCallback {

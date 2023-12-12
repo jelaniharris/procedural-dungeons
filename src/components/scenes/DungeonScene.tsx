@@ -47,6 +47,7 @@ import {
   ItemType,
   LocationActionType,
   POSITION_OFFSETS,
+  SpawnWarningType,
   WalkableType,
 } from '../types/GameTypes';
 import useGame from '../useGame';
@@ -122,7 +123,7 @@ const DungeonScene = () => {
   const clearSpawnWarning = useStore(
     (state: GameState) => state.clearSpawnWarning
   );
-
+  const spawnEnemy = useStore((state: GameState) => state.spawnEnemy);
   const {
     subscribe,
     publish,
@@ -446,6 +447,12 @@ const DungeonScene = () => {
         TRIGGER_SUMMONING,
         ({ spawnWarning, gameObjectRef }) => {
           gameObjectRef.setDisabled(true);
+          if (
+            spawnWarning.warningType === SpawnWarningType.WARNING_ENEMY &&
+            spawnWarning.enemyType
+          ) {
+            spawnEnemy(spawnWarning.location, spawnWarning.enemyType);
+          }
           clearSpawnWarning(spawnWarning);
         }
       );
