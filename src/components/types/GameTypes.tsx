@@ -213,6 +213,19 @@ export type PlayerType = {
   y: number;
 };
 
+export enum SpawnWarningType {
+  WARNING_NONE,
+  WARNING_ENEMY,
+  WARNING_SPELL,
+}
+
+export type SpawnWarning = {
+  location: Point2D;
+  warningType: SpawnWarningType;
+  enemyType?: EnemyType;
+  timer: number;
+};
+
 export type MapArea = {
   locations: Point2D[];
   locationsSet?: Set<string>;

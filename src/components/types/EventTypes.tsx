@@ -1,6 +1,7 @@
 import { Point2D } from '@/utils/Point2D';
 import { ConsumerEvent } from '@/utils/pubSub';
-import { Direction, Enemy, Hazard } from './GameTypes';
+import { GameObjectRef } from '../entities/GameObject';
+import { Direction, Enemy, Hazard, SpawnWarning } from './GameTypes';
 
 export const PLAYER_MOVED = 'player-moved';
 export const PLAYER_TOUCHED_ENEMY = 'player-touched-enemy';
@@ -20,6 +21,8 @@ export const EVENT_STARTGAME = 'start-game';
 export const ON_TICK = 'on-tick';
 
 export const CHANGE_SCENE = 'change-scene';
+
+export const TRIGGER_SUMMONING = 'trigger-summoning';
 
 export const DOOR_OPEN = 'door-open';
 export const DOOR_CLOSE = 'door-close';
@@ -70,3 +73,8 @@ export type OnTickEvent = ConsumerEvent<'on-tick'>;
 
 export type DoorOpenEvent = ConsumerEvent<'door-open'>;
 export type DoorCloseEvent = ConsumerEvent<'door-close'>;
+
+export type TriggerSummoningEvent = ConsumerEvent<
+  'trigger-summoning',
+  { spawnWarning: SpawnWarning; gameObjectRef: GameObjectRef }
+>;

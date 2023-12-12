@@ -7,6 +7,7 @@ import { ShowEnemyIntention } from '@/app/ShowEnemyIntentions';
 import { ShowHazards } from '@/app/ShowHazards';
 import { ShowInteractables } from '@/app/ShowInteractables';
 import { ShowItems } from '@/app/ShowItems';
+import { ShowSummoningIndicators } from '@/app/ShowSummoningIndicators';
 import { GameState, useStore } from '@/stores/useStore';
 import { Point2D } from '@/utils/Point2D';
 import { Environment, Stats } from '@react-three/drei';
@@ -35,6 +36,8 @@ import {
   PLAYER_TOUCHED_ENEMY,
   PlayerAttemptMoveEvent,
   PlayerDamagedTrapEvent,
+  TRIGGER_SUMMONING,
+  TriggerSummoningEvent,
 } from '../types/EventTypes';
 import {
   DestructableType,
@@ -116,6 +119,10 @@ const DungeonScene = () => {
   const checkPlayerLocation = useStore(
     (state: GameState) => state.checkPlayerLocation
   );
+  const clearSpawnWarning = useStore(
+    (state: GameState) => state.clearSpawnWarning
+  );
+
   const {
     subscribe,
     publish,
@@ -156,9 +163,6 @@ const DungeonScene = () => {
           gObj.publish(DOOR_OPEN);
         }
       }
-
-      // If in danger mode, spawn a new enemy every 9 steps
-      checkDangerState();
     };
     resetDangerZones();
 
@@ -168,6 +172,9 @@ const DungeonScene = () => {
     gameObjectRegistry.forEach((reg) => {
       reg.publish(ON_TICK);
     });
+
+    // If in danger mode, spawn a new enemy every 9 steps
+    checkDangerState();
   }, [performTurn, publish]);
 
   const playerMoved = useCallback(
@@ -435,6 +442,14 @@ const DungeonScene = () => {
         playerMoved(moved);
       });
 
+      subscribe<TriggerSummoningEvent>(
+        TRIGGER_SUMMONING,
+        ({ spawnWarning, gameObjectRef }) => {
+          gameObjectRef.setDisabled(true);
+          clearSpawnWarning(spawnWarning);
+        }
+      );
+
       publish<EventStartGameEvent>(EVENT_STARTGAME, { gameType: gameMode });
     };
 
@@ -470,6 +485,7 @@ const DungeonScene = () => {
         <ShowHazards />
         <ShowInteractables />
         <ShowDestructables />
+        <ShowSummoningIndicators />
       </Suspense>
     </>
   );

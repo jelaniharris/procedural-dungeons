@@ -4,11 +4,14 @@ import {
   DestructableType,
   Direction,
   DoorLocation,
+  EnemyType,
   GameStatus,
   Item,
   ItemType,
   MapArea,
   POSITION_OFFSETS,
+  SpawnWarning,
+  SpawnWarningType,
   SplitData,
   SplitType,
   TileType,
@@ -39,6 +42,7 @@ import { StageSlice } from './stageSlice';
 export interface MapSlice {
   mapData: (TileType | null)[][];
   destructables: Map<string, Destructable>;
+  spawnWarnings: Map<string, SpawnWarning>;
   numRows: number;
   numCols: number;
   resetStage: (hard: boolean) => void;
@@ -91,6 +95,12 @@ export interface MapSlice {
     seed: number,
     allMapAreas: MapArea[]
   ) => void;
+
+  // Danger Mode
+  addSpawnWarning: (warning: SpawnWarning) => void;
+  executeDangerMode: () => void;
+  resetSpawnWarnings: () => void;
+  clearSpawnWarning: (warning: SpawnWarning) => void;
 
   // Rooms
   binarySplitMap: (
@@ -153,6 +163,7 @@ export const createMapSlice: StateCreator<
   numCols: 5,
   items: [],
   doors: [],
+  spawnWarnings: new Map<string, SpawnWarning>(),
   destructables: new Map<string, Destructable>(),
   itemIndex: 0,
   itemsRefs: allItemRefs,
@@ -168,11 +179,13 @@ export const createMapSlice: StateCreator<
     const resetDangerZones = get().resetDangerZones;
     const assignRandomGenerator = get().assignRandomGenerator;
     const fillMapGaps = get().fillMapGaps;
+    const resetSpawnWarnings = get().resetSpawnWarnings;
 
     resetMap();
     resetItems();
 
     resetDangerZones();
+    resetSpawnWarnings();
     if (hardReset) {
       resetPlayer();
     }
@@ -1142,11 +1155,58 @@ export const createMapSlice: StateCreator<
     }
     return null;
   },
+  resetSpawnWarnings() {
+    set({
+      spawnWarnings: new Map<string, SpawnWarning>(),
+    });
+  },
+  clearSpawnWarning(warning: SpawnWarning) {
+    const spawnWarnings = get().spawnWarnings;
+    const newWarnings = new Map<string, SpawnWarning>(spawnWarnings);
+
+    newWarnings.delete(`${warning.location.x},${warning.location.y}`);
+
+    set({
+      spawnWarnings: newWarnings,
+    });
+  },
+  addSpawnWarning(warning: SpawnWarning) {
+    const spawnWarnings = get().spawnWarnings;
+    const newWarnings = new Map<string, SpawnWarning>(spawnWarnings);
+    newWarnings.set(`${warning.location.x},${warning.location.y}`, warning);
+
+    set({
+      spawnWarnings: newWarnings,
+    });
+  },
+  executeDangerMode(): boolean {
+    const psuedoShuffle = get().shuffleArray;
+    let emptySpots = get().getEmptyTiles();
+    emptySpots = psuedoShuffle(emptySpots, Math.random);
+
+    if (emptySpots.length === 0) {
+      return false;
+    }
+
+    const location = emptySpots.shift();
+    if (!location) {
+      return false;
+    }
+
+    get().addSpawnWarning({
+      location,
+      warningType: SpawnWarningType.WARNING_ENEMY,
+      enemyType: EnemyType.ENEMY_GHOST,
+      timer: 2,
+    });
+    return true;
+  },
   checkDangerState() {
     const floorSteps = get().floorSteps;
 
-    if (floorSteps < 0 && floorSteps % 9 == 0) {
+    if (/*floorSteps < 0 &&*/ floorSteps % 3 == 0) {
       console.log('Spawning enemy');
+      get().executeDangerMode();
     }
   },
 });
