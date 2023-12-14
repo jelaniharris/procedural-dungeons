@@ -1204,7 +1204,7 @@ export const createMapSlice: StateCreator<
   checkDangerState() {
     const floorSteps = get().floorSteps;
 
-    if (floorSteps < 0 && floorSteps % 6 == 0) {
+    if (floorSteps < 0 && floorSteps % 8 == 0) {
       console.log('Spawning enemy');
       get().executeDangerMode();
     }
