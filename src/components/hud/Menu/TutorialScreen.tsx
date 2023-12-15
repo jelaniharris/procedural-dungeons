@@ -84,6 +84,12 @@ const TutorialScreen = () => {
           for the daily or adventure game types.
         </p>
         <p>If you die, your score will not save</p>
+        <h2 className="text-xl font-bold pb-2">Floor Timer</h2>
+        <p>
+          Some floors have a round timer that will tick down for every step you
+          take. Take too long on a floor, and enemies will start spawning on the
+          map every couple of steps.
+        </p>
       </div>
     );
   };
