@@ -138,6 +138,7 @@ export enum WalkableType {
   BLOCK_NONE,
   BLOCK_WALL,
   BLOCK_DESTRUCTIBLE,
+  BLOCK_ENEMY,
 }
 
 export type Destructable = {

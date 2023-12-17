@@ -95,6 +95,9 @@ const DungeonScene = () => {
   const getEnemiesAtPlayerLocation = useStore(
     (state: GameState) => state.getEnemiesAtPlayerLocation
   );
+  const getEnemiesAtLocation = useStore(
+    (state: GameState) => state.getEnemiesAtLocation
+  );
   const canPlayerAttackEnemy = useStore(
     (state: GameState) => state.canPlayerAttackEnemy
   );
@@ -187,12 +190,12 @@ const DungeonScene = () => {
         const locationAction = checkPlayerLocation();
 
         // Check if enemies are at the current location
-        const enemies = getEnemiesAtPlayerLocation();
+        /*const enemies = getEnemiesAtPlayerLocation();
         enemies.forEach((enemy) => {
           if (canPlayerAttackEnemy(enemy)) {
             playerPerformAttack(enemy);
           }
-        });
+        });*/
 
         if (
           (locationAction.result & LocationActionType.COLLECTED_ITEM) ===
@@ -329,6 +332,17 @@ const DungeonScene = () => {
                 publish('player-moved', { moved: false });
                 modifyFloorSteps(-1);
               }
+              break;
+            case WalkableType.BLOCK_ENEMY:
+              // Check if enemies are at the next location
+              const enemies = getEnemiesAtLocation(nextPosition);
+              enemies.forEach((enemy) => {
+                if (canPlayerAttackEnemy(enemy)) {
+                  playerPerformAttack(enemy);
+                  publish('player-moved', { moved: false });
+                }
+              });
+
               break;
             case WalkableType.BLOCK_WALL:
             case WalkableType.BLOCK_NONE:

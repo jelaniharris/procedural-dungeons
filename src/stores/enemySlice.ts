@@ -282,7 +282,11 @@ export const createEnemySlice: StateCreator<
     const enemiesAtLocation = [];
 
     for (const enemy of enemies) {
-      if (enemy.position.x == location.x && enemy.position.y == location.y) {
+      if (
+        enemy.status != EnemyStatus.STATUS_DEAD &&
+        enemy.position.x == location.x &&
+        enemy.position.y == location.y
+      ) {
         enemiesAtLocation.push(enemy);
       }
     }
@@ -318,6 +322,11 @@ export const createEnemySlice: StateCreator<
 
     let enemyHasMovementLeft = false;
     currentEnemies.forEach(async (enemy, i) => {
+      // Dead enemies don't move
+      if ((enemy.status & EnemyStatus.STATUS_DEAD) == EnemyStatus.STATUS_DEAD) {
+        return;
+      }
+
       if (enemy.movementPoints.length > 0) {
         enemyHasMovementLeft = true;
         const nextLocation = enemy.movementPoints.shift();

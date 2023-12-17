@@ -366,6 +366,10 @@ export const createMapSlice: StateCreator<
     if (destructables.has(`${location.x},${location.y}`)) {
       return { result: false, type: WalkableType.BLOCK_DESTRUCTIBLE };
     }
+    const enemiesAtLocation = get().getEnemiesAtLocation(location);
+    if (enemiesAtLocation.length > 0) {
+      return { result: false, type: WalkableType.BLOCK_ENEMY };
+    }
 
     return { result: true, type: WalkableType.BLOCK_NONE };
   },
