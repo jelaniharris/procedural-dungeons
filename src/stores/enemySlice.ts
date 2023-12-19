@@ -369,7 +369,7 @@ export const createEnemySlice: StateCreator<
       (searchEnemy) => searchEnemy.id == enemy.id
     );
     console.log('Found enemy: ', oldEnemies[index]);
-    if (index > 0) {
+    if (index >= 0) {
       oldEnemies[index] = {
         ...oldEnemies[index],
         status: EnemyStatus.STATUS_DEAD,
