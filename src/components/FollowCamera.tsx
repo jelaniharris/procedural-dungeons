@@ -38,7 +38,12 @@ export const FollowCamera = () => {
   });
   return (
     <>
-      <PerspectiveCamera ref={cameraRef} makeDefault position={[6, 3, 6]} />
+      <PerspectiveCamera
+        name="follow-camera"
+        ref={cameraRef}
+        makeDefault={true}
+        position={[6, 3, 6]}
+      />
       <OrbitControls
         onStart={startDrag}
         enablePan={false}

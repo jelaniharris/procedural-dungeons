@@ -1,3 +1,5 @@
+'use client';
+
 import { useProgress } from '@react-three/drei';
 
 export const Loading = () => {
