@@ -1,11 +1,11 @@
 import { Hazard, HazardType, TileType } from '@/components/types/GameTypes';
-import { StateCreator } from 'zustand';
-import { MapSlice } from './mapSlice';
-import { StageSlice } from './stageSlice';
-import { v4 as uuidv4 } from 'uuid';
 import { Point2D } from '@/utils/Point2D';
-import { PlayerSlice } from './playerSlice';
+import { v4 as uuidv4 } from 'uuid';
+import { StateCreator } from 'zustand';
 import { GeneratorSlice } from './generatorSlice';
+import { MapSlice } from './mapSlice';
+import { PlayerSlice } from './playerSlice';
+import { StageSlice } from './stageSlice';
 
 export interface HazardSlice {
   hazards: Map<string, Hazard>;
@@ -29,7 +29,7 @@ export const createHazardSlice: StateCreator<
 
     const newHazardData = new Map<string, Hazard>();
 
-    let numberHazards = 10 + currentLevel * 3;
+    let numberHazards = 6 + currentLevel * 4;
     while (emptySpots.length != 0 && numberHazards > 0) {
       const point = emptySpots.shift();
       if (!point) {
