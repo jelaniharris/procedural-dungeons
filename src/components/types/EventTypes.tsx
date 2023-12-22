@@ -1,7 +1,13 @@
 import { Point2D } from '@/utils/Point2D';
 import { ConsumerEvent } from '@/utils/pubSub';
 import { GameObjectRef } from '../entities/GameObject';
-import { Direction, Enemy, Hazard, SpawnWarning } from './GameTypes';
+import {
+  Direction,
+  Enemy,
+  Hazard,
+  OverLayTextType,
+  SpawnWarning,
+} from './GameTypes';
 
 export const PLAYER_MOVED = 'player-moved';
 export const PLAYER_TOUCHED_ENEMY = 'player-touched-enemy';
@@ -26,6 +32,8 @@ export const TRIGGER_SUMMONING = 'trigger-summoning';
 
 export const DOOR_OPEN = 'door-open';
 export const DOOR_CLOSE = 'door-close';
+
+export const OVERLAY_TEXT = 'overlay-text';
 
 export type EntityDiedEvent = ConsumerEvent<'entity-died'>;
 export type EntityAliveEvent = ConsumerEvent<'entity-alive'>;
@@ -77,4 +85,14 @@ export type DoorCloseEvent = ConsumerEvent<'door-close'>;
 export type TriggerSummoningEvent = ConsumerEvent<
   'trigger-summoning',
   { spawnWarning: SpawnWarning; gameObjectRef: GameObjectRef }
+>;
+
+export type OverlayTextEvent = ConsumerEvent<
+  'overlay-text',
+  {
+    type: OverLayTextType;
+    text?: string;
+    amount?: number;
+    mapPosition?: Point2D;
+  }
 >;

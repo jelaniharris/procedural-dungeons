@@ -15,6 +15,7 @@ import { EffectComposer, Vignette } from '@react-three/postprocessing';
 import React, { Suspense, useCallback, useState } from 'react';
 import { ShowEnvironment } from '../../app/ShowEnvironment';
 import { AmbientSound } from '../AmbientSound';
+import { FollowCamera } from '../FollowCamera';
 import { MoveableObjectRef } from '../entities/MoveableObject';
 import Player from '../entities/Player';
 import {
@@ -28,6 +29,8 @@ import {
   EntityDiedEvent,
   EventStartGameEvent,
   ON_TICK,
+  OVERLAY_TEXT,
+  OverlayTextEvent,
   PLAYER_ATTEMPT_MOVE,
   PLAYER_DAMAGED_TRAP,
   PLAYER_DIED,
@@ -46,6 +49,7 @@ import {
   GameStatus,
   ItemType,
   LocationActionType,
+  OverLayTextType,
   POSITION_OFFSETS,
   SpawnWarningType,
   WalkableType,
@@ -205,6 +209,11 @@ const DungeonScene = () => {
             case ItemType.ITEM_COIN:
               playAudio('coin.ogg');
               addScore(10);
+              publish<OverlayTextEvent>(OVERLAY_TEXT, {
+                type: OverLayTextType.OVERLAY_SCORE,
+                amount: 10,
+                mapPosition: locationAction.position,
+              });
               break;
             case ItemType.ITEM_CHALICE:
               playAudio('coin.ogg');
@@ -362,25 +371,15 @@ const DungeonScene = () => {
   React.useEffect(() => {
     const party = async () => {
       const randomTone = Math.floor(Math.random() * 6);
-
-      switch (randomTone) {
-        case 1:
-          setMapTone('#ff0000');
-          break;
-        case 2:
-          setMapTone('#00ff00');
-          break;
-        case 3:
-          setMapTone('#0000ff');
-          break;
-        case 4:
-          setMapTone('#00FFFF');
-          break;
-        case 4:
-          setMapTone('#FFFF00');
-          break;
-        default:
-          break;
+      const mapTones: Record<number, string> = {
+        '1': '#ff0000',
+        '2': '#00ff00',
+        '3': '#0000ff',
+        '4': '#00FFFF',
+        '5': '#FFFF00',
+      };
+      if (mapTones[randomTone]) {
+        setMapTone(mapTones[randomTone]);
       }
 
       subscribe<EventStartGameEvent>(EVENT_STARTGAME, ({ gameType }) => {
@@ -486,6 +485,7 @@ const DungeonScene = () => {
       unsubscribeAllHandlers(EXIT_GREED);
       unsubscribeAllHandlers(EXIT_NEED);
       unsubscribeAllHandlers(EVENT_STARTGAME);
+      unsubscribeAllHandlers(TRIGGER_SUMMONING);
     };
   }, []);
 
@@ -499,6 +499,7 @@ const DungeonScene = () => {
         <Effects />
         <ShowEnvironment />
         <Player />
+        <FollowCamera />
         <ShowItems />
         <ShowEnemies />
         <ShowEnemyIntention />

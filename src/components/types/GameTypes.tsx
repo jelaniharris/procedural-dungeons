@@ -270,3 +270,8 @@ export type BlockTestOptions = {
   canInteract?: boolean;
   doorIsWall?: boolean;
 };
+
+export enum OverLayTextType {
+  OVERLAY_NONE,
+  OVERLAY_SCORE,
+}

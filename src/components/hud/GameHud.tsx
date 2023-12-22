@@ -1,5 +1,6 @@
 import { GameState, useStore } from '@/stores/useStore';
 import { cn } from '@/utils/classnames';
+import React from 'react';
 import {
   FaClock as ClockIcon,
   FaCoins as CoinIcon,
