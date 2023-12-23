@@ -7,6 +7,7 @@ import { ShowEnemyIntention } from '@/app/ShowEnemyIntentions';
 import { ShowHazards } from '@/app/ShowHazards';
 import { ShowInteractables } from '@/app/ShowInteractables';
 import { ShowItems } from '@/app/ShowItems';
+import { ShowOverlayEvents } from '@/app/ShowOverlayEvents';
 import { ShowSummoningIndicators } from '@/app/ShowSummoningIndicators';
 import { GameState, useStore } from '@/stores/useStore';
 import { Point2D } from '@/utils/Point2D';
@@ -188,6 +189,7 @@ const DungeonScene = () => {
   const playerMoved = useCallback(
     (moved: boolean) => {
       // Reduce player enemy on every step or wait action
+      //TODO This should depend on the current floor type the player is on
       modifyEnergy(-1);
 
       if (moved) {
@@ -218,10 +220,20 @@ const DungeonScene = () => {
             case ItemType.ITEM_CHALICE:
               playAudio('coin.ogg');
               addScore(25);
+              publish<OverlayTextEvent>(OVERLAY_TEXT, {
+                type: OverLayTextType.OVERLAY_SCORE,
+                amount: 25,
+                mapPosition: locationAction.position,
+              });
               break;
             case ItemType.ITEM_CROWN:
               playAudio('coin.ogg');
               addScore(150);
+              publish<OverlayTextEvent>(OVERLAY_TEXT, {
+                type: OverLayTextType.OVERLAY_SCORE,
+                amount: 150,
+                mapPosition: locationAction.position,
+              });
               break;
             case ItemType.ITEM_POTION:
               playAudio('bottle.ogg', 0.5);
@@ -508,6 +520,7 @@ const DungeonScene = () => {
         <ShowInteractables />
         <ShowDestructables />
         <ShowSummoningIndicators />
+        <ShowOverlayEvents />
       </Suspense>
     </>
   );

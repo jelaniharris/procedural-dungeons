@@ -1,7 +1,6 @@
 import { useStore } from '@/stores/useStore';
 //import * as THREE from 'three';
 import { CharacterController } from '../CharacterController';
-import { FollowCamera } from '../FollowCamera';
 import { CharacterPlayer } from '../models/characters/CharacterPlayer';
 import GameObject from './GameObject';
 //import { useRef } from 'react';
@@ -15,7 +14,6 @@ const Player = () => {
 
   return (
     <>
-      <FollowCamera />
       <GameObject
         name="player"
         transform={playerPosition}

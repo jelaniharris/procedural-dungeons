@@ -4,7 +4,13 @@ import createPubSub, { PubSub } from '@/utils/pubSub';
 import { KeyboardControls, KeyboardControlsEntry } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import dynamic from 'next/dynamic';
-import React, { Dispatch, SetStateAction, useMemo, useState } from 'react';
+import React, {
+  Dispatch,
+  SetStateAction,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { NoToneMapping } from 'three';
 import {
   GameObjectRegistry,
@@ -26,6 +32,8 @@ export interface GameContextValue extends GameObjectRegistryUtils, PubSub {
   currentHud: string;
   setCurrentHud: Dispatch<SetStateAction<string>>;
   gameMode: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  canvasRef: any;
   setGameMode: Dispatch<SetStateAction<string>>;
 }
 
@@ -36,6 +44,7 @@ export default function Game({ children }: GameProps) {
   const [currentHud, setCurrentHud] = useState('mainmenu');
   const [pubSub] = useState(() => createPubSub());
   const [gameMode, setGameMode] = useState('daily');
+  const canvasRef = useRef(null);
 
   const [registryById] = useState<GameObjectRegistry<GameObjectRef>>(
     () => new Map()
@@ -114,6 +123,7 @@ export default function Game({ children }: GameProps) {
     currentHud,
     setCurrentHud,
     gameMode,
+    canvasRef,
     setGameMode,
     ...pubSub,
     ...registryUtils,
@@ -124,9 +134,11 @@ export default function Game({ children }: GameProps) {
       <GameContext.Provider value={contextValue}>
         <Canvas
           gl={{ antialias: true, toneMapping: NoToneMapping }}
+          ref={canvasRef}
           shadows
           onCreated={({ gl }) => {
             gl.setClearColor('#252934');
+            console.log('===== Created and Committed ====');
           }}
           className="canvas"
         >
