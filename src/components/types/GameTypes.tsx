@@ -263,6 +263,7 @@ export enum Controls {
 export type PlayerLocalData = {
   name: string;
   discriminator: number;
+  country: string;
 };
 
 export type BlockTestOptions = {

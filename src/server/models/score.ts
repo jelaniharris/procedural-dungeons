@@ -12,6 +12,7 @@ export type GetScoresResult = {
   attempts: number;
   name: string;
   level: number;
+  country: string;
 };
 
 export class ScoreModel extends DynamoItem {
@@ -22,6 +23,7 @@ export class ScoreModel extends DynamoItem {
   score: number;
   UpdatedAt?: string;
   Level: number;
+  Country: string;
 
   constructor(
     name: string,
@@ -30,6 +32,7 @@ export class ScoreModel extends DynamoItem {
     seed: number,
     score: number,
     Level: number,
+    Country: string,
     UpdatedAt?: string
   ) {
     super();
@@ -39,6 +42,7 @@ export class ScoreModel extends DynamoItem {
     this.seed = seed;
     this.score = score;
     this.Level = Level;
+    this.Country = Country;
     this.UpdatedAt = UpdatedAt;
   }
 
@@ -68,6 +72,7 @@ export class ScoreModel extends DynamoItem {
       item.seed,
       item.score,
       item.Level,
+      item.Country,
       item.UpdatedAt
     );
   }
@@ -83,6 +88,7 @@ export class ScoreModel extends DynamoItem {
       seed: this.seed,
       score: this.score,
       Level: this.Level,
+      Country: this.Country,
     };
   }
 }
@@ -93,6 +99,22 @@ export const saveScore = async (
   const gameHash = generateGameHash(score.GameType, score.seed);
   const userHash = generateUserHash(score.name, score.Discriminator);
 
+  let ttl: number | undefined;
+  switch (score.GameType) {
+    case 'daily':
+      const futureDailyDate = new Date();
+      // 5 days
+      futureDailyDate.setDate(futureDailyDate.getDate() + 5);
+      ttl = Math.round(futureDailyDate.getTime() / 1000);
+      break;
+    case 'adventure':
+      const futureAdventureDate = new Date();
+      // 90 days
+      futureAdventureDate.setDate(futureAdventureDate.getDate() + 90);
+      ttl = Math.round(futureAdventureDate.getTime() / 1000);
+      break;
+  }
+
   try {
     const command = new UpdateCommand({
       TableName: process.env.DYNAMO_DATA_TABLE_NAME,
@@ -100,14 +122,16 @@ export const saveScore = async (
       ConditionExpression:
         'attribute_not_exists(Score) OR (:score > Score AND :gamehash = GSI1PK)',
       UpdateExpression:
-        'SET #et = :entity_type, #s = :score, GSI1PK = :gamehash, GameType = :GameType, Seed = :seed, GSI1SK = :score_string, #uat = :updated_at, #name = :name, Discriminator = :Discriminator, #level = :Level ADD #att :amount',
+        'SET #et = :entity_type, #s = :score, GSI1PK = :gamehash, GameType = :GameType, Seed = :seed, GSI1SK = :score_string, #uat = :updated_at, #eat = :expired_at, #name = :name, Discriminator = :Discriminator, #country = :user_country, #level = :Level ADD #att :amount',
       ExpressionAttributeNames: {
         '#s': 'Score',
         '#et': 'EntityType',
         '#uat': 'UpdatedAt',
+        '#eat': 'ExpiredAt',
         '#att': 'Attempts',
         '#name': 'Name',
         '#level': 'Level',
+        '#country': 'Country',
       },
       ExpressionAttributeValues: {
         ':entity_type': 'GameScore',
@@ -118,8 +142,10 @@ export const saveScore = async (
         ':Level': score.Level,
         ':seed': score.seed,
         ':score': score.score,
+        ':user_country': score.Country,
         ':score_string': score.gsi1sk,
         ':updated_at': new Date().toISOString(),
+        ':expired_at': ttl,
         ':amount': 1,
       },
       ReturnValues: 'ALL_NEW',
@@ -171,6 +197,7 @@ export const getScores = async (gameType: string, seed?: number) => {
         attempts: item.Attempts,
         name: item.Name,
         level: item.Level || 0,
+        country: item.Country ?? '',
       });
     }
     return items;

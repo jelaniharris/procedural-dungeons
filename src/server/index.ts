@@ -1,11 +1,12 @@
 import { z } from 'zod';
 import { ScoreModel, getScores, saveScore } from './models/score';
-import { UserModel, createUser } from './models/user';
+import { UserModel, upsertUser } from './models/user';
 import { publicProcedure, router } from './trpc';
 
 interface AddUserInputType {
   name: string;
   discriminator: number;
+  country: string;
 }
 
 interface SaveScoreInputType {
@@ -15,22 +16,25 @@ interface SaveScoreInputType {
   seed: number;
   score: number;
   level: number;
+  country: string;
 }
 
 export const appRouter = router({
-  addUser: publicProcedure
+  addOrUpdateUser: publicProcedure
     .input(
       z.object({
         name: z.string(),
         discriminator: z.number(),
+        country: z.string(),
       })
     )
     .mutation(async ({ input }: { input: AddUserInputType }) => {
       try {
-        const user = await createUser(
-          new UserModel(input.name, input.discriminator)
+        const user = await upsertUser(
+          new UserModel(input.name, input.discriminator, input.country)
         );
         console.log(user);
+        return user;
       } catch (error) {
         console.log(error);
         throw error;
@@ -41,6 +45,7 @@ export const appRouter = router({
       z.object({
         name: z.string(),
         discriminator: z.number(),
+        country: z.string(),
         gameType: z.string(),
         seed: z.number(),
         score: z.number(),
@@ -56,7 +61,8 @@ export const appRouter = router({
             input.gameType,
             input.seed,
             input.score,
-            input.level
+            input.level,
+            input.country
           )
         );
         console.log(score);

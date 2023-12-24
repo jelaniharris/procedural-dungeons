@@ -41,6 +41,7 @@ export const EndScreen = () => {
           gameType: gameType,
           seed: seed,
           level: currentLevel,
+          country: player.country ?? '',
         });
         scoreSaved.current = true;
       }

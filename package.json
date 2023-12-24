@@ -42,6 +42,8 @@
     "nipplejs": "^0.10.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-flags-select": "^2.2.3",
+    "react-hook-form": "^7.49.2",
     "react-icons": "^4.11.0",
     "react-spring": "^9.7.2",
     "sass": "^1.63.6",
