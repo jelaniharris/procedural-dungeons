@@ -4,7 +4,7 @@ import Image from 'next/image';
 import useMainMenuContext from '../useMainMenuContext';
 
 interface ScreenHeaderProps {
-  hideName: boolean;
+  hideName?: boolean;
 }
 
 const ScreenHeader = ({ hideName = false }: ScreenHeaderProps) => {

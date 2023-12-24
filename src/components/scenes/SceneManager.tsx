@@ -65,8 +65,6 @@ export default function SceneManager({
     subscribe<ChangeSceneEvent>(CHANGE_SCENE, ({ nextScene }) => {
       console.log('Changing scene to: ', nextScene);
       sceneManagerApi.setScene(nextScene);
-      //setShowExitDialog(false);
-      //advanceStage();
     });
     return () => {
       unsubscribeAllHandlers(CHANGE_SCENE);

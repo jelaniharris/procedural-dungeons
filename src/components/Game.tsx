@@ -1,12 +1,17 @@
 'use client';
 
 import createPubSub, { PubSub } from '@/utils/pubSub';
-import { KeyboardControls, KeyboardControlsEntry } from '@react-three/drei';
+import {
+  KeyboardControls,
+  KeyboardControlsEntry,
+  useProgress,
+} from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import dynamic from 'next/dynamic';
 import React, {
   Dispatch,
   SetStateAction,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -41,10 +46,11 @@ export const GameContext = React.createContext<GameContextValue | null>(null);
 
 export default function Game({ children }: GameProps) {
   const [paused, setPaused] = useState(false);
-  const [currentHud, setCurrentHud] = useState('mainmenu');
+  const [currentHud, setCurrentHud] = useState('loading');
   const [pubSub] = useState(() => createPubSub());
   const [gameMode, setGameMode] = useState('daily');
   const canvasRef = useRef(null);
+  const { active } = useProgress();
 
   const [registryById] = useState<GameObjectRegistry<GameObjectRef>>(
     () => new Map()
@@ -129,6 +135,12 @@ export default function Game({ children }: GameProps) {
     ...registryUtils,
   };
 
+  useEffect(() => {
+    if (!active && currentHud === 'loading') {
+      setCurrentHud('mainmenu');
+    }
+  }, [currentHud, active]);
+
   return (
     <KeyboardControls map={map}>
       <GameContext.Provider value={contextValue}>
@@ -138,13 +150,11 @@ export default function Game({ children }: GameProps) {
           shadows
           onCreated={({ gl }) => {
             gl.setClearColor('#252934');
-            console.log('===== Created and Committed ====');
           }}
           className="canvas"
         >
           {children}
         </Canvas>
-        <Loading />
         {currentHud && currentHud === 'mainmenu' && (
           <div className="relative">
             <MainMenu />
@@ -158,6 +168,7 @@ export default function Game({ children }: GameProps) {
             </div>
           </>
         )}
+        {currentHud && currentHud === 'loading' && <Loading />}
       </GameContext.Provider>
     </KeyboardControls>
   );
