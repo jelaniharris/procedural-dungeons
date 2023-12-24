@@ -274,4 +274,7 @@ export type BlockTestOptions = {
 export enum OverLayTextType {
   OVERLAY_NONE,
   OVERLAY_SCORE,
+  OVERLAY_HEALTH,
+  OVERLAY_WEAPON,
+  OVERLAY_ENERGY,
 }

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { NoticeOverlay } from '@/components/html/NoticeOverlay';
@@ -6,7 +5,8 @@ import { OVERLAY_TEXT, OverlayTextEvent } from '@/components/types/EventTypes';
 import { OverLayTextType } from '@/components/types/GameTypes';
 import useGame from '@/components/useGame';
 import { Point2D } from '@/utils/Point2D';
-import React, { useEffect, useState } from 'react';
+import { cn } from '@/utils/classnames';
+import React, { useCallback, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 export const ShowOverlayEvents = () => {
@@ -15,76 +15,121 @@ export const ShowOverlayEvents = () => {
     new Map<string, React.ReactNode>()
   );
 
-  const OverlayGoldMessage = ({
+  const OverlayMessage = ({
     amount,
     position,
+    overlayType,
   }: {
     amount: number;
     position: Point2D;
+    overlayType: OverLayTextType;
   }) => {
-    const contents = `+${amount}🟡`;
+    let contents = {
+      text: '',
+      className: '',
+    };
+    switch (overlayType) {
+      case OverLayTextType.OVERLAY_SCORE:
+        contents = { text: `+${amount}🟡`, className: 'bg-slate-800' };
+        break;
+      case OverLayTextType.OVERLAY_HEALTH:
+        contents = { text: `+${amount}❤️`, className: 'bg-slate-800' };
+        break;
+      case OverLayTextType.OVERLAY_WEAPON:
+        contents = { text: `+${amount}🗡️`, className: 'bg-slate-800' };
+        break;
+      case OverLayTextType.OVERLAY_ENERGY:
+        contents = { text: `+${amount}⚡`, className: 'bg-slate-800' };
+        break;
+      case OverLayTextType.OVERLAY_NONE:
+      default:
+        return <></>;
+    }
     return (
-      <NoticeOverlay
-        key={`overlay-${uuidv4()}`}
-        position={[position.x, 0, position.y]}
-      >
-        <span className=" text-xs text-white bg-slate-800 p-1 rounded-md">
-          {contents}
+      <NoticeOverlay position={[position.x, 0, position.y]}>
+        <span
+          className={cn(
+            ' text-xs text-white  p-1 rounded-md',
+            contents.className
+          )}
+        >
+          {contents.text}
         </span>
       </NoticeOverlay>
     );
+  };
+
+  const deleteFromMessages = useCallback((id: string) => {
+    setMessages((prevMessages) => {
+      const newMessages = new Map<string, React.ReactNode>(prevMessages);
+      const deleted = newMessages.delete(id);
+      if (!deleted) {
+        console.error('Could not find message id ', id);
+      }
+      return newMessages;
+    });
+  }, []);
+
+  const RenderMessages = ({
+    messages,
+  }: {
+    messages: Map<string, React.ReactNode>;
+  }) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const elements = Array.from(messages).map(([key, message]) => message);
+    return <>{elements}</>;
   };
 
   console.log('[ShowOverlayEvents] Messages ', messages.size);
 
   useEffect(() => {
     const addToMessages = (id: string, msg: React.ReactNode) => {
-      const newMessages = new Map<string, React.ReactNode>(messages);
-      newMessages.set(id, msg);
-      setMessages(newMessages);
-      console.log('[ShowOverlayEvents] Add Messages length:', newMessages.size);
-    };
-
-    const deleteFromMessages = (id: string) => {
-      const newMessages = new Map<string, React.ReactNode>(messages);
-      newMessages.delete(id);
-      setMessages(newMessages);
-      console.log(
-        '[ShowOverlayEvents] Delete Messages length:',
-        newMessages.size
-      );
+      setMessages((prevMessages) => {
+        const newMessages = new Map<string, React.ReactNode>(prevMessages);
+        console.log('Creating message id: ', id);
+        newMessages.set(id, msg);
+        console.log(
+          '[ShowOverlayEvents] Add Messages length:',
+          newMessages.size
+        );
+        return newMessages;
+      });
     };
 
     subscribe<OverlayTextEvent>(
       OVERLAY_TEXT,
       ({ type, amount, mapPosition }) => {
+        const id = uuidv4();
+        const removeDelay = 800;
+
         switch (type) {
           case OverLayTextType.OVERLAY_SCORE:
+          case OverLayTextType.OVERLAY_HEALTH:
+          case OverLayTextType.OVERLAY_WEAPON:
+          case OverLayTextType.OVERLAY_ENERGY:
             if (amount && mapPosition) {
-              const id = uuidv4();
               addToMessages(
                 id,
-                <OverlayGoldMessage
+                <OverlayMessage
                   key={`message-${id}`}
                   amount={amount}
                   position={mapPosition}
+                  overlayType={type}
                 />
               );
-              setTimeout(() => deleteFromMessages(id), 1000);
+              setTimeout(() => deleteFromMessages(id), removeDelay);
             }
             break;
           default:
           case OverLayTextType.OVERLAY_NONE:
             break;
         }
-
-        console.log(type, amount, mapPosition);
       }
     );
     return () => {
       unsubscribeAllHandlers(OVERLAY_TEXT);
     };
-  }, [messages, subscribe, unsubscribeAllHandlers]);
+  }, [deleteFromMessages, messages, subscribe, unsubscribeAllHandlers]);
 
-  return <>{Array.from(messages).map(([key, message]) => message)}</>;
+  return <RenderMessages messages={messages} />;
 };

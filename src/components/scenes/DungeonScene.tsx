@@ -238,10 +238,20 @@ const DungeonScene = () => {
             case ItemType.ITEM_POTION:
               playAudio('bottle.ogg', 0.5);
               adjustHealth(1);
+              publish<OverlayTextEvent>(OVERLAY_TEXT, {
+                type: OverLayTextType.OVERLAY_HEALTH,
+                amount: 1,
+                mapPosition: locationAction.position,
+              });
               break;
             case ItemType.ITEM_WEAPON:
               playAudio('sword-unsheathe.ogg', 0.5);
               adjustAttacks(1);
+              publish<OverlayTextEvent>(OVERLAY_TEXT, {
+                type: OverLayTextType.OVERLAY_WEAPON,
+                amount: 1,
+                mapPosition: locationAction.position,
+              });
               break;
             case ItemType.ITEM_CHEST:
               playAudio('coin.ogg');
@@ -250,10 +260,20 @@ const DungeonScene = () => {
             case ItemType.ITEM_CHICKEN:
               playAudio('eat_01.ogg');
               modifyEnergy(35);
+              publish<OverlayTextEvent>(OVERLAY_TEXT, {
+                type: OverLayTextType.OVERLAY_ENERGY,
+                amount: 35,
+                mapPosition: locationAction.position,
+              });
               break;
             case ItemType.ITEM_APPLE:
               playAudio('eat_01.ogg');
               modifyEnergy(15);
+              publish<OverlayTextEvent>(OVERLAY_TEXT, {
+                type: OverLayTextType.OVERLAY_ENERGY,
+                amount: 15,
+                mapPosition: locationAction.position,
+              });
               break;
           }
         }
@@ -337,13 +357,13 @@ const DungeonScene = () => {
           }
 
           /*const movementValid = adjustPlayer(
-          desiredOffset.position.x,
-          desiredOffset.position.y
-        );
+            desiredOffset.position.x,
+            desiredOffset.position.y
+          );
 
-        if (movementValid) {
-          publish('player-moved', { moved: true });
-        }*/
+          if (movementValid) {
+            publish('player-moved', { moved: true });
+          }*/
         } else {
           switch (checkWalkable.type) {
             case WalkableType.BLOCK_DESTRUCTIBLE:

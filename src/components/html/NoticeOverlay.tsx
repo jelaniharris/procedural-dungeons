@@ -2,7 +2,6 @@ import { Html } from '@react-three/drei';
 import { Vector3, useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import { Vector3 as ThreeVector } from 'three';
-import { v4 as uuidv4 } from 'uuid';
 
 interface NoticeOverlayProps {
   children: React.ReactNode;
@@ -22,12 +21,7 @@ export const NoticeOverlay = ({ children, ...props }: NoticeOverlayProps) => {
   });
 
   return (
-    <group
-      ref={htmlRef}
-      position={position}
-      key={`noticeoverlay-${uuidv4()}`}
-      {...props}
-    >
+    <group ref={htmlRef} position={position} {...props}>
       <Html scale={0.75} transform sprite>
         <div className="notice-overlay">{children}</div>
       </Html>
