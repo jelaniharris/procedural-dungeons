@@ -45,6 +45,7 @@ Move onto treasure to collect them
 ### Other Assets
 
 - [Summoning Circles by Luke.RUSTLTD](https://opengameart.org/content/4-summoning-circles)
+- [Onscreen Controls by Kenney](https://opengameart.org/content/onscreen-controls-8-styles)
 
 ## Getting Started
 

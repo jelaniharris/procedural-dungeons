@@ -147,11 +147,18 @@ export type Destructable = {
   contains: ItemType;
 };
 
+export enum TouchControls {
+  CONTROL_NONE,
+  CONTROL_THIMBLE,
+  CONTROL_DPAD,
+}
+
 export type GameSettings = {
   sound: boolean;
   soundVolume: number;
   music: boolean;
   musicVolume: number;
+  touchControlType: TouchControls;
 };
 
 export enum GameStatus {

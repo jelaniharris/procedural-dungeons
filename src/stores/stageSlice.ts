@@ -3,6 +3,7 @@ import {
   GameSettings,
   GameStatus,
   LocationActionType,
+  TouchControls,
 } from '@/components/types/GameTypes';
 import { RunData } from '@/components/types/RecordTypes';
 import { Point2D } from '@/utils/Point2D';
@@ -76,6 +77,7 @@ export const createStageSlice: StateCreator<
     music: true,
     musicVolume: 50,
     soundVolume: 50,
+    touchControlType: TouchControls.CONTROL_DPAD,
   },
   gameType: 'daily',
   advanceStage() {
@@ -210,6 +212,7 @@ export const createStageSlice: StateCreator<
         music: true,
         soundVolume: 50,
         musicVolume: 50,
+        touchControlType: TouchControls.CONTROL_DPAD,
       };
     }
     set({ settings: settings });

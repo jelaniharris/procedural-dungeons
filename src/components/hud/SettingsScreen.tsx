@@ -1,9 +1,10 @@
 import { GameState, useStore } from '@/stores/useStore';
+import { cn } from '@/utils/classnames';
 import { useEffect, useState } from 'react';
 import Button from '../input/Button';
 import Range from '../input/Range';
 import Switch from '../input/Switch';
-import { GameSettings } from '../types/GameTypes';
+import { GameSettings, TouchControls } from '../types/GameTypes';
 import CenterScreenContainer from './CenterScreen';
 
 interface SettingsScreenProps {
@@ -36,6 +37,11 @@ export const SettingsScreen = ({
         setShowSaveMessage(false);
       }, 2000);
     }
+  };
+
+  const touchChanged = (type: TouchControls) => {
+    if (!settings) return;
+    setSettings({ ...settings, touchControlType: type });
   };
 
   const inputChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,6 +119,49 @@ export const SettingsScreen = ({
             max={100}
             onChange={inputChanged}
           />
+        </div>
+        <div className="flex flex-col gap-2 ">
+          <span className="text-xl text-white font-bold mb-2">
+            Screen Controls
+          </span>
+          <div className="flex flex-row gap-4">
+            <Button
+              name="touchControlsNone"
+              className={cn(
+                'w-1/3',
+                settings.touchControlType === TouchControls.CONTROL_NONE
+                  ? 'bg-blue-500'
+                  : 'bg-slate-600'
+              )}
+              onClick={() => touchChanged(TouchControls.CONTROL_NONE)}
+            >
+              <span className="text-white text-lg">No Controls</span>
+            </Button>
+            <Button
+              name="touchControlsThimble"
+              className={cn(
+                'w-1/3',
+                settings.touchControlType === TouchControls.CONTROL_THIMBLE
+                  ? 'bg-blue-500'
+                  : 'bg-slate-600'
+              )}
+              onClick={() => touchChanged(TouchControls.CONTROL_THIMBLE)}
+            >
+              <span className="text-white text-lg">Thimble</span>
+            </Button>
+            <Button
+              name="touchControlsDPad"
+              className={cn(
+                'w-1/3',
+                settings.touchControlType === TouchControls.CONTROL_DPAD
+                  ? 'bg-blue-500'
+                  : 'bg-slate-600'
+              )}
+              onClick={() => touchChanged(TouchControls.CONTROL_DPAD)}
+            >
+              <span className="text-white text-lg">Directional Pad</span>
+            </Button>
+          </div>
         </div>
       </div>
       <div className="flex-auto"></div>

@@ -9,7 +9,7 @@ import {
   PLAYER_ATTEMPT_MOVE,
   PlayerAttemptMoveEvent,
 } from './types/EventTypes';
-import { Direction, GameStatus } from './types/GameTypes';
+import { Direction, GameStatus, TouchControls } from './types/GameTypes';
 import useGame from './useGame';
 
 export type JoyStickData = {
@@ -25,6 +25,7 @@ const Joystick = () => {
   const gameStatus = useStore((store) => store.gameStatus, shallow);
   const isPaused = useStore((store: GameState) => store.isPaused, shallow);
   const getPlayerLocation = useStore((store) => store.getPlayerLocation);
+  const settings = useStore((state: GameState) => state.settings);
 
   const { publish } = useGame();
 
@@ -85,7 +86,7 @@ const Joystick = () => {
     //console.log('Creating joystiq manager');
 
     if (joystickManager.current) {
-      //console.log('Joystiq manager is already created');
+      console.log('Joystiq manager is already created');
       return;
     }
 
@@ -114,13 +115,24 @@ const Joystick = () => {
   }, [getJoystickDeactivation]);
 
   useEffect(() => {
-    createManager();
-  }, []);
+    if (settings.touchControlType === TouchControls.CONTROL_THIMBLE) {
+      console.log('[Joystiq] Creating manager');
+      createManager();
+    } else {
+      if (joystickManager.current) {
+        joystickManager.current.destroy();
+        joystickManager.current = null;
+      }
+    }
+  }, [createManager, settings.touchControlType]);
 
   useEffect(() => {
     if (joystiq.current) {
       //console.log('Has joystiq');
-      if (gameStatus != GameStatus.GAME_STARTED) {
+      if (
+        gameStatus != GameStatus.GAME_STARTED ||
+        settings.touchControlType !== TouchControls.CONTROL_THIMBLE
+      ) {
         joystiq.current.remove();
         //console.log('Hiding joystiq because of non playing state');
       } else {
@@ -135,7 +147,7 @@ const Joystick = () => {
     } else {
       //console.log('No joystiq');
     }
-  }, [isPaused, gameStatus]);
+  }, [isPaused, gameStatus, settings.touchControlType]);
 
   //console.log('[Joystiq] Render JoysTIQ');
 

@@ -17,10 +17,12 @@ import React, {
   useState,
 } from 'react';
 import { NoToneMapping } from 'three';
+import DirectionalPads from './DirectionalPads';
 import {
   GameObjectRegistry,
   GameObjectRegistryUtils,
 } from './GameObjectRegistry';
+import { GuiButtons } from './GuiButtons';
 import { GameObjectRef } from './entities/GameObject';
 import { GameHud } from './hud/GameHud';
 import { Loading } from './hud/Loading';
@@ -163,9 +165,13 @@ export default function Game({ children }: GameProps) {
         {currentHud && currentHud === 'game' && (
           <>
             <ClientJoystick />
+            <div className="">
+              <DirectionalPads />
+            </div>
             <div className="relative">
               <GameHud />
             </div>
+            <GuiButtons />
           </>
         )}
         {currentHud && currentHud === 'loading' && <Loading />}
