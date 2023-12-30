@@ -15,7 +15,6 @@ export const AmbientSound = ({ url }: { url: string }) => {
     if (settings.music) {
       if (sound && sound.current) {
         console.log('[AmbientSound] Turning on');
-
         sound.current.setBuffer(buffer);
         sound.current.setRefDistance(5);
         sound.current.setVolume(1 * ((settings.musicVolume || 0) / 100));

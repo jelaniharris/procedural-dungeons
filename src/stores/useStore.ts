@@ -17,6 +17,7 @@ export interface GameState
     AudioSlice,
     EnemySlice {
   startGame: (startGameType: string | null) => void;
+  assignSeed: (startGameType: string | null) => number;
 }
 
 export const useStore = createWithEqualityFn<GameState>(
@@ -28,7 +29,7 @@ export const useStore = createWithEqualityFn<GameState>(
     ...createHazardSlice(...args),
     ...createGeneratorSlice(...args),
     ...createAudioSlice(...args),
-    startGame: (startGameType: string | null) => {
+    assignSeed: (startGameType: string | null) => {
       const [set, get] = [args[0], args[1]];
 
       const gameType = startGameType || get().gameType;
@@ -43,6 +44,19 @@ export const useStore = createWithEqualityFn<GameState>(
           break;
         default:
           throw new Error(`Unknown game type: ${gameType}`);
+      }
+      set(() => ({
+        seed: seed,
+      }));
+      return seed;
+    },
+    startGame: (startGameType: string | null) => {
+      const [set, get] = [args[0], args[1]];
+      let seed = get().seed;
+      const gameType = startGameType || get().gameType;
+
+      if (!seed) {
+        seed = get().assignSeed(gameType);
       }
 
       set((state) => ({

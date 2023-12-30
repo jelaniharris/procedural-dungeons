@@ -25,9 +25,9 @@ export default function Scene({ id, children }: SceneProps) {
     [currentScene, resetScene]
   );
 
-  console.log('Current scene is: ', currentScene, 'id: ', id);
-
   if (!currentScene.startsWith(id)) return null;
+
+  console.log('Current scene is: ', currentScene, 'id: ', id);
 
   return (
     <SceneContext.Provider value={contextValue}>

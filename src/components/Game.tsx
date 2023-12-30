@@ -24,6 +24,7 @@ import {
 } from './GameObjectRegistry';
 import { GuiButtons } from './GuiButtons';
 import { GameObjectRef } from './entities/GameObject';
+import { EmbarkScreen } from './hud/EmbarkScreen';
 import { GameHud } from './hud/GameHud';
 import { Loading } from './hud/Loading';
 import MainMenu from './hud/MainMenu';
@@ -160,6 +161,11 @@ export default function Game({ children }: GameProps) {
         {currentHud && currentHud === 'mainmenu' && (
           <div className="relative">
             <MainMenu />
+          </div>
+        )}
+        {currentHud && currentHud === 'embark' && (
+          <div className="relative">
+            <EmbarkScreen />
           </div>
         )}
         {currentHud && currentHud === 'game' && (

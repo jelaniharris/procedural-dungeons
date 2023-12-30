@@ -49,9 +49,9 @@ const MainMenu = () => {
       },
       playGame(gameType = 'daily') {
         if (playerData && playerData.name.length > 0) {
-          setCurrentHud('game');
+          setCurrentHud('embark');
           setGameMode(gameType);
-          publish(CHANGE_SCENE, { nextScene: 'dungeon' });
+          publish(CHANGE_SCENE, { nextScene: 'embark' });
         } else {
           mainMenuApi.pushToScreen('name');
         }

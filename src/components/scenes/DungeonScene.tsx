@@ -399,6 +399,7 @@ const DungeonScene = () => {
     },
     [checkIfWalkable, findGameObjectByName, publish, reduceHealthDestructible]
   );
+  console.log('[DungeonScene] RENDERING GAME SCENE');
 
   React.useEffect(() => {
     const party = async () => {

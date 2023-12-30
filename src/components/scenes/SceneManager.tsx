@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import wait from '@/utils/wait';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { CHANGE_SCENE, ChangeSceneEvent } from '../types/EventTypes';
 import useGame from '../useGame';
 
@@ -24,7 +24,7 @@ export default function SceneManager({
   defaultScene,
   children,
 }: SceneManagerProps) {
-  const [currentScene, setScene] = useState(defaultScene);
+  const [currentScene, setCurrentScene] = useState(defaultScene);
   const sceneStore = useRef(new Map<string, any>());
   const { subscribe, unsubscribeAllHandlers } = useGame();
 
@@ -33,23 +33,28 @@ export default function SceneManager({
       currentScene,
       async setScene(nextScene) {
         const targetScene = nextScene;
+        console.log('Setting new scene ', currentScene, ' -- ', targetScene);
         if (currentScene !== targetScene) {
           if (currentScene !== '') {
             //TODO Trigger scene transistions via publishing
-            // scene-pre-exit, scene-exit
+            //await publish<ScenePreExitEvent>('scene-pre-exit', currentScene);
+            //await publish<SceneExitEvent>('scene-exit', currentScene);
 
             // Go to an empty scene first, then to the target scene
-            setScene('');
+            console.log('Setting blank');
+            setCurrentScene('');
+            console.log('Waiting ...');
             wait(300);
           }
-          setScene(targetScene);
+          console.log('Setting scene');
+          setCurrentScene(targetScene);
         }
       },
       async resetScene() {
         const prevScene = currentScene;
         await sceneManagerApi.setScene('');
         await wait(100);
-        setScene(prevScene);
+        setCurrentScene(prevScene);
       },
       setSceneState(key, value) {
         sceneStore.current.set(`${currentScene}.${key}`, value);
@@ -60,8 +65,10 @@ export default function SceneManager({
     }),
     [currentScene]
   );
+  console.log('[SceneManager] Rerendered Scene Manager');
+  console.log('[SceneManager] CurrentScene is ', currentScene);
 
-  React.useEffect(() => {
+  useEffect(() => {
     subscribe<ChangeSceneEvent>(CHANGE_SCENE, ({ nextScene }) => {
       console.log('Changing scene to: ', nextScene);
       sceneManagerApi.setScene(nextScene);
