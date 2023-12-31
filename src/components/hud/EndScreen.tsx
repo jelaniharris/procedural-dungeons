@@ -57,7 +57,6 @@ export const EndScreen = () => {
   const restartGame = () => {
     setCurrentHud('embark');
     publish(CHANGE_SCENE, { nextScene: 'embark' });
-    //publish<EventStartGameEvent>(EVENT_STARTGAME, { gameType: gameType });
   };
 
   const backToMainMenu = () => {

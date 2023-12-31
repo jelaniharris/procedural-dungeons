@@ -159,6 +159,7 @@ export type GameSettings = {
   music: boolean;
   musicVolume: number;
   touchControlType: TouchControls;
+  provisionUnlocks: boolean[];
 };
 
 export enum GameStatus {
@@ -286,3 +287,36 @@ export enum OverLayTextType {
   OVERLAY_WEAPON,
   OVERLAY_ENERGY,
 }
+
+export enum ProvisionType {
+  NONE,
+  SPICES,
+  TIN_FLASK,
+  BONE_NECKLACE,
+  COIN_PURSE,
+  WHETSTONE,
+  RESERVED_2,
+  RESERVED_3,
+  RESERVED_4,
+  RESERVED_5,
+  RESERVED_6,
+  RESERVED_7,
+  RESERVED_8,
+  RESERVED_9,
+  RESERVED_10,
+  __LAST,
+}
+
+export enum SourceType {
+  NONE,
+  TREASURE,
+  KILL,
+  POTION,
+}
+
+export type Provision = {
+  name: string;
+  description: string;
+  numberValue: number;
+  provisionType: ProvisionType;
+};

@@ -3,6 +3,7 @@ import {
   GameSettings,
   GameStatus,
   LocationActionType,
+  ProvisionType,
   TouchControls,
 } from '@/components/types/GameTypes';
 import { RunData } from '@/components/types/RecordTypes';
@@ -52,7 +53,31 @@ export interface StageSlice {
   // Settings
   getSettings: () => GameSettings;
   saveSettings: (settings: GameSettings) => void;
+  getLocalSettings: () => GameSettings;
 }
+
+const DefaultGameSettings: GameSettings = {
+  sound: true,
+  music: true,
+  musicVolume: 50,
+  soundVolume: 50,
+  touchControlType: TouchControls.CONTROL_DPAD,
+  provisionUnlocks: new Array(ProvisionType.__LAST)
+    .fill(false)
+    .map((val, index) => {
+      if (
+        [
+          ProvisionType.BONE_NECKLACE,
+          ProvisionType.COIN_PURSE,
+          ProvisionType.SPICES,
+        ].includes(index)
+      ) {
+        return true;
+      }
+
+      return val;
+    }),
+};
 
 export const createStageSlice: StateCreator<
   StageSlice &
@@ -73,11 +98,7 @@ export const createStageSlice: StateCreator<
   gameStatus: GameStatus.GAME_NONE,
   dangerZones: [],
   settings: {
-    sound: true,
-    music: true,
-    musicVolume: 50,
-    soundVolume: 50,
-    touchControlType: TouchControls.CONTROL_DPAD,
+    ...DefaultGameSettings,
   },
   gameType: 'daily',
   advanceStage() {
@@ -206,13 +227,13 @@ export const createStageSlice: StateCreator<
     if (allSettings) {
       settings = JSON.parse(allSettings);
       console.log('Loding game settings: ', settings);
+
+      if (!settings.provisionUnlocks) {
+        settings.provisionUnlocks = DefaultGameSettings.provisionUnlocks;
+      }
     } else {
       settings = {
-        sound: true,
-        music: true,
-        soundVolume: 50,
-        musicVolume: 50,
-        touchControlType: TouchControls.CONTROL_DPAD,
+        ...DefaultGameSettings,
       };
     }
     set({ settings: settings });

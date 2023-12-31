@@ -4,6 +4,9 @@ import {
   Item,
   ItemType,
   LocationActionType,
+  Provision,
+  ProvisionType,
+  SourceType,
   TileType,
 } from '@/components/types/GameTypes';
 import { Point2D } from '@/utils/Point2D';
@@ -25,27 +28,43 @@ export interface PlayerSlice {
   maxHealth: number;
   isDead: boolean;
   isTired: boolean;
+  provisions: Provision[];
   setDead: () => void;
   getPlayerLocation: () => Point2D;
   movePlayerLocation: (location: Point2D, noClip?: boolean) => boolean;
   adjustPlayer: (xOffset: number, yOffset: number, noClip?: boolean) => boolean;
   checkPlayerLocation: () => PlayerLocationResults;
-  adjustHealth: (amount: number) => boolean;
+  adjustHealth: (amount: number, source?: SourceType) => AdjustHealthResults;
+  getMaxHealth: () => number;
   atFullHealth: () => boolean;
   adjustAttacks: (amount: number) => boolean;
   atMaxAttacks: () => boolean;
-  addScore: (score: number) => void;
+  addScore: (score: number, source?: SourceType) => number;
   modifyEnergy: (amount: number) => void;
   isPlayerAtTileType: (tileType: TileType) => boolean;
   resetPlayer: () => void;
+
+  // Attacking
   canPlayerAttackEnemy: (enemy: Enemy) => boolean;
   playerPerformAttack: (enemy: Enemy) => void;
+
+  // Provisions
+  determineEnergyBonus: (givenEnergy: number) => number;
+  addProvision: (provision: Provision) => void;
+  hasProvision: (provisionType: ProvisionType) => Provision | undefined;
+  resetProvisions: () => void;
+  triggeredProvision: (provision: Provision) => void;
 }
 
 export type PlayerLocationResults = {
   result: LocationActionType;
   position: Point2D;
   item?: Item | null;
+};
+
+export type AdjustHealthResults = {
+  isDead: boolean;
+  amountAdjusted: number;
 };
 
 export const createPlayerSlice: StateCreator<
@@ -64,6 +83,7 @@ export const createPlayerSlice: StateCreator<
   playerRotation: 0,
   health: 2,
   maxHealth: 2,
+  provisions: [],
   isTired: false,
   resetPlayer() {
     const resetSet = {
@@ -135,8 +155,19 @@ export const createPlayerSlice: StateCreator<
     }));
     return true;
   },
-  addScore(amount: number) {
-    set((store) => ({ score: store.score + amount }));
+  addScore(amount: number, source = SourceType.NONE) {
+    let newAmount = amount;
+    if (source === SourceType.TREASURE) {
+      const coinPurseProvision = get().hasProvision(ProvisionType.COIN_PURSE);
+      if (coinPurseProvision) {
+        newAmount = newAmount + newAmount * 0.05;
+        get().triggeredProvision(coinPurseProvision);
+      }
+    }
+    newAmount = Math.round(newAmount);
+
+    set((store) => ({ score: store.score + newAmount }));
+    return newAmount;
   },
   adjustAttacks(amount: number): boolean {
     const currentAttacks = get().attacks;
@@ -145,12 +176,27 @@ export const createPlayerSlice: StateCreator<
     set(() => ({ attacks: Math.max(0, Math.min(newAttacks, maxAttacks)) }));
     return newAttacks != 0;
   },
-  adjustHealth(amount: number): boolean {
+  adjustHealth(amount: number, source = SourceType.NONE): AdjustHealthResults {
+    let newAmount = amount;
     const currentHealth = get().health;
-    const maxHealth = get().maxHealth;
-    const newHealth = currentHealth + amount;
+    const maxHealth = get().getMaxHealth();
+    if (source === SourceType.POTION) {
+      const tinFlaskProvision = get().hasProvision(ProvisionType.TIN_FLASK);
+      if (
+        tinFlaskProvision &&
+        Math.random() < tinFlaskProvision.numberValue / 100
+      ) {
+        newAmount += 1;
+        get().triggeredProvision(tinFlaskProvision);
+      }
+    }
+    const newHealth = currentHealth + newAmount;
     set(() => ({ health: Math.max(0, Math.min(newHealth, maxHealth)) }));
-    return newHealth != 0;
+    return { isDead: newHealth != 0, amountAdjusted: newAmount };
+  },
+  getMaxHealth() {
+    const maxHealth = get().maxHealth;
+    return maxHealth;
   },
   atMaxAttacks() {
     const currentAttacks = get().attacks;
@@ -159,7 +205,7 @@ export const createPlayerSlice: StateCreator<
   },
   atFullHealth() {
     const currentHealth = get().health;
-    const maxHealth = get().maxHealth;
+    const maxHealth = get().getMaxHealth();
     return currentHealth === maxHealth;
   },
   modifyEnergy(amount: number) {
@@ -268,10 +314,57 @@ export const createPlayerSlice: StateCreator<
     const removeEnemy = get().removeEnemy;
     const playAudio = get().playAudio;
 
-    //TODO Check if enemy is facing the other way
+    let attackAdjustmentAmount = -1;
 
+    console.log(get().provisions);
+
+    const boneNecklaceProvision = get().hasProvision(
+      ProvisionType.BONE_NECKLACE
+    );
+    if (boneNecklaceProvision) {
+      get().addScore(boneNecklaceProvision.numberValue);
+      get().triggeredProvision(boneNecklaceProvision);
+    }
+    const whetstoneProvision = get().hasProvision(ProvisionType.WHETSTONE);
+    if (
+      whetstoneProvision &&
+      Math.random() < whetstoneProvision.numberValue / 100
+    ) {
+      attackAdjustmentAmount = 0;
+      get().triggeredProvision(whetstoneProvision);
+    }
+
+    //TODO Check if enemy is facing the other way
     removeEnemy(enemy);
     playAudio('mnstr1.ogg', 0.5);
-    adjustAttacks(-1);
+    adjustAttacks(attackAdjustmentAmount);
+  },
+  determineEnergyBonus: (givenEnergy: number) => {
+    const hasProvision = get().hasProvision;
+    let newBonus = givenEnergy;
+    const spiceProvision = hasProvision(ProvisionType.SPICES);
+    if (spiceProvision) {
+      newBonus = newBonus * (1 + spiceProvision.numberValue / 100);
+      get().triggeredProvision(spiceProvision);
+    }
+    return Math.round(newBonus);
+  },
+  addProvision: (provision: Provision) => {
+    const provisions = get().provisions;
+    set({
+      provisions: [...provisions, provision],
+    });
+  },
+  hasProvision: (provisionType: ProvisionType) => {
+    const provisions = get().provisions;
+    return provisions.find((prov) => prov.provisionType === provisionType);
+  },
+  resetProvisions: () => {
+    set({
+      provisions: [],
+    });
+  },
+  triggeredProvision: (provision: Provision) => {
+    console.log(provision);
   },
 });

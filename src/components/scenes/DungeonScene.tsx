@@ -52,6 +52,7 @@ import {
   LocationActionType,
   OverLayTextType,
   POSITION_OFFSETS,
+  SourceType,
   SpawnWarningType,
   WalkableType,
 } from '../types/GameTypes';
@@ -91,6 +92,9 @@ const DungeonScene = () => {
   const setPaused = useStore((state: GameState) => state.setPaused);
   const adjustAttacks = useStore((state: GameState) => state.adjustAttacks);
   const checkIfWalkable = useStore((state: GameState) => state.checkIfWalkable);
+  const determineEnergyBonus = useStore(
+    (state: GameState) => state.determineEnergyBonus
+  );
   const modifyFloorSteps = useStore(
     (state: GameState) => state.modifyFloorSteps
   );
@@ -210,37 +214,37 @@ const DungeonScene = () => {
           switch (locationAction.item?.type) {
             case ItemType.ITEM_COIN:
               playAudio('coin.ogg');
-              addScore(10);
+              const coinScore = addScore(10, SourceType.TREASURE);
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_SCORE,
-                amount: 10,
+                amount: coinScore,
                 mapPosition: locationAction.position,
               });
               break;
             case ItemType.ITEM_CHALICE:
               playAudio('coin.ogg');
-              addScore(25);
+              const chaliceScore = addScore(25, SourceType.TREASURE);
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_SCORE,
-                amount: 25,
+                amount: chaliceScore,
                 mapPosition: locationAction.position,
               });
               break;
             case ItemType.ITEM_CROWN:
               playAudio('coin.ogg');
-              addScore(150);
+              const crownscore = addScore(150, SourceType.TREASURE);
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_SCORE,
-                amount: 150,
+                amount: crownscore,
                 mapPosition: locationAction.position,
               });
               break;
             case ItemType.ITEM_POTION:
               playAudio('bottle.ogg', 0.5);
-              adjustHealth(1);
+              const healthResults = adjustHealth(1, SourceType.POTION);
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_HEALTH,
-                amount: 1,
+                amount: healthResults.amountAdjusted,
                 mapPosition: locationAction.position,
               });
               break;
@@ -259,19 +263,21 @@ const DungeonScene = () => {
               break;
             case ItemType.ITEM_CHICKEN:
               playAudio('eat_01.ogg');
-              modifyEnergy(35);
+              const chickenAmount = determineEnergyBonus(35);
+              modifyEnergy(chickenAmount);
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_ENERGY,
-                amount: 35,
+                amount: chickenAmount,
                 mapPosition: locationAction.position,
               });
               break;
             case ItemType.ITEM_APPLE:
               playAudio('eat_01.ogg');
-              modifyEnergy(15);
+              const appleAmount = determineEnergyBonus(15);
+              modifyEnergy(appleAmount);
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_ENERGY,
-                amount: 15,
+                amount: appleAmount,
                 mapPosition: locationAction.position,
               });
               break;
@@ -460,7 +466,7 @@ const DungeonScene = () => {
       subscribe(PLAYER_TOUCHED_ENEMY, ({ enemy }) => {
         console.log('Touched by enemy: ', enemy.name);
         playAudio('hurt_04.ogg');
-        if (!adjustHealth(-1)) {
+        if (!adjustHealth(-1).isDead) {
           // Then the player died
           publish(PLAYER_DIED, {});
         }
@@ -469,7 +475,7 @@ const DungeonScene = () => {
       subscribe<PlayerDamagedTrapEvent>(PLAYER_DAMAGED_TRAP, ({ hazard }) => {
         console.log('Touched by hazard: ', hazard.name);
         playAudio('hurt_04.ogg');
-        if (!adjustHealth(-1)) {
+        if (!adjustHealth(-1).isDead) {
           // Then the player died
           publish(PLAYER_DIED, {});
         }

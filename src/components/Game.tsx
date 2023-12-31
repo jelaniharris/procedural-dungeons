@@ -24,7 +24,7 @@ import {
 } from './GameObjectRegistry';
 import { GuiButtons } from './GuiButtons';
 import { GameObjectRef } from './entities/GameObject';
-import { EmbarkScreen } from './hud/EmbarkScreen';
+import { EmbarkScreen } from './hud/Embark/EmbarkScreen';
 import { GameHud } from './hud/GameHud';
 import { Loading } from './hud/Loading';
 import MainMenu from './hud/MainMenu';
