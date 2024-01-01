@@ -13,7 +13,7 @@ import { GameState, useStore } from '@/stores/useStore';
 import { Point2D } from '@/utils/Point2D';
 import { Environment, Stats } from '@react-three/drei';
 import { EffectComposer, Vignette } from '@react-three/postprocessing';
-import React, { Suspense, useCallback, useState } from 'react';
+import React, { Suspense, useCallback, useMemo, useState } from 'react';
 import { ShowEnvironment } from '../../app/ShowEnvironment';
 import { AmbientSound } from '../AmbientSound';
 import { FollowCamera } from '../FollowCamera';
@@ -54,12 +54,20 @@ import {
   POSITION_OFFSETS,
   SourceType,
   SpawnWarningType,
+  StatusEffectType,
   WalkableType,
 } from '../types/GameTypes';
 import useGame from '../useGame';
 
 function Effects() {
-  const isTired = useStore((state: GameState) => state.isTired);
+  const hasStatusEffect = useStore((state: GameState) => state.hasStatusEffect);
+  const statusEffects = useStore((state: GameState) => state.statusEffects);
+  const isTired = useMemo(() => {
+    if (statusEffects.length > 0) {
+      return hasStatusEffect(StatusEffectType.STARVING) !== undefined;
+    }
+    return false;
+  }, [hasStatusEffect, statusEffects]);
 
   if (!isTired) {
     return;

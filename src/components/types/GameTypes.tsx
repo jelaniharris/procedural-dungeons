@@ -320,3 +320,23 @@ export type Provision = {
   numberValue: number;
   provisionType: ProvisionType;
 };
+
+export enum StatusEffectType {
+  NONE = 0,
+  STARVING = 1 << 0,
+  POISON = 1 << 1,
+  CONFUSION = 1 << 2,
+}
+
+export type StatusEffect = {
+  statusEffectType: StatusEffectType;
+  duration: number;
+  canExpire: boolean;
+  canStack: boolean;
+};
+
+export enum StatusEffectEvent {
+  NONE,
+  REMOVED,
+  ADDED,
+}

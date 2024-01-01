@@ -12,7 +12,7 @@ import {
 } from 'react-icons/fa';
 import { GiPlainDagger as AttacksIcon } from 'react-icons/gi';
 import Button from '../input/Button';
-import { GameStatus } from '../types/GameTypes';
+import { GameStatus, StatusEffectType } from '../types/GameTypes';
 import { EndScreen } from './EndScreen';
 import { ExitOption } from './ExitOption';
 import { SettingsScreen } from './SettingsScreen';
@@ -21,7 +21,6 @@ export const GameHud = () => {
   const currentLevel = useStore((store: GameState) => store.currentLevel);
   const score = useStore((store: GameState) => store.score);
   const energy = useStore((store: GameState) => store.energy);
-  const isTired = useStore((store: GameState) => store.isTired);
   const health = useStore((store: GameState) => store.health);
   const maxHealth = useStore((store: GameState) => store.maxHealth);
   const attacks = useStore((store: GameState) => store.attacks);
@@ -29,6 +28,7 @@ export const GameHud = () => {
   const maxEnergy = useStore((store: GameState) => store.maxEnergy);
   const showExitDialog = useStore((store: GameState) => store.showExitDialog);
   const setGameStatus = useStore((store: GameState) => store.setGameStatus);
+  const hasStatusEffect = useStore((store: GameState) => store.hasStatusEffect);
   const showSettingsDialog = useStore(
     (store: GameState) => store.showSettingsDialog
   );
@@ -94,6 +94,8 @@ export const GameHud = () => {
       </>
     );
   }
+
+  const isTired = hasStatusEffect(StatusEffectType.STARVING) !== undefined;
 
   return (
     <>

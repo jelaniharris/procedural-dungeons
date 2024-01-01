@@ -7,6 +7,9 @@ import {
   Provision,
   ProvisionType,
   SourceType,
+  StatusEffect,
+  StatusEffectEvent,
+  StatusEffectType,
   TileType,
 } from '@/components/types/GameTypes';
 import { Point2D } from '@/utils/Point2D';
@@ -27,7 +30,6 @@ export interface PlayerSlice {
   maxAttacks: number;
   maxHealth: number;
   isDead: boolean;
-  isTired: boolean;
   provisions: Provision[];
   setDead: () => void;
   getPlayerLocation: () => Point2D;
@@ -43,6 +45,24 @@ export interface PlayerSlice {
   modifyEnergy: (amount: number) => void;
   isPlayerAtTileType: (tileType: TileType) => boolean;
   resetPlayer: () => void;
+
+  // Status Effects
+  statusEffects: StatusEffect[];
+  addStatusEffect: (statusEffect: StatusEffect) => boolean;
+  hasStatusEffect: (
+    statusEffectType: StatusEffectType
+  ) => StatusEffect | undefined;
+  reduceStatusEffect: (
+    statusEffectType: StatusEffectType,
+    amount: number
+  ) => StatusEffect | null;
+  resetStatusEffects: () => void;
+  purgeExpiredStatusEffects: () => void;
+  removeStatusEffect: (statusEffectType: StatusEffectType) => boolean;
+  triggerStatusEffect: (
+    statusEffectType: StatusEffectType,
+    statusEffectEvent: StatusEffectEvent
+  ) => void;
 
   // Attacking
   canPlayerAttackEnemy: (enemy: Enemy) => boolean;
@@ -84,7 +104,7 @@ export const createPlayerSlice: StateCreator<
   health: 2,
   maxHealth: 2,
   provisions: [],
-  isTired: false,
+  statusEffects: [],
   resetPlayer() {
     const resetSet = {
       score: 0,
@@ -96,7 +116,7 @@ export const createPlayerSlice: StateCreator<
       maxAttacks: 2,
       health: 2,
       maxHealth: 2,
-      isTired: false,
+      statusEffects: [],
     };
     set(resetSet);
   },
@@ -215,7 +235,20 @@ export const createPlayerSlice: StateCreator<
     let newEnergy = currentEnergy + amount;
     newEnergy = Math.max(0, Math.min(newEnergy, maxEnergy));
 
-    set(() => ({ energy: newEnergy, isTired: newEnergy <= 0 }));
+    if (newEnergy <= 0) {
+      get().addStatusEffect({
+        statusEffectType: StatusEffectType.STARVING,
+        duration: 0,
+        canExpire: false,
+        canStack: false,
+      });
+    } else {
+      if (get().hasStatusEffect(StatusEffectType.STARVING)) {
+        get().removeStatusEffect(StatusEffectType.STARVING);
+      }
+    }
+
+    set(() => ({ energy: newEnergy }));
   },
   isPlayerAtTileType(tileType: TileType) {
     const currentMapData = get().mapData;
@@ -366,5 +399,117 @@ export const createPlayerSlice: StateCreator<
   },
   triggeredProvision: (provision: Provision) => {
     console.log(provision);
+  },
+  addStatusEffect: (statusEffect: StatusEffect): boolean => {
+    const statusEffects = get().statusEffects;
+    const triggerStatusEffect = get().triggerStatusEffect;
+    const foundStatusEffect = statusEffects.find(
+      (sef) => sef && sef.statusEffectType === statusEffect.statusEffectType
+    );
+
+    if (foundStatusEffect) {
+      if (foundStatusEffect.canStack) {
+        foundStatusEffect.duration += statusEffect.duration;
+      }
+      return true;
+    } else {
+      set({
+        statusEffects: [...statusEffects, statusEffect],
+      });
+      triggerStatusEffect(
+        statusEffect.statusEffectType,
+        StatusEffectEvent.ADDED
+      );
+      return true;
+    }
+    //TODO add immunity effects
+    return false;
+  },
+  hasStatusEffect: (
+    statusEffectType: StatusEffectType
+  ): StatusEffect | undefined => {
+    const statusEffects = get().statusEffects;
+    return statusEffects.find(
+      (sef) => sef && sef.statusEffectType === statusEffectType
+    );
+  },
+  reduceStatusEffect: (
+    statusEffectType: StatusEffectType,
+    amount: number
+  ): StatusEffect | null => {
+    const statusEffects = get().statusEffects;
+    const foundStatusEffectIndex = statusEffects.findIndex(
+      (sef) => sef && sef.statusEffectType === statusEffectType
+    );
+    if (foundStatusEffectIndex > 0) {
+      const foundStatusEffect = statusEffects[foundStatusEffectIndex];
+
+      if (!foundStatusEffect.canExpire) {
+        return foundStatusEffect;
+      }
+
+      foundStatusEffect.duration -= amount;
+      if (foundStatusEffect.duration < 0) {
+        foundStatusEffect.duration == 0;
+      }
+      statusEffects[foundStatusEffectIndex] = foundStatusEffect;
+      set({
+        statusEffects: statusEffects,
+      });
+
+      return foundStatusEffect;
+    }
+    return null;
+  },
+  resetStatusEffects: () => {
+    set({ statusEffects: [] });
+  },
+  purgeExpiredStatusEffects: () => {
+    const statusEffects = get().statusEffects;
+    const triggerStatusEffect = get().triggerStatusEffect;
+
+    const newStatusEffectsList: StatusEffect[] = [];
+
+    for (const seff of statusEffects) {
+      // If status efect cannot expire
+      if (!seff.canExpire) {
+        continue;
+      }
+      if (seff.canExpire && seff.duration > 0) {
+        newStatusEffectsList.push(seff);
+      } else {
+        triggerStatusEffect(seff.statusEffectType, StatusEffectEvent.REMOVED);
+      }
+    }
+
+    set({
+      statusEffects: newStatusEffectsList,
+    });
+  },
+  removeStatusEffect: (statusEffectType: StatusEffectType): boolean => {
+    const statusEffects = get().statusEffects;
+    const triggerStatusEffect = get().triggerStatusEffect;
+
+    const newStatusEffectsList: StatusEffect[] = [...statusEffects];
+    const foundStatusEffectIndex = statusEffects.findIndex(
+      (sef) => sef && sef.statusEffectType === statusEffectType
+    );
+    if (foundStatusEffectIndex < 0) {
+      return false;
+    }
+
+    delete newStatusEffectsList[foundStatusEffectIndex];
+    triggerStatusEffect(statusEffectType, StatusEffectEvent.REMOVED);
+
+    set({
+      statusEffects: newStatusEffectsList,
+    });
+    return true;
+  },
+  triggerStatusEffect: (
+    statusEffectType: StatusEffectType,
+    statusEffectEvent: StatusEffectEvent
+  ) => {
+    console.log(statusEffectType, statusEffectEvent);
   },
 });

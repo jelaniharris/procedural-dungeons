@@ -4,6 +4,7 @@ import {
   EnemyStatus,
   EnemyType,
   LocationActionType,
+  StatusEffectType,
   TileType,
   UnitTraits,
 } from '@/components/types/GameTypes';
@@ -191,7 +192,9 @@ export const createEnemySlice: StateCreator<
   },
   aiCalculateNewDirection(enemies: Enemy[]) {
     const determineValidDirections = get().determineValidDirections;
-    const isPlayerTired = get().isTired;
+    const hasStatusEffect = get().hasStatusEffect;
+    const isPlayerTired =
+      hasStatusEffect(StatusEffectType.STARVING) !== undefined;
     const addLocationsToDangerZones = get().addLocationsToDangerZones;
     const newDangerSpots: Point2D[] = [];
 
