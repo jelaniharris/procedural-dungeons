@@ -33,4 +33,10 @@ export const ProvisionData: Provision[] = [
     description:
       'Weapons have a %PERCENT% chance of not being consumed after attacking',
   },
+  {
+    name: 'Chain Mail',
+    numberValue: 1,
+    provisionType: ProvisionType.CHAIN_MAIL,
+    description: 'Adds %NUM% more max health if not in STARVATION',
+  },
 ];

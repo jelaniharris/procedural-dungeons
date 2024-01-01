@@ -295,7 +295,7 @@ export enum ProvisionType {
   BONE_NECKLACE,
   COIN_PURSE,
   WHETSTONE,
-  RESERVED_2,
+  CHAIN_MAIL,
   RESERVED_3,
   RESERVED_4,
   RESERVED_5,

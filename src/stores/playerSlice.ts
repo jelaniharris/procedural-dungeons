@@ -38,6 +38,7 @@ export interface PlayerSlice {
   checkPlayerLocation: () => PlayerLocationResults;
   adjustHealth: (amount: number, source?: SourceType) => AdjustHealthResults;
   getMaxHealth: () => number;
+  clampHealth: () => void;
   atFullHealth: () => boolean;
   adjustAttacks: (amount: number) => boolean;
   atMaxAttacks: () => boolean;
@@ -214,8 +215,24 @@ export const createPlayerSlice: StateCreator<
     set(() => ({ health: Math.max(0, Math.min(newHealth, maxHealth)) }));
     return { isDead: newHealth != 0, amountAdjusted: newAmount };
   },
+  clampHealth() {
+    const currentHealth = get().health;
+    const maxHealth = get().getMaxHealth();
+    set(() => ({ health: Math.max(0, Math.min(currentHealth, maxHealth)) }));
+  },
   getMaxHealth() {
-    const maxHealth = get().maxHealth;
+    let maxHealth = get().maxHealth;
+    const hasStatusEffect = get().hasStatusEffect;
+    const chainMailProvision = get().hasProvision(ProvisionType.CHAIN_MAIL);
+
+    // If they have chainmail and aren't starving
+    if (
+      chainMailProvision &&
+      hasStatusEffect(StatusEffectType.STARVING) == undefined
+    ) {
+      maxHealth += chainMailProvision.numberValue;
+    }
+
     return maxHealth;
   },
   atMaxAttacks() {
@@ -242,6 +259,7 @@ export const createPlayerSlice: StateCreator<
         canExpire: false,
         canStack: false,
       });
+      get().clampHealth();
     } else {
       if (get().hasStatusEffect(StatusEffectType.STARVING)) {
         get().removeStatusEffect(StatusEffectType.STARVING);

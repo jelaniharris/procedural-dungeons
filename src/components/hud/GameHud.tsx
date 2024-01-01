@@ -22,7 +22,7 @@ export const GameHud = () => {
   const score = useStore((store: GameState) => store.score);
   const energy = useStore((store: GameState) => store.energy);
   const health = useStore((store: GameState) => store.health);
-  const maxHealth = useStore((store: GameState) => store.maxHealth);
+  const getMaxHealth = useStore((store: GameState) => store.getMaxHealth);
   const attacks = useStore((store: GameState) => store.attacks);
   const maxAttacks = useStore((store: GameState) => store.maxAttacks);
   const maxEnergy = useStore((store: GameState) => store.maxEnergy);
@@ -163,7 +163,7 @@ export const GameHud = () => {
             </ContentPanel>
             <ContentPanel className="flex justify-center items-center flex-nowrap">
               <PanelLabel iconClass="text-red-600 py-1" icon={<HeartIcon />}>
-                {health}/{maxHealth}
+                {health}/{getMaxHealth()}
               </PanelLabel>
             </ContentPanel>
             <ContentPanel className="flex justify-center items-center flex-nowrap">
