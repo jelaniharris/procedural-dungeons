@@ -10,6 +10,7 @@ import {
   ItemType,
   MapArea,
   POSITION_OFFSETS,
+  Projectile,
   SpawnWarning,
   SpawnWarningType,
   SplitData,
@@ -86,6 +87,11 @@ export interface MapSlice {
     location: Point2D,
     hasTraits?: UnitTraits
   ) => { result: boolean; type: WalkableType };
+  getLocationsInLine: (
+    location: Point2D,
+    direction: Direction,
+    amount: number
+  ) => Point2D[];
 
   // Areas
   getAreasFromMap: (mapData: (TileType | null)[][]) => MapArea[];
@@ -119,6 +125,11 @@ export interface MapSlice {
     mapData: (TileType | null)[][],
     location: Point2D
   ) => boolean;
+
+  // Projectiles
+  projectiles: Projectile[];
+  spawnProjectile: (projectile: Projectile) => void;
+  deleteProjectile: (id: string) => void;
 
   // Destructibles
   reduceHealthDestructible: (location: Point2D) => DestructableType;
@@ -167,6 +178,7 @@ export const createMapSlice: StateCreator<
   destructables: new Map<string, Destructable>(),
   itemIndex: 0,
   itemsRefs: allItemRefs,
+  projectiles: [],
   resetStage: (hardReset = false) => {
     const generateItems = get().generateItems;
     const generateExit = get().generateExit;
@@ -201,6 +213,7 @@ export const createMapSlice: StateCreator<
       item: randomGen(),
       playerPosition: randomGen(),
       enemies: randomGen(),
+      hazards: randomGen(),
     };
 
     console.log('[resetStage] Generated seeds: ', generatorSeeds);
@@ -257,7 +270,7 @@ export const createMapSlice: StateCreator<
     generatePlayerPosition(generatorSeeds['playerPosition']);
     generateExit();
     generateEnemies(generatorSeeds['enemies']);
-    generateHazards();
+    generateHazards(generatorSeeds['hazards']);
   },
   resetMap: () => {
     const mapNumRows = 15 + 3 * get().currentLevel;
@@ -1211,5 +1224,61 @@ export const createMapSlice: StateCreator<
       console.log('Spawning enemy');
       get().executeDangerMode();
     }
+  },
+  getLocationsInLine(
+    location: Point2D,
+    direction: Direction,
+    amount: number
+  ): Point2D[] {
+    const travelLocations: Point2D[] = [];
+    const getTilePosition = get().getTilePosition;
+    const isBlockWallOrNull = get().isBlockWallOrNull;
+
+    let currentLocation = location;
+    let currentLocationBlocked = false;
+    let nextLocation: Point2D | null;
+    let distance = amount;
+    while (!currentLocationBlocked && distance > 0) {
+      // Get offsets from location line
+      const offset = POSITION_OFFSETS.find(
+        (pos) => pos.direction === direction
+      );
+
+      if (offset) {
+        nextLocation = {
+          x: currentLocation.x + offset.position.x,
+          y: currentLocation.y + offset.position.y,
+        };
+      } else {
+        //nextLocation = null
+        currentLocationBlocked = true;
+        continue;
+      }
+
+      // Assign next location
+      const currentTile = getTilePosition(nextLocation.x, nextLocation.y);
+
+      if (isBlockWallOrNull(currentTile)) {
+        currentLocationBlocked = true;
+        continue;
+      }
+      travelLocations.push(nextLocation);
+      currentLocation = nextLocation;
+      distance--;
+    }
+    return travelLocations;
+  },
+  spawnProjectile(projectile: Projectile) {
+    const projectiles = get().projectiles;
+    set({
+      projectiles: [...projectiles, projectile],
+    });
+  },
+  deleteProjectile(id: string) {
+    const projectiles = get().projectiles;
+    const newProjectiles = projectiles.filter((proj) => proj.id != id);
+    set({
+      projectiles: newProjectiles,
+    });
   },
 });

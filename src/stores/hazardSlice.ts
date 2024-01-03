@@ -1,4 +1,10 @@
-import { Hazard, HazardType, TileType } from '@/components/types/GameTypes';
+import {
+  DIRECTIONS,
+  Hazard,
+  HazardType,
+  TileType,
+} from '@/components/types/GameTypes';
+import { LootChance } from '@/utils/LootChance';
 import { Point2D } from '@/utils/Point2D';
 import { v4 as uuidv4 } from 'uuid';
 import { StateCreator } from 'zustand';
@@ -9,7 +15,7 @@ import { StageSlice } from './stageSlice';
 
 export interface HazardSlice {
   hazards: Map<string, Hazard>;
-  generateHazards: () => void;
+  generateHazards: (seed: number) => void;
   playerInDamageZone: (position: Point2D[]) => boolean;
 }
 
@@ -20,14 +26,19 @@ export const createHazardSlice: StateCreator<
   HazardSlice
 > = (set, get) => ({
   hazards: new Map<string, Hazard>(),
-  generateHazards() {
+  generateHazards(seed: number) {
     let emptySpots = get().getEmptyTiles();
     const currentLevel = get().currentLevel;
     const currentMapData = get().mapData;
     const psuedoShuffle = get().shuffleArray;
-    emptySpots = psuedoShuffle(emptySpots);
+    const randomGen = get().generateGenerator(seed);
+    emptySpots = psuedoShuffle(emptySpots, randomGen);
 
     const newHazardData = new Map<string, Hazard>();
+
+    const lootGen = new LootChance<HazardType>();
+    lootGen.add(HazardType.TRAP_FLOOR_SPIKES, 50);
+    lootGen.add(HazardType.TRAP_FLOOR_ARROW, 50);
 
     let numberHazards = 6 + currentLevel * 4;
     while (emptySpots.length != 0 && numberHazards > 0) {
@@ -36,20 +47,39 @@ export const createHazardSlice: StateCreator<
         break;
       }
 
-      // Do not generate enemies on an exit point
+      // Do not generate traps on an exit point
       if (currentMapData[point.x][point.y] == TileType.TILE_EXIT) {
         continue;
       }
 
-      const newHazard: Hazard = {
+      // Choose the random item
+      const randomTrap = lootGen.choose(randomGen);
+
+      let newHazard: Hazard = {
         id: uuidv4(),
-        type: HazardType.TRAP_FLOOR_SPIKES,
+        type: randomTrap === null ? HazardType.TRAP_NONE : randomTrap,
         worldPosition: point,
-        name: 'Spike Trap',
         isActive: false,
         currentPhase: 2,
         maxPhase: 2,
       };
+
+      switch (randomTrap) {
+        case HazardType.TRAP_FLOOR_ARROW:
+          const randomDirection = psuedoShuffle(DIRECTIONS, randomGen)[0];
+          newHazard = {
+            ...newHazard,
+            name: 'Arrow Trap',
+            facingDirection: randomDirection,
+          };
+          break;
+        case HazardType.TRAP_FLOOR_SPIKES:
+          newHazard = {
+            ...newHazard,
+            name: 'Spike Trap',
+          };
+          break;
+      }
 
       newHazardData.set(newHazard.id, newHazard);
       numberHazards--;

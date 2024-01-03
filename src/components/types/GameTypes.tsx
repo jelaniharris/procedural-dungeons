@@ -36,7 +36,9 @@ export enum WallType {
 }
 
 export enum HazardType {
+  TRAP_NONE,
   TRAP_FLOOR_SPIKES,
+  TRAP_FLOOR_ARROW,
 }
 
 export enum EnemyType {
@@ -181,6 +183,7 @@ export type Hazard = BaseGameObject & {
   isActive: boolean;
   currentPhase: number;
   maxPhase: number;
+  facingDirection?: Direction;
 };
 
 export enum LocationActionType {
@@ -340,3 +343,16 @@ export enum StatusEffectEvent {
   REMOVED,
   ADDED,
 }
+
+export enum ProjectileType {
+  NONE,
+  BEAM_ARROW,
+}
+
+export type Projectile = {
+  id: string;
+  spawnLocation: Point2D;
+  destLocation?: Point2D;
+  projectileType: ProjectileType;
+  travelDirection: Direction;
+};
