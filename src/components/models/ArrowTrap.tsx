@@ -44,9 +44,9 @@ export function ArrowTrap(props: ArrowTrapProps) {
   const { publish } = useGame();
 
   const currentPhase = useRef(
-    currentLevel >= 2 ? Math.floor(Math.random() * 4) : 2
+    currentLevel >= 3 ? Math.floor(Math.random() * 4) : 1
   );
-  const maxPhase = 3;
+  const maxPhase = 4;
   const isActive = useRef(false);
 
   useGameObjectEvent<OnTickEvent>('on-tick', () => {
