@@ -35,6 +35,8 @@ export const DOOR_CLOSE = 'door-close';
 
 export const OVERLAY_TEXT = 'overlay-text';
 
+export const PROJECTILE_CREATE = 'projectile-create';
+
 export type EntityDiedEvent = ConsumerEvent<'entity-died'>;
 export type EntityAliveEvent = ConsumerEvent<'entity-alive'>;
 

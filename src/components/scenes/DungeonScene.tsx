@@ -38,6 +38,7 @@ import {
   PLAYER_MOVED,
   PLAYER_REACHED_EXIT,
   PLAYER_TOUCHED_ENEMY,
+  PROJECTILE_CREATE,
   PlayerAttemptMoveEvent,
   PlayerDamagedTrapEvent,
   TRIGGER_SUMMONING,
@@ -517,6 +518,8 @@ const DungeonScene = () => {
         }
       );
 
+      subscribe(PROJECTILE_CREATE, () => {});
+
       publish<EventStartGameEvent>(EVENT_STARTGAME, { gameType: gameMode });
     };
 
@@ -533,6 +536,7 @@ const DungeonScene = () => {
       unsubscribeAllHandlers(EXIT_NEED);
       unsubscribeAllHandlers(EVENT_STARTGAME);
       unsubscribeAllHandlers(TRIGGER_SUMMONING);
+      unsubscribeAllHandlers(PROJECTILE_CREATE);
     };
   }, []);
 

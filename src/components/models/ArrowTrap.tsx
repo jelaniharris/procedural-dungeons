@@ -70,7 +70,7 @@ export function ArrowTrap(props: ArrowTrapProps) {
         }
       }
       if (currentPhase.current <= 0) {
-        // Spike is active, do damage if the player is on top of me
+        // Trap is active, do damage if the player is on the danger zones
         isActive.current = true;
         //setAnimation('show');
         if (
