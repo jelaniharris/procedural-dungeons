@@ -40,7 +40,7 @@ export const Loading = () => {
       <section className="flex flex-col justify-between p-5 h-full gap-5 bg-slate-900">
         <div></div>
         <div>
-          <h1 className="text-9xl text-center font-extrabold text-white uppercase">
+          <h1 className="text-3xl md:text-9xl text-center font-extrabold text-white uppercase">
             Loading
           </h1>
         </div>
