@@ -112,7 +112,15 @@ export const GameHud = () => {
                   iconClass="text-white-400 py-1"
                   icon={<FloorIcon />}
                 >
-                  Floor {currentLevel}
+                  <span className="hidden md:inline">Floor</span> {currentLevel}
+                </PanelLabel>
+              </ContentPanel>
+              <ContentPanel className="bg-slate-800 bg-opacity-80">
+                <PanelLabel
+                  iconClass="text-white-400 py-1"
+                  icon={floorSteps > 0 ? <ClockIcon /> : <SkullIcon />}
+                >
+                  {floorSteps > 0 ? floorSteps : '!!'}
                 </PanelLabel>
               </ContentPanel>
               <ContentPanel className="bg-slate-800 bg-opacity-80">
@@ -135,14 +143,7 @@ export const GameHud = () => {
           </section>
           <section className="fixed w-full flex gap-8 justify-between top-16">
             <div></div>
-            <ContentPanel className="bg-slate-800 bg-opacity-80">
-              <PanelLabel
-                iconClass="text-white-400 py-1"
-                icon={floorSteps > 0 ? <ClockIcon /> : <SkullIcon />}
-              >
-                {floorSteps > 0 ? floorSteps : '!!'}
-              </PanelLabel>
-            </ContentPanel>
+            <div></div>
             <div></div>
           </section>
           <section className="fixed w-full flex justify-center bottom-20 ">
