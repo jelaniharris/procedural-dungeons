@@ -63,7 +63,7 @@ export const EmbarkScreen = () => {
             <Button
               disabled={selected === null}
               onClick={embarkGame}
-              className="text-5xl"
+              className="text-2xl md:text-5xl"
             >
               Embark
             </Button>
