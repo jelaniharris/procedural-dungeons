@@ -33,8 +33,10 @@ const TutorialScreen = () => {
 
   const overviewPage = () => {
     return (
-      <div className="text-white text-lg">
-        <h2 className="text-xl font-bold pb-2">Controls and Movement</h2>
+      <div className="text-white text-md md:text-lg">
+        <h2 className="text-lg md:text-xl font-bold pb-2">
+          Controls and Movement
+        </h2>
         <p>Move with WASD, wait a turn with SPACEBAR</p>
         <p>
           If on mobile, you can use the thimble at the bottom of the screen to
@@ -67,7 +69,7 @@ const TutorialScreen = () => {
 
   const overviewPageTwo = () => {
     return (
-      <div className="text-white text-lg">
+      <div className="text-white text-md md:text-lg">
         <h2 className="text-xl font-bold pb-2">Exiting and Scoring</h2>
         <p>
           Each dungeon floor has exit stairs. Reach the stairs and decide if you
