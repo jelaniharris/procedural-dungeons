@@ -6,6 +6,7 @@ import {
   Enemy,
   Hazard,
   OverLayTextType,
+  Projectile,
   SpawnWarning,
 } from './GameTypes';
 
@@ -36,6 +37,7 @@ export const DOOR_CLOSE = 'door-close';
 export const OVERLAY_TEXT = 'overlay-text';
 
 export const PROJECTILE_CREATE = 'projectile-create';
+export const PROJECTILE_DESTROY = 'projectile-destroy';
 
 export type EntityDiedEvent = ConsumerEvent<'entity-died'>;
 export type EntityAliveEvent = ConsumerEvent<'entity-alive'>;
@@ -96,5 +98,19 @@ export type OverlayTextEvent = ConsumerEvent<
     text?: string;
     amount?: number;
     mapPosition?: Point2D;
+  }
+>;
+
+export type ProjectileCreateEvent = ConsumerEvent<
+  'projectile-create',
+  {
+    projectile: Projectile;
+  }
+>;
+
+export type ProjectileDestroyEvent = ConsumerEvent<
+  'projectile-destroy',
+  {
+    id?: string;
   }
 >;

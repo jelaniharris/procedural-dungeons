@@ -9,9 +9,15 @@ import { useGLTF } from '@react-three/drei';
 import { useRef } from 'react';
 import * as THREE from 'three';
 import { GLTF } from 'three-stdlib';
+import { v4 as uuidv4 } from 'uuid';
 import useGameObjectEvent from '../entities/useGameObjectEvent';
-import { OnTickEvent, PLAYER_DAMAGED_TRAP } from '../types/EventTypes';
-import { Direction, Hazard } from '../types/GameTypes';
+import {
+  OnTickEvent,
+  PLAYER_DAMAGED_TRAP,
+  PROJECTILE_CREATE,
+  ProjectileCreateEvent,
+} from '../types/EventTypes';
+import { Direction, Hazard, ProjectileType } from '../types/GameTypes';
 import useGame from '../useGame';
 
 type GLTFResult = GLTF & {
@@ -64,21 +70,36 @@ export function ArrowTrap(props: ArrowTrapProps) {
           5
         );
         hurtLocations.current = travelLocations;
-        console.log('Locations:', travelLocations);
         if (travelLocations.length > 0) {
           addLocationsToDangerZones(travelLocations);
         }
       }
+
       if (currentPhase.current <= 0) {
         // Trap is active, do damage if the player is on the danger zones
         isActive.current = true;
         //setAnimation('show');
-        if (
-          hurtLocations.current &&
-          hurtLocations.current.length > 0 &&
-          playerInDamageZone(hurtLocations.current)
-        ) {
-          publish(PLAYER_DAMAGED_TRAP, { hazard: props.data });
+        if (hurtLocations.current && hurtLocations.current.length > 0) {
+          publish<ProjectileCreateEvent>(PROJECTILE_CREATE, {
+            projectile: {
+              id: uuidv4(),
+              worldPosition: {
+                x: hurtLocations.current[0].x,
+                y: hurtLocations.current[0].y,
+              },
+              destLocation:
+                hurtLocations.current[hurtLocations.current.length - 1],
+              projectileType: ProjectileType.BEAM_ARROW,
+              travelDirection: props.data.facingDirection ?? Direction.DIR_NONE,
+              travelSpeedPerTile: 150,
+              hurtLocations: [...hurtLocations.current],
+              beforeDestroy: () => {
+                if (playerInDamageZone(hurtLocations.current)) {
+                  publish(PLAYER_DAMAGED_TRAP, { hazard: props.data });
+                }
+              },
+            },
+          });
         }
       }
     }

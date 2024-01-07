@@ -9,6 +9,7 @@ import useGameObject from './useGameObject';
 
 export interface MoveableObjectProps {
   isStatic?: boolean;
+  movementDuration?: number;
 }
 
 export type MovementObjectType = 'move' | 'push' | 'jump';
@@ -33,12 +34,13 @@ export type MovingEvent = ConsumerEvent<
   }
 >;
 
-export const MoveableObject = ({ isStatic = false }: MoveableObjectProps) => {
+export const MoveableObject = ({
+  isStatic = false,
+  movementDuration = 200,
+}: MoveableObjectProps) => {
   const { transform, publish, nodeRef } = useGameObject();
   const nextPosition = useRef<Vector3>([transform.x, 0, transform.y]);
   const canMove = useRef(!isStatic);
-
-  const movementDuration = 200;
 
   useComponentRegistry<MoveableObjectRef>('Moveable', {
     isMoving() {

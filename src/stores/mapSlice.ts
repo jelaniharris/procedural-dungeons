@@ -42,8 +42,6 @@ import { StageSlice } from './stageSlice';
 
 export interface MapSlice {
   mapData: (TileType | null)[][];
-  destructables: Map<string, Destructable>;
-  spawnWarnings: Map<string, SpawnWarning>;
   numRows: number;
   numCols: number;
   resetStage: (hard: boolean) => void;
@@ -103,6 +101,7 @@ export interface MapSlice {
   ) => void;
 
   // Danger Mode
+  spawnWarnings: Map<string, SpawnWarning>;
   addSpawnWarning: (warning: SpawnWarning) => void;
   executeDangerMode: () => void;
   resetSpawnWarnings: () => void;
@@ -121,10 +120,6 @@ export interface MapSlice {
     rooms: Room[]
     //splits: SplitData[]
   ) => void;
-  isBlockDoorCandidate: (
-    mapData: (TileType | null)[][],
-    location: Point2D
-  ) => boolean;
 
   // Projectiles
   projectiles: Projectile[];
@@ -132,7 +127,9 @@ export interface MapSlice {
   deleteProjectile: (id: string) => void;
 
   // Destructibles
+  destructables: Map<string, Destructable>;
   reduceHealthDestructible: (location: Point2D) => DestructableType;
+  locationHasDestructible: (location: Point2D) => Destructable | null;
   spawnDestructableItem: (
     destructable: Destructable,
     location: Point2D
@@ -140,6 +137,10 @@ export interface MapSlice {
 
   // Doors
   doors: DoorLocation[];
+  isBlockDoorCandidate: (
+    mapData: (TileType | null)[][],
+    location: Point2D
+  ) => boolean;
 
   // Items
   items: Item[];
@@ -1064,11 +1065,17 @@ export const createMapSlice: StateCreator<
         break;
       }
 
-      //console.log('Point ', point.x, ',', point.y);
-
       currentMapData[point.x][point.y] = TileType.TILE_EXIT;
       validSpot = true;
     }
+  },
+  locationHasDestructible(location: Point2D) {
+    const destructables = get().destructables;
+    const locationPosition = `${location.x},${location.y}`;
+    if (destructables.has(locationPosition)) {
+      return destructables.get(locationPosition) ?? null;
+    }
+    return null;
   },
   spawnDestructableItem(destructable: Destructable, location: Point2D) {
     const addItem = get().addItem;
@@ -1233,6 +1240,7 @@ export const createMapSlice: StateCreator<
     const travelLocations: Point2D[] = [];
     const getTilePosition = get().getTilePosition;
     const isBlockWallOrNull = get().isBlockWallOrNull;
+    const locationHasDestructible = get().locationHasDestructible;
 
     let currentLocation = location;
     let currentLocationBlocked = false;
@@ -1258,7 +1266,10 @@ export const createMapSlice: StateCreator<
       // Assign next location
       const currentTile = getTilePosition(nextLocation.x, nextLocation.y);
 
-      if (isBlockWallOrNull(currentTile)) {
+      if (
+        isBlockWallOrNull(currentTile) ||
+        locationHasDestructible(nextLocation)
+      ) {
         currentLocationBlocked = true;
         continue;
       }

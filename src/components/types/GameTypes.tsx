@@ -351,8 +351,12 @@ export enum ProjectileType {
 
 export type Projectile = {
   id: string;
-  spawnLocation: Point2D;
+  worldPosition: Point2D;
   destLocation?: Point2D;
   projectileType: ProjectileType;
   travelDirection: Direction;
+  travelSpeedPerTile?: number;
+  hurtLocations?: Point2D[];
+  beforeDestroy?: () => void;
+  destroy?: (id?: string) => void;
 };

@@ -8,6 +8,7 @@ import { ShowHazards } from '@/app/ShowHazards';
 import { ShowInteractables } from '@/app/ShowInteractables';
 import { ShowItems } from '@/app/ShowItems';
 import { ShowOverlayEvents } from '@/app/ShowOverlayEvents';
+import { ShowProjectiles } from '@/app/ShowProjectiles';
 import { ShowSummoningIndicators } from '@/app/ShowSummoningIndicators';
 import { GameState, useStore } from '@/stores/useStore';
 import { Point2D } from '@/utils/Point2D';
@@ -39,8 +40,11 @@ import {
   PLAYER_REACHED_EXIT,
   PLAYER_TOUCHED_ENEMY,
   PROJECTILE_CREATE,
+  PROJECTILE_DESTROY,
   PlayerAttemptMoveEvent,
   PlayerDamagedTrapEvent,
+  ProjectileCreateEvent,
+  ProjectileDestroyEvent,
   TRIGGER_SUMMONING,
   TriggerSummoningEvent,
 } from '../types/EventTypes';
@@ -145,6 +149,11 @@ const DungeonScene = () => {
     (state: GameState) => state.clearSpawnWarning
   );
   const spawnEnemy = useStore((state: GameState) => state.spawnEnemy);
+  const spawnProjectile = useStore((state: GameState) => state.spawnProjectile);
+  const deleteProjectile = useStore(
+    (state: GameState) => state.deleteProjectile
+  );
+
   const {
     subscribe,
     publish,
@@ -518,7 +527,20 @@ const DungeonScene = () => {
         }
       );
 
-      subscribe(PROJECTILE_CREATE, () => {});
+      subscribe<ProjectileCreateEvent>(PROJECTILE_CREATE, ({ projectile }) => {
+        spawnProjectile({
+          ...projectile,
+          destroy: (id) => {
+            publish<ProjectileDestroyEvent>(PROJECTILE_DESTROY, { id });
+          },
+        });
+      });
+
+      subscribe<ProjectileDestroyEvent>(PROJECTILE_DESTROY, ({ id }) => {
+        if (id) {
+          deleteProjectile(id);
+        }
+      });
 
       publish<EventStartGameEvent>(EVENT_STARTGAME, { gameType: gameMode });
     };
@@ -537,6 +559,7 @@ const DungeonScene = () => {
       unsubscribeAllHandlers(EVENT_STARTGAME);
       unsubscribeAllHandlers(TRIGGER_SUMMONING);
       unsubscribeAllHandlers(PROJECTILE_CREATE);
+      unsubscribeAllHandlers(PROJECTILE_DESTROY);
     };
   }, []);
 
@@ -560,6 +583,7 @@ const DungeonScene = () => {
         <ShowDestructables />
         <ShowSummoningIndicators />
         <ShowOverlayEvents />
+        <ShowProjectiles />
       </Suspense>
     </>
   );
