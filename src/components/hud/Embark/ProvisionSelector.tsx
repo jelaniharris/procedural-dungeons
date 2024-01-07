@@ -28,7 +28,7 @@ export const ProvisionSelector = () => {
       const randomGen = generateGenerator(seed);
       let pList = shuffleArray([...pData], randomGen);
       console.log('Running', pData);
-      pList.unshift({
+      pList.push({
         name: 'No Provision',
         description: 'Nothing but your wits',
         numberValue: 0,
