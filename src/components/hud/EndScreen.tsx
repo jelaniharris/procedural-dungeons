@@ -121,13 +121,17 @@ export const EndScreen = () => {
   return (
     <CenterScreenContainer>
       {isDead && (
-        <h1 className="text-8xl font-bold text-red-500">GOT GREEDY</h1>
+        <h1 className="text-3xl md:text-8xl font-bold text-red-500">
+          GOT GREEDY
+        </h1>
       )}
       {!isDead && (
-        <h1 className="text-8xl font-bold text-green-500">ESCAPED</h1>
+        <h1 className="text-3xl md:text-8xl font-bold text-green-500">
+          ESCAPED
+        </h1>
       )}
 
-      <span className="text-4xl font-bold text-white">
+      <span className="text-2xl md:text-4xl font-bold text-white">
         Final Score: {score}
       </span>
       <div className="overflow-y-scroll" style={{ height: '50vh' }}>
