@@ -6,6 +6,7 @@ import {
   DoorLocation,
   EnemyType,
   GameStatus,
+  HazardType,
   Item,
   ItemType,
   MapArea,
@@ -153,6 +154,9 @@ export interface MapSlice {
   resetItems: () => void;
   addItem: (item: ItemType, location: Point2D) => void;
   checkDangerState: () => void;
+
+  // Floor
+  getFloorZOffset: (location: Point2D) => number;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1291,5 +1295,15 @@ export const createMapSlice: StateCreator<
     set({
       projectiles: newProjectiles,
     });
+  },
+  getFloorZOffset(location: Point2D) {
+    const locationHasHazard = get().locationHasHazard;
+
+    const hazard = locationHasHazard(location);
+    if (hazard && hazard.type === HazardType.TRAP_FLOOR_ARROW) {
+      return 0.5;
+    }
+
+    return 0;
   },
 });

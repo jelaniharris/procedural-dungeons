@@ -22,6 +22,7 @@ import { MapSlice } from './mapSlice';
 export interface PlayerSlice {
   playerPosition: Point2D;
   playerRotation: number;
+  playerZOffset: number;
   score: number;
   energy: number;
   maxEnergy: number;
@@ -33,8 +34,18 @@ export interface PlayerSlice {
   provisions: Provision[];
   setDead: () => void;
   getPlayerLocation: () => Point2D;
-  movePlayerLocation: (location: Point2D, noClip?: boolean) => boolean;
-  adjustPlayer: (xOffset: number, yOffset: number, noClip?: boolean) => boolean;
+  movePlayerLocation: (
+    location: Point2D,
+    noClip?: boolean,
+    zOffset?: number
+  ) => boolean;
+  adjustPlayer: (
+    xOffset: number,
+    yOffset: number,
+    noClip?: boolean,
+    zOffset?: number
+  ) => boolean;
+  getPlayerZOffset: () => number;
   checkPlayerLocation: () => PlayerLocationResults;
   adjustHealth: (amount: number, source?: SourceType) => AdjustHealthResults;
   getMaxHealth: () => number;
@@ -95,6 +106,7 @@ export const createPlayerSlice: StateCreator<
   PlayerSlice
 > = (set, get) => ({
   playerPosition: { x: 5, y: 5 },
+  playerZOffset: 0,
   score: 0,
   energy: 10,
   maxEnergy: 100,
@@ -128,13 +140,21 @@ export const createPlayerSlice: StateCreator<
     const playerPosition = get().playerPosition;
     return playerPosition;
   },
-  movePlayerLocation(location: Point2D, noClip = false) {
+  getPlayerZOffset: () => {
+    return get().playerZOffset;
+  },
+  movePlayerLocation(location: Point2D, noClip = false, zOffset?: number) {
     const playerPosition = get().playerPosition;
     const xOffset = location.x - playerPosition.x;
     const yOffset = location.y - playerPosition.y;
-    return get().adjustPlayer(xOffset, yOffset, noClip);
+    return get().adjustPlayer(xOffset, yOffset, noClip, zOffset);
   },
-  adjustPlayer(xOffset: number, yOffset: number, noClip = false) {
+  adjustPlayer(
+    xOffset: number,
+    yOffset: number,
+    noClip = false,
+    zOffset?: number
+  ) {
     const isBlockWallOrNull = get().isBlockWallOrNull;
     const currentMapData = get().mapData;
     const oldPlayerData = get().playerPosition;
@@ -173,6 +193,7 @@ export const createPlayerSlice: StateCreator<
     set(() => ({
       playerPosition: playerData,
       playerRotation: currentPlayerRotation,
+      playerZOffset: zOffset ? zOffset : 0,
     }));
     return true;
   },

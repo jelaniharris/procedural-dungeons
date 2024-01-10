@@ -22,6 +22,7 @@ export interface GameObjectProps {
   transform: Point2D;
   rotation?: Euler;
   children?: React.ReactNode;
+  zOffset?: number;
 }
 
 export interface GameObjectContextValue extends ComponentRegistryUtils, PubSub {
@@ -29,6 +30,7 @@ export interface GameObjectContextValue extends ComponentRegistryUtils, PubSub {
   name: Readonly<string | undefined>;
   nodeRef: RefObject<THREE.Group>;
   transform: Point2D;
+  zOffset?: number;
   getRef: () => GameObjectRef;
 }
 
@@ -51,6 +53,7 @@ const GameObject = ({
   children,
   transform,
   rotation,
+  zOffset,
   disabled: initialDisabled = false,
 }: GameObjectProps) => {
   const identifier = useRef(Symbol('GameObject'));
@@ -108,6 +111,7 @@ const GameObject = ({
     nodeRef: node,
     getRef,
     transform,
+    zOffset,
     ...registryUtils,
   };
 
@@ -115,7 +119,7 @@ const GameObject = ({
     <GameObjectContext.Provider value={contextValue}>
       <group
         ref={node}
-        position={[transform.x, 0, transform.y]}
+        position={[transform.x, zOffset ? zOffset : 0, transform.y]}
         rotation={rotation}
       >
         {!disabled && children}

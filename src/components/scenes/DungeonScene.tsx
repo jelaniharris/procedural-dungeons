@@ -153,6 +153,7 @@ const DungeonScene = () => {
   const deleteProjectile = useStore(
     (state: GameState) => state.deleteProjectile
   );
+  const getFloorZOffset = useStore((state: GameState) => state.getFloorZOffset);
 
   const {
     subscribe,
@@ -361,7 +362,6 @@ const DungeonScene = () => {
         (offset) => offset.direction == desiredDirection
       );
       if (desiredOffset) {
-        console.log(desiredOffset);
         const nextPosition: Point2D = {
           x: currentPosition.x + desiredOffset.position.x,
           y: currentPosition.y + desiredOffset.position.y,
@@ -373,7 +373,14 @@ const DungeonScene = () => {
           const movementRef =
             playerGO.getComponent<MoveableObjectRef>('Moveable');
 
-          const moved = await movementRef.move(nextPosition, 'move');
+          const zOffset = getFloorZOffset(nextPosition);
+          console.log(zOffset);
+
+          const moved = await movementRef.move(
+            nextPosition,
+            'move',
+            zOffset ?? 0
+          );
           modifyFloorSteps(-1);
 
           if (moved) {

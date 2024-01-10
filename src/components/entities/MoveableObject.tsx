@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Point2D } from '@/utils/Point2D';
 import { ConsumerEvent } from '@/utils/pubSub';
 import wait from '@/utils/wait';
@@ -17,15 +18,20 @@ export type MovementObjectType = 'move' | 'push' | 'jump';
 export type MoveableObjectRef = ComponentRef<
   'Moveable',
   {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    move: (position: Point2D, type?: MovementObjectType) => Promise<boolean>;
+    move: (
+      position: Point2D,
+      type?: MovementObjectType,
+      zOffset?: number
+    ) => Promise<boolean>;
     isMoving: () => boolean;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     blockMovement: (delayMs: number) => void;
   }
 >;
 
-export type MovedEvent = ConsumerEvent<'moved', Point2D>;
+export type MovedEvent = ConsumerEvent<
+  'moved',
+  { location: Point2D; zOffset: number }
+>;
 export type MovingEvent = ConsumerEvent<
   'moving',
   {
@@ -38,8 +44,12 @@ export const MoveableObject = ({
   isStatic = false,
   movementDuration = 200,
 }: MoveableObjectProps) => {
-  const { transform, publish, nodeRef } = useGameObject();
-  const nextPosition = useRef<Vector3>([transform.x, 0, transform.y]);
+  const { transform, zOffset, publish, nodeRef } = useGameObject();
+  const nextPosition = useRef<Vector3>([
+    transform.x,
+    zOffset ? zOffset : 0,
+    transform.y,
+  ]);
   const canMove = useRef(!isStatic);
 
   useComponentRegistry<MoveableObjectRef>('Moveable', {
@@ -51,7 +61,7 @@ export const MoveableObject = ({
       await wait(delayMs);
       canMove.current = true;
     },
-    async move(targetPosition: Point2D, type) {
+    async move(targetPosition: Point2D, type, zOffset) {
       if (isStatic) return false;
       if (!canMove.current) return false;
 
@@ -59,14 +69,20 @@ export const MoveableObject = ({
       const isPushed = type === 'push';
       const isForced = isJumping || isPushed;
 
-      const targetPosition3D: Vector3 = [targetPosition.x, 0, targetPosition.y];
+      const targetPosition3D: Vector3 = [
+        targetPosition.x,
+        zOffset ? zOffset : 0,
+        targetPosition.y,
+      ];
 
       nextPosition.current = targetPosition3D;
 
       const fromX = transform.x;
       const fromY = transform.y;
+      const fromZ = 0;
       const toX = targetPosition.x;
       const toY = targetPosition.y;
+      const toZ = zOffset ? zOffset : 0;
 
       canMove.current = false;
 
@@ -79,6 +95,7 @@ export const MoveableObject = ({
         targets: nodeRef.current?.position,
         x: [fromX, toX],
         z: [fromY, toY],
+        y: [fromZ, toZ],
         duration: movementDuration,
         easing: 'linear',
         begin() {
@@ -101,8 +118,11 @@ export const MoveableObject = ({
       // Published moved event
       !isForced &&
         publish<MovedEvent>('moved', {
-          x: targetPosition3D[0],
-          y: targetPosition3D[2],
+          location: {
+            x: targetPosition3D[0],
+            y: targetPosition3D[2],
+          },
+          zOffset: zOffset ? zOffset : 0,
         });
       return true;
     },

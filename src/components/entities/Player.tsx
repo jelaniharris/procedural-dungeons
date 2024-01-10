@@ -8,6 +8,7 @@ import { MoveableObject } from './MoveableObject';
 
 const Player = () => {
   const playerPosition = useStore((state) => state.playerPosition);
+  const playerZOffset = useStore((state) => state.playerZOffset);
   const playerRotation = useStore((state) => state.playerRotation);
 
   console.log('[Player] Rerendered player');
@@ -17,6 +18,7 @@ const Player = () => {
       <GameObject
         name="player"
         transform={playerPosition}
+        zOffset={playerZOffset}
         rotation={[0, playerRotation, 0]}
       >
         <MoveableObject />

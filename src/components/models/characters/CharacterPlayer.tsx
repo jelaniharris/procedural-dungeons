@@ -96,9 +96,9 @@ export function CharacterPlayer(
     }
   );*/
 
-  useGameObjectEvent<MovedEvent>('moved', (data) => {
+  useGameObjectEvent<MovedEvent>('moved', ({ location, zOffset }) => {
     //console.log('Finished moving to:', data);
-    movePlayerLocation(data, false);
+    movePlayerLocation(location, false, zOffset);
   });
 
   useGameObjectEvent<EntityDiedEvent>(ENTITY_DIED, () => {

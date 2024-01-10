@@ -17,6 +17,7 @@ export interface HazardSlice {
   hazards: Map<string, Hazard>;
   generateHazards: (seed: number) => void;
   playerInDamageZone: (position: Point2D[]) => boolean;
+  locationHasHazard: (location: Point2D) => Hazard | null;
 }
 
 export const createHazardSlice: StateCreator<
@@ -104,5 +105,19 @@ export const createHazardSlice: StateCreator<
     }
 
     return inZone;
+  },
+  locationHasHazard(location: Point2D) {
+    const hazards = get().hazards;
+    let foundHazard: Hazard | null = null;
+    hazards.forEach((val) => {
+      if (
+        val.worldPosition.x === location.x &&
+        val.worldPosition.y === location.y
+      ) {
+        foundHazard = val;
+        return val;
+      }
+    });
+    return foundHazard;
   },
 });
