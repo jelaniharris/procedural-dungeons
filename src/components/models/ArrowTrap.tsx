@@ -27,7 +27,7 @@ type GLTFResult = GLTF & {
   };
   materials: {
     ['colormap.019']: THREE.MeshStandardMaterial;
-    colormap: THREE.MeshStandardMaterial;
+    ['colormap.018']: THREE.MeshStandardMaterial;
   };
 };
 
@@ -107,18 +107,18 @@ export function ArrowTrap(props: ArrowTrapProps) {
 
   return (
     <group {...props} ref={groupRef} dispose={null}>
-      <group scale={[1, 0.99, 1]}>
+      <group>
         <mesh
           geometry={nodes.DartBarrel.geometry}
           material={materials['colormap.019']}
-          position={[0, 0.262, -0.202]}
-          scale={[0.149, 0.151, 0.149]}
+          position={[0, 0.213, -0.194]}
+          scale={[1, 1.01, 1]}
         />
         <mesh
           geometry={nodes.DartBase.geometry}
-          material={materials.colormap}
+          material={materials['colormap.018']}
           position={[0, 0.224, 0.093]}
-          scale={[0.224, 0.226, 0.224]}
+          scale={[1, 1.01, 1]}
         />
       </group>
     </group>
