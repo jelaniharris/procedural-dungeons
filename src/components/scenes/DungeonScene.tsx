@@ -258,6 +258,15 @@ const DungeonScene = () => {
                 mapPosition: locationAction.position,
               });
               break;
+            case ItemType.ITEM_INGOT_STACK:
+              playAudio('coin.ogg');
+              const ingotscore = addScore(250, SourceType.TREASURE);
+              publish<OverlayTextEvent>(OVERLAY_TEXT, {
+                type: OverLayTextType.OVERLAY_SCORE,
+                amount: ingotscore,
+                mapPosition: locationAction.position,
+              });
+              break;
             case ItemType.ITEM_POTION:
               playAudio('bottle.ogg', 0.5);
               const healthResults = adjustHealth(1, SourceType.POTION);

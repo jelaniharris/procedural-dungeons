@@ -779,6 +779,7 @@ export const createMapSlice: StateCreator<
     lootGen.add(ItemType.ITEM_APPLE, 15);
     lootGen.add(ItemType.ITEM_WEAPON, 5);
     lootGen.add(ItemType.ITEM_POTION, 5);
+    lootGen.add(ItemType.ITEM_INGOT_STACK, 1);
 
     for (const room of rooms) {
       for (let x = room.left - 1; x <= room.right + 1; x++) {
@@ -1107,10 +1108,15 @@ export const createMapSlice: StateCreator<
 
     lootGen.add(ItemType.ITEM_COIN, 65);
     lootGen.add(ItemType.ITEM_CHICKEN, 25);
-    lootGen.add(ItemType.ITEM_CHALICE, 17, 10);
     lootGen.add(ItemType.ITEM_WEAPON, 20);
     lootGen.add(ItemType.ITEM_CROWN, 15, 1);
     lootGen.add(ItemType.ITEM_POTION, 8, 2);
+    if (currentLevel >= 2) {
+      lootGen.add(ItemType.ITEM_CHALICE, 17, 10);
+    }
+    if (currentLevel >= 3) {
+      lootGen.add(ItemType.ITEM_INGOT_STACK, 2, 2);
+    }
 
     while (emptySpots.length != 0 && numberItems > 0) {
       const point = emptySpots.shift();

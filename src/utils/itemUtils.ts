@@ -40,6 +40,14 @@ export const assignItemDetails = (
         modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(15) },
       };
       break;
+    case ItemType.ITEM_INGOT_STACK:
+      newItem = {
+        ...newItem,
+        rotates: true,
+        name: 'gold_ingot_stack',
+        modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(5) },
+      };
+      break;
     case ItemType.ITEM_WEAPON:
       newItem = {
         ...newItem,
