@@ -1,6 +1,6 @@
 import { GameState, useStore } from '@/stores/useStore';
 import { cn } from '@/utils/classnames';
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   FaClock as ClockIcon,
   FaCoins as CoinIcon,
@@ -74,15 +74,15 @@ export const GameHud = () => {
     );
   };
 
-  const showSettings = () => {
+  const showSettings = useCallback(() => {
     setShowSettingsDialog(true);
     setGameStatus(GameStatus.GAME_MENU);
-  };
+  }, [setGameStatus, setShowSettingsDialog]);
 
-  const backToGame = () => {
+  const backToGame = useCallback(() => {
     setShowSettingsDialog(false);
     setGameStatus(GameStatus.GAME_STARTED);
-  };
+  }, [setGameStatus, setShowSettingsDialog]);
 
   if (showSettingsDialog) {
     return (

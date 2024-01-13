@@ -1,4 +1,4 @@
-import { useStore } from '@/stores/useStore';
+import { GameState, useStore } from '@/stores/useStore';
 import { useKeyboardControls } from '@react-three/drei';
 import { useCallback, useEffect } from 'react';
 import {
@@ -12,6 +12,10 @@ export const CharacterController = () => {
   const adjustPlayer = useStore((store) => store.adjustPlayer);
   const gameStatus = useStore((store) => store.gameStatus);
   const getPlayerLocation = useStore((store) => store.getPlayerLocation);
+  const setGameStatus = useStore((store: GameState) => store.setGameStatus);
+  const setShowSettingsDialog = useStore(
+    (store: GameState) => store.setShowSettingsDialog
+  );
 
   const { publish } = useGame();
 
@@ -22,6 +26,9 @@ export const CharacterController = () => {
   const leftPressed = useKeyboardControls<Controls>((state) => state.left);
   const downPressed = useKeyboardControls<Controls>((state) => state.back);
   const stallPressed = useKeyboardControls<Controls>((state) => state.stall);
+  const optionsPressed = useKeyboardControls<Controls>(
+    (state) => state.options
+  );
 
   const moveDirection = useCallback(() => {
     //let movementValid = false;
@@ -65,6 +72,11 @@ export const CharacterController = () => {
       });
     }
 
+    if (optionsPressed) {
+      setShowSettingsDialog(true);
+      setGameStatus(GameStatus.GAME_MENU);
+    }
+
     /*if (movementValid) {
       if (forwardPressed || downPressed || rightPressed || leftPressed) {
         console.debug(
@@ -91,6 +103,7 @@ export const CharacterController = () => {
     publish,
     rightPressed,
     stallPressed,
+    optionsPressed,
   ]);
 
   useEffect(() => {

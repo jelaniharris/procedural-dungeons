@@ -270,6 +270,7 @@ export enum Controls {
   right = 'right',
   jump = 'jump',
   stall = 'stall',
+  options = 'options',
 }
 
 export type PlayerLocalData = {
