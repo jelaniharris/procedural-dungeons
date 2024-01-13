@@ -1,10 +1,13 @@
 import { GameState, useStore } from '@/stores/useStore';
 import { cn } from '@/utils/classnames';
 import { useEffect, useState } from 'react';
+import { FaArrowLeft, FaDoorOpen, FaSave } from 'react-icons/fa';
 import Button from '../input/Button';
 import Range from '../input/Range';
 import Switch from '../input/Switch';
+import { PLAYER_DIED } from '../types/EventTypes';
 import { GameSettings, TouchControls } from '../types/GameTypes';
+import useGame from '../useGame';
 import CenterScreenContainer from './CenterScreen';
 
 interface SettingsScreenProps {
@@ -18,9 +21,13 @@ export const SettingsScreen = ({
 }: SettingsScreenProps) => {
   const getSettings = useStore((store: GameState) => store.getSettings);
   const saveSettings = useStore((store: GameState) => store.saveSettings);
+  const adjustHealth = useStore((state: GameState) => state.adjustHealth);
+  const [showConfirmExitGame, setShowConfirmExitGame] = useState(false);
 
   const [settings, setSettings] = useState<GameSettings>();
   const [showSaveMessage, setShowSaveMessage] = useState(false);
+
+  const { publish, currentHud } = useGame();
 
   useEffect(() => {
     setSettings(getSettings());
@@ -42,6 +49,19 @@ export const SettingsScreen = ({
   const touchChanged = (type: TouchControls) => {
     if (!settings) return;
     setSettings({ ...settings, touchControlType: type });
+  };
+
+  const toggleExitGame = (val: boolean) => {
+    setShowConfirmExitGame(val);
+  };
+
+  const exitGame = () => {
+    setShowConfirmExitGame(false);
+    if (backToMenuCallback) {
+      backToMenuCallback();
+    }
+    adjustHealth(-100);
+    publish(PLAYER_DIED, {});
   };
 
   const inputChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,6 +96,28 @@ export const SettingsScreen = ({
 
   if (!settings) {
     return <></>;
+  }
+
+  if (showConfirmExitGame) {
+    return (
+      <CenterScreenContainer innerClassName="bg-slate-800 bg-opacity-90">
+        <div className="flex flex-col items-center gap-4">
+          <h3 className="text-white font-bold text-xl">
+            Are you sure you want to leave this climb?
+          </h3>
+          <h4 className="text-white text-xl">(Your score will not saved)</h4>
+
+          <div className="pb-3 flex items-center gap-5">
+            <Button onClick={() => toggleExitGame(false)} variant="primary">
+              No, Stay
+            </Button>
+            <Button onClick={exitGame} variant="danger">
+              Yes, Leave Game
+            </Button>
+          </div>
+        </div>
+      </CenterScreenContainer>
+    );
   }
 
   return (
@@ -172,14 +214,34 @@ export const SettingsScreen = ({
           <div className="text-2xl text-white font-bold">Saved Settings</div>
         </div>
       )}
-      <div className="pb-3 flex items-center gap-5">
-        <Button onClick={saveLocalSettings} variant="primary">
+      <div className="pb-2 flex items-center gap-5">
+        <Button
+          onClick={saveLocalSettings}
+          variant="primary"
+          leftIcon={<FaSave />}
+        >
           Save Settings
         </Button>
-        <Button onClick={backToMenuCallback} variant="danger">
+        <Button
+          onClick={backToMenuCallback}
+          variant="danger"
+          leftIcon={<FaArrowLeft />}
+        >
           {backToMenuText || `Back to Menu`}
         </Button>
       </div>
+      {currentHud !== 'mainmenu' && (
+        <div className="pb-3 flex justify-center items-center w-full">
+          <Button
+            onClick={() => toggleExitGame(true)}
+            variant="danger"
+            className="w-1/3 py-1 bg-yellow-700 hover:bg-yellow-600"
+            leftIcon={<FaDoorOpen />}
+          >
+            Abandon Climb
+          </Button>
+        </div>
+      )}
     </CenterScreenContainer>
   );
 };
