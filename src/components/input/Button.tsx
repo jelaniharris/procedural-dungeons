@@ -8,6 +8,7 @@ export interface ButtonProps
   variant?: ButtonVariant;
   disabled?: boolean;
   loading?: boolean;
+  leftIcon?: React.ReactNode;
 }
 
 const buttonVariantClasses: Record<ButtonVariant, string> = {
@@ -28,6 +29,7 @@ const Button = ({
   variant = 'primary',
   loading = false,
   children,
+  leftIcon,
   disabled,
   className,
   ...props
@@ -48,11 +50,16 @@ const Button = ({
     >
       {loading && <LoadingSpinner />}
       <span
-        className={cn('transition', {
-          'opacity-0': loading,
-          'opacity-100': !loading,
-        })}
+        className={cn(
+          'flex justify-center flex-row items-center gap-2',
+          'transition',
+          {
+            'opacity-0': loading,
+            'opacity-100': !loading,
+          }
+        )}
       >
+        {leftIcon && <span className="text-white">{leftIcon}</span>}
         {children}
       </span>
     </button>
