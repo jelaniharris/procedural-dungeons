@@ -42,6 +42,12 @@ export const createHazardSlice: StateCreator<
     lootGen.add(HazardType.TRAP_FLOOR_ARROW, 50);
 
     let numberHazards = 6 + currentLevel * 4;
+
+    const doorLocations = new Set<string>();
+    get().doors.map((door) => {
+      doorLocations.add(`${door.position.x},${door.position.y}`);
+    });
+
     while (emptySpots.length != 0 && numberHazards > 0) {
       const point = emptySpots.shift();
       if (!point) {
@@ -55,6 +61,14 @@ export const createHazardSlice: StateCreator<
 
       // Choose the random item
       const randomTrap = lootGen.choose(randomGen);
+
+      // Do not generate traps in doors
+      if (
+        doorLocations.has(`${point.x},${point.y}`) &&
+        HazardType.TRAP_FLOOR_ARROW === randomTrap
+      ) {
+        continue;
+      }
 
       let newHazard: Hazard = {
         id: uuidv4(),
