@@ -96,6 +96,7 @@ export const SettingsScreen = ({
             name="soundVolume"
             className="w-full"
             value={settings.soundVolume}
+            disabled={!settings.sound}
             min={0}
             max={100}
             onChange={inputChanged}
@@ -115,13 +116,14 @@ export const SettingsScreen = ({
             name="musicVolume"
             className="w-full"
             value={settings.musicVolume}
+            disabled={!settings.music}
             min={0}
             max={100}
             onChange={inputChanged}
           />
         </div>
         <div className="flex flex-col gap-2 ">
-          <span className="text-xl text-white font-bold mb-2">
+          <span className="text-3xl mt-4 uppercase text-white">
             Screen Controls
           </span>
           <div className="flex flex-row gap-4">
