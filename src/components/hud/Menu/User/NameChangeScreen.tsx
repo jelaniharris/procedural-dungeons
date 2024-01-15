@@ -10,7 +10,7 @@ const NameChangeScreen = () => {
     useMainMenuContext();
 
   return (
-    <div className="flex flex-col justify-center">
+    <div className="flex flex-col items-center justify-center">
       <ScreenHeader hideName />
       <div className="flex-auto"></div>
       {nameChangeStep === 1 ? <NameChangeForm /> : <ChangedNamePanel />}
