@@ -1,11 +1,14 @@
-import { trpc } from '@/app/_trpc/client';
 import Button from '@/components/input/Button';
+import { useAddUser } from '@/hooks/useAddUser';
 import { cn } from '@/utils/classnames';
 import { getPlayerLocalData, savePlayerLocalData } from '@/utils/playerUtils';
+import wait from '@/utils/wait';
 import ReactFlagsSelect from 'react-flags-select';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import useMainMenuContext from '../useMainMenuContext';
-import ScreenHeader from './ScreenHeader';
+import { FaEdit } from 'react-icons/fa';
+import { LoadingSpinner } from '../../LoadingSpinner';
+import { PanelFrame } from '../../panel/PanelFrame';
+import useMainMenuContext from '../../useMainMenuContext';
 
 interface IFormInputs {
   name: string;
@@ -13,8 +16,10 @@ interface IFormInputs {
   discriminator: number;
 }
 
-const NameChangeScreen = () => {
-  const { playerData, setPlayerData, popScreen } = useMainMenuContext();
+export const NameChangeForm = () => {
+  const { playerData, setPlayerData, advanceNameChangeFormStep } =
+    useMainMenuContext();
+  const { isLoading, addUser } = useAddUser();
 
   const {
     register,
@@ -31,42 +36,44 @@ const NameChangeScreen = () => {
     },
   });
 
-  const addUser = trpc.addOrUpdateUser.useMutation({
-    onSettled: (data) => {
-      console.log('Save data results: ', data);
-      if (!data) {
-        return;
-      }
-
-      savePlayerLocalData({
-        name: data.Name,
-        discriminator: data.Discriminator,
-        country: data.Country ?? '',
-      });
-
-      const player = getPlayerLocalData();
-      setPlayerData(player);
-    },
-  });
-
-  const onSubmit: SubmitHandler<IFormInputs> = (data) => {
-    addUser.mutate({
+  const onSubmit: SubmitHandler<IFormInputs> = async (data) => {
+    const savedData = await addUser({
       name: data.name,
       discriminator: data.discriminator,
       country: data.country ?? '',
     });
+
+    wait(1000);
+
+    if (savedData) {
+      savePlayerLocalData({
+        name: savedData.Name,
+        discriminator: savedData.Discriminator,
+        country: savedData.Country ?? '',
+      });
+
+      wait(1000);
+
+      const player = getPlayerLocalData();
+      setPlayerData(player);
+
+      advanceNameChangeFormStep(2);
+    }
   };
 
+  if (isLoading) {
+    return (
+      <PanelFrame className="flex flex-row items-center justify-center">
+        <LoadingSpinner />
+      </PanelFrame>
+    );
+  }
+
   return (
-    <>
-      <ScreenHeader hideName />
-      <div className="flex-auto"></div>
-      <div className="">
-        <h2 className="text-2xl text-white font-bold my-3">Enter your name</h2>
-        <form
-          className="bg-slate-600 shadow-md rounded px-8 py-8 mb-4"
-          onSubmit={handleSubmit(onSubmit)}
-        >
+    <div>
+      <h2 className="text-2xl text-white font-bold my-3">Enter your name</h2>
+      <PanelFrame>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <input type="hidden" {...register('discriminator')} />
           <label
             className="block text-gray-400 text-sm font-bold mb-2"
@@ -120,17 +127,13 @@ const NameChangeScreen = () => {
               />
             )}
           />
-          <div className="flex flex-row items-center gap-4">
-            <Button type="submit">Assign Name</Button>
+          <div className="flex flex-row justify-center items-center gap-4">
+            <Button type="submit" leftIcon={<FaEdit />} loading={isLoading}>
+              Assign Name
+            </Button>
           </div>
         </form>
-      </div>{' '}
-      <div className="flex-auto"></div>
-      <Button variant="danger" type="submit" onClick={() => popScreen()}>
-        Back
-      </Button>
-    </>
+      </PanelFrame>
+    </div>
   );
 };
-
-export default NameChangeScreen;
