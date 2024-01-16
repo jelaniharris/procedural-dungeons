@@ -3,6 +3,7 @@ import { GameState, useStore } from '@/stores/useStore';
 import { cn } from '@/utils/classnames';
 import { getPlayerLocalData } from '@/utils/playerUtils';
 import { useEffect, useRef, useState } from 'react';
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { v4 as uuidv4 } from 'uuid';
 import Button from '../input/Button';
 import { CHANGE_SCENE } from '../types/EventTypes';
@@ -87,7 +88,7 @@ export const EndScreen = () => {
             {attempt.success ? (
               <span className="font-bold text-green-300">Success</span>
             ) : (
-              <span className="font-bold text-red-600">Failure</span>
+              <span className="font-bold text-red-400">Failure</span>
             )}
           </td>
           <td className="text-center">{attempt.date}</td>
@@ -139,8 +140,14 @@ export const EndScreen = () => {
       </div>
       <div className="flex-auto"></div>
       <div className="pb-3 flex items-center gap-5">
-        <Button onClick={restartGame}>Go Again</Button>
-        <Button onClick={backToMainMenu} variant="danger">
+        <Button onClick={restartGame} leftIcon={<FaArrowRight />}>
+          Climb Again
+        </Button>
+        <Button
+          onClick={backToMainMenu}
+          variant="danger"
+          leftIcon={<FaArrowLeft />}
+        >
           Back to Menu
         </Button>
       </div>
