@@ -39,6 +39,8 @@ export const OVERLAY_TEXT = 'overlay-text';
 export const PROJECTILE_CREATE = 'projectile-create';
 export const PROJECTILE_DESTROY = 'projectile-destroy';
 
+export const PLAY_ANIMATION = 'play-animation';
+
 export type EntityDiedEvent = ConsumerEvent<'entity-died'>;
 export type EntityAliveEvent = ConsumerEvent<'entity-alive'>;
 
@@ -112,5 +114,12 @@ export type ProjectileDestroyEvent = ConsumerEvent<
   'projectile-destroy',
   {
     id?: string;
+  }
+>;
+
+export type PlayAnimationEvent = ConsumerEvent<
+  'play-animation',
+  {
+    animName: string;
   }
 >;
