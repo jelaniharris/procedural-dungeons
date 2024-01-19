@@ -41,6 +41,7 @@ import {
   PLAYER_TOUCHED_ENEMY,
   PROJECTILE_CREATE,
   PROJECTILE_DESTROY,
+  PlayAnimationEvent,
   PlayerAttemptMoveEvent,
   PlayerDamagedTrapEvent,
   ProjectileCreateEvent,
@@ -408,6 +409,15 @@ const DungeonScene = () => {
           switch (checkWalkable.type) {
             case WalkableType.BLOCK_DESTRUCTIBLE:
               const result = reduceHealthDestructible(nextPosition);
+              if (playerGO) {
+                console.log('Publish event for player?');
+                playerGO.publish<PlayAnimationEvent>('play-animation', {
+                  animName:
+                    Math.random() > 0.5
+                      ? 'attack-melee-left'
+                      : 'attack-melee-right',
+                });
+              }
               if (result != DestructableType.NONE) {
                 console.log('Destroyed');
                 publish('player-moved', { moved: false });
@@ -419,6 +429,12 @@ const DungeonScene = () => {
               const enemies = getEnemiesAtLocation(nextPosition);
               enemies.forEach((enemy) => {
                 if (canPlayerAttackEnemy(enemy)) {
+                  playerGO.publish<PlayAnimationEvent>('play-animation', {
+                    animName:
+                      Math.random() > 0.5
+                        ? 'attack-melee-left'
+                        : 'attack-melee-right',
+                  });
                   playerPerformAttack(enemy);
                   publish('player-moved', { moved: false });
                 }
@@ -503,6 +519,13 @@ const DungeonScene = () => {
         if (!adjustHealth(-1).isDead) {
           // Then the player died
           publish(PLAYER_DIED, {});
+        } else {
+          /*const playerGO = findGameObjectByName('player');
+          if (playerGO) {
+            playerGO.publish<PlayAnimationEvent>('play-animation', {
+              animName: 'fall',
+            });
+          }*/
         }
       });
 
@@ -512,6 +535,13 @@ const DungeonScene = () => {
         if (!adjustHealth(-1).isDead) {
           // Then the player died
           publish(PLAYER_DIED, {});
+        } else {
+          /*const playerGO = findGameObjectByName('player');
+          if (playerGO) {
+            playerGO.publish<PlayAnimationEvent>('play-animation', {
+              animName: 'sit',
+            });
+          }*/
         }
       });
 

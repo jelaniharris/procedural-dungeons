@@ -10,11 +10,12 @@ import {
   ENTITY_DIED,
   EntityAliveEvent,
   EntityDiedEvent,
+  PlayAnimationEvent,
 } from '@/components/types/EventTypes';
 import { useStore } from '@/stores/useStore';
 import { useAnimations, useGLTF } from '@react-three/drei';
 import { Vector3 } from '@react-three/fiber';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Group } from 'three';
 import { GLTF } from 'three-stdlib';
@@ -79,8 +80,10 @@ export function CharacterPlayer(
   const { nodes, materials, animations } = useGLTF(
     '/models/characters/human/character-human.glb'
   ) as GLTFResult;
-  const { actions } = useAnimations(animations, human);
+  const { actions, mixer } = useAnimations(animations, human);
   const [animation, setAnimation] = useState<ActionName>('idle');
+  const [animationStack, setAnimationStack] = useState<ActionName[]>([]);
+  const callbackReady = useRef(false);
 
   //const { nodeRef } = useGameObject();
 
@@ -96,9 +99,31 @@ export function CharacterPlayer(
     }
   );*/
 
+  const popAnimationFromStack = useCallback(() => {
+    if (animationStack.length > 0) {
+      const nextAnimation = animationStack.shift();
+      if (nextAnimation) {
+        setAnimation(nextAnimation);
+      }
+      setAnimationStack(animationStack);
+    } else {
+      console.log('Nothing in animationStack. Current anim:', animation);
+      if (animation != 'idle') setAnimation('idle');
+      /*if (e.action._clip.name !== 'idle') {
+        setAnimation('idle');
+      }*/
+    }
+  }, [animation, animationStack]);
+
   useGameObjectEvent<MovedEvent>('moved', ({ location, zOffset }) => {
     //console.log('Finished moving to:', data);
     movePlayerLocation(location, false, zOffset);
+  });
+
+  useGameObjectEvent<PlayAnimationEvent>('play-animation', ({ animName }) => {
+    console.log('Adding animation to a stack: ', animName);
+    const newAnimationStack = [...animationStack, animName as ActionName];
+    setAnimationStack(newAnimationStack);
   });
 
   useGameObjectEvent<EntityDiedEvent>(ENTITY_DIED, () => {
@@ -117,15 +142,83 @@ export function CharacterPlayer(
     setAnimation('idle');
   });
 
+  const onFinishedAnimation = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (e: any) => {
+      const action = e.action;
+      console.log('Animation finished: ', action.getClip()?.name);
+
+      popAnimationFromStack();
+    },
+    [popAnimationFromStack]
+  );
+
+  const onStartedAnimation = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (e: any) => {
+      const action = e.action;
+      console.log('Animation started: ', action.getClip()?.name);
+    },
+    []
+  );
+
+  useEffect(() => {
+    console.log('%c RUNNING MIXER', 'color:green');
+
+    if (!callbackReady.current) {
+      console.log('%c CREATING EVENT MIXER', 'color:orange');
+      mixer.addEventListener('finished', onFinishedAnimation);
+      mixer.addEventListener('start', onStartedAnimation);
+      callbackReady.current = true;
+    }
+
+    return () => {
+      console.log('%c REMOVING MIXER', 'color:purple');
+      if (callbackReady.current) {
+        mixer.removeEventListener('finished', onFinishedAnimation);
+        mixer.removeEventListener('start', onStartedAnimation);
+        callbackReady.current = false;
+      }
+    };
+  }, [mixer, onFinishedAnimation, onStartedAnimation]);
+
+  useEffect(() => {
+    if (animation == 'idle' || animation == 'die') {
+      console.log('Animation is base, so pop new anim from stack');
+      popAnimationFromStack();
+    }
+  }, [animation, animationStack, popAnimationFromStack]);
+
   // Transition through animations
   useEffect(() => {
     if (!actions) {
       return () => {};
     } else {
-      actions[animation]?.reset().fadeIn(0.32).play();
+      //const action = mixer.clipAction(actions[animation]);
+      //action.reset().fadeIn(0.32).play();
+
+      const animAction = actions[animation];
+
+      if (!animAction) {
+        console.error('Could not find anim for ', animation);
+        return;
+      }
+
+      if (
+        ['attack-melee-left', 'attack-melee-right', 'fall'].includes(animation)
+      ) {
+        animAction.reset().setLoop(THREE.LoopOnce, 1).fadeIn(0.32);
+        console.log('Playing animation once');
+      } else {
+        animAction.reset().setLoop(THREE.LoopRepeat, Infinity).fadeIn(0.32);
+        console.log('Playing on repeat');
+      }
+
+      animAction.play();
+
       return () => actions[animation]?.fadeOut(0.32);
     }
-  }, [actions, animation]);
+  }, [actions, animation, mixer]);
 
   /*useFrame(() => {
     if (!human || !human.current) {
