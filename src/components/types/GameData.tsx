@@ -9,7 +9,7 @@ export const ProvisionData: Provision[] = [
   },
   {
     name: 'Bone Necklace',
-    numberValue: 5,
+    numberValue: 8,
     provisionType: ProvisionType.BONE_NECKLACE,
     description: 'Earn %NUM% additional score per enemy kill',
   },
@@ -28,7 +28,7 @@ export const ProvisionData: Provision[] = [
   },
   {
     name: 'Whetstone',
-    numberValue: 50,
+    numberValue: 40,
     provisionType: ProvisionType.WHETSTONE,
     description:
       'Weapons have a %PERCENT% chance of not being consumed after attacking',
