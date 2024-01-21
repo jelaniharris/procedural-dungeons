@@ -77,6 +77,7 @@ export default function Game({ children }: GameProps) {
       { name: Controls.back, keys: ['ArrowDown', 'KeyS'] },
       { name: Controls.left, keys: ['ArrowLeft', 'KeyA'] },
       { name: Controls.right, keys: ['ArrowRight', 'KeyD'] },
+      { name: Controls.stats, keys: ['KeyQ', 'KeyR'] },
       { name: Controls.stall, keys: ['Space'] },
       { name: Controls.options, keys: ['Escape'] },
     ],

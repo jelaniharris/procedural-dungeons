@@ -17,6 +17,7 @@ import { GameStatus, StatusEffectType } from '../types/GameTypes';
 import { EndScreen } from './EndScreen';
 import { ExitOption } from './ExitOption';
 import { SettingsScreen } from './SettingsScreen';
+import { StoreScreen } from './StoreScreen';
 
 export const GameHud = () => {
   const currentLevel = useStore((store: GameState) => store.currentLevel);
@@ -26,9 +27,10 @@ export const GameHud = () => {
   const currency = useStore((store: GameState) => store.currency);
   const getMaxHealth = useStore((store: GameState) => store.getMaxHealth);
   const attacks = useStore((store: GameState) => store.attacks);
-  const maxAttacks = useStore((store: GameState) => store.maxAttacks);
-  const maxEnergy = useStore((store: GameState) => store.maxEnergy);
+  const getMaxAttacks = useStore((store: GameState) => store.getMaxAttacks);
+  const getMaxEnergy = useStore((store: GameState) => store.getMaxEnergy);
   const showExitDialog = useStore((store: GameState) => store.showExitDialog);
+  const showStoreDialog = useStore((store: GameState) => store.showStoreDialog);
   const setGameStatus = useStore((store: GameState) => store.setGameStatus);
   const hasStatusEffect = useStore((store: GameState) => store.hasStatusEffect);
   const showSettingsDialog = useStore(
@@ -102,7 +104,9 @@ export const GameHud = () => {
   return (
     <>
       {showExitDialog && <ExitOption />}
+      {showStoreDialog && <StoreScreen />}
       {gameStatus == GameStatus.GAME_ENDED && <EndScreen />}
+
       {gameStatus != GameStatus.GAME_ENDED && !showExitDialog && (
         <>
           <section className="fixed w-full flex gap-8 justify-between top-2">
@@ -172,7 +176,7 @@ export const GameHud = () => {
                 iconClass="text-yellow-300 py-1"
                 icon={<EnergyIcon />}
               >
-                {energy}/{maxEnergy}
+                {energy}/{getMaxEnergy()}
               </PanelLabel>
             </ContentPanel>
             <ContentPanel className="flex justify-center items-center flex-nowrap">
@@ -185,7 +189,7 @@ export const GameHud = () => {
                 iconClass="text-slate-300 py-1"
                 icon={<AttacksIcon />}
               >
-                {attacks}/{maxAttacks}
+                {attacks}/{getMaxAttacks()}
               </PanelLabel>
             </ContentPanel>
           </section>

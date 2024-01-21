@@ -1,9 +1,12 @@
+import { UpgradeData } from '@/components/types/GameData';
 import {
   Enemy,
   EnemyStatus,
   Item,
   ItemType,
   LocationActionType,
+  PlayerUpgradeType,
+  PlayerUpgrades,
   Provision,
   ProvisionType,
   SourceType,
@@ -53,9 +56,11 @@ export interface PlayerSlice {
   clampHealth: () => void;
   atFullHealth: () => boolean;
   adjustAttacks: (amount: number) => boolean;
+  getMaxAttacks: () => number;
   atMaxAttacks: () => boolean;
   addScore: (score: number, source?: SourceType) => number;
   modifyEnergy: (amount: number) => void;
+  getMaxEnergy: () => number;
   isPlayerAtTileType: (tileType: TileType) => boolean;
   resetPlayer: () => void;
 
@@ -90,6 +95,13 @@ export interface PlayerSlice {
   hasProvision: (provisionType: ProvisionType) => Provision | undefined;
   resetProvisions: () => void;
   triggeredProvision: (provision: Provision) => void;
+
+  // Upgrades
+  upgrades: PlayerUpgrades;
+  resetUpgrades: () => void;
+  purchaseUpgrade: (upgradeType: PlayerUpgradeType) => void;
+  getUpgradeValue: (upgradeType: PlayerUpgradeType) => number;
+  getUpgradeRank: (upgradeType: PlayerUpgradeType) => number;
 }
 
 export type PlayerLocationResults = {
@@ -116,18 +128,24 @@ export const createPlayerSlice: StateCreator<
   maxEnergy: 100,
   attacks: 1,
   maxAttacks: 2,
-  currency: 0,
+  currency: 20,
   isDead: false,
   playerRotation: 0,
   health: 2,
   maxHealth: 2,
   provisions: [],
+  upgrades: {
+    healthUpgrades: 0,
+    energyUpgrades: 0,
+    weaponUpgrades: 0,
+    scoreExchanges: 0,
+  },
   statusEffects: [],
   resetPlayer() {
     const resetSet = {
       score: 0,
       energy: 50,
-      maxEnergy: 100,
+      maxEnergy: 50,
       isDead: false,
       playerRotation: 0,
       attacks: 0,
@@ -137,6 +155,7 @@ export const createPlayerSlice: StateCreator<
       statusEffects: [],
     };
     set(resetSet);
+    get().resetUpgrades();
   },
   setDead() {
     set({ isDead: true });
@@ -218,10 +237,15 @@ export const createPlayerSlice: StateCreator<
   },
   adjustAttacks(amount: number): boolean {
     const currentAttacks = get().attacks;
-    const maxAttacks = get().maxAttacks;
+    const maxAttacks = get().getMaxAttacks();
     const newAttacks = currentAttacks + amount;
     set(() => ({ attacks: Math.max(0, Math.min(newAttacks, maxAttacks)) }));
     return newAttacks != 0;
+  },
+  getMaxAttacks: () => {
+    let maxAttacks = get().maxAttacks;
+    maxAttacks += get().getUpgradeValue(PlayerUpgradeType.UPGRADE_WEAPON);
+    return maxAttacks;
   },
   adjustHealth(amount: number, source = SourceType.NONE): AdjustHealthResults {
     let newAmount = amount;
@@ -258,12 +282,18 @@ export const createPlayerSlice: StateCreator<
     ) {
       maxHealth += chainMailProvision.numberValue;
     }
+    const upgradeValue = get().getUpgradeValue(
+      PlayerUpgradeType.UPGRADE_HEALTH
+    );
+
+    maxHealth += upgradeValue;
+    console.log('Max Health: ', upgradeValue);
 
     return maxHealth;
   },
   atMaxAttacks() {
     const currentAttacks = get().attacks;
-    const maxAttacks = get().maxAttacks;
+    const maxAttacks = get().getMaxAttacks();
     return currentAttacks === maxAttacks;
   },
   atFullHealth() {
@@ -273,7 +303,7 @@ export const createPlayerSlice: StateCreator<
   },
   modifyEnergy(amount: number) {
     const currentEnergy = get().energy;
-    const maxEnergy = get().maxEnergy;
+    const maxEnergy = get().getMaxEnergy();
 
     let newEnergy = currentEnergy + amount;
     newEnergy = Math.max(0, Math.min(newEnergy, maxEnergy));
@@ -293,6 +323,11 @@ export const createPlayerSlice: StateCreator<
     }
 
     set(() => ({ energy: newEnergy }));
+  },
+  getMaxEnergy() {
+    let maxEnergy = get().maxEnergy;
+    maxEnergy += get().getUpgradeValue(PlayerUpgradeType.UPGRADE_ENERGY);
+    return maxEnergy;
   },
   isPlayerAtTileType(tileType: TileType) {
     const currentMapData = get().mapData;
@@ -560,5 +595,66 @@ export const createPlayerSlice: StateCreator<
     const currency = get().currency;
     const newCurrency = currency + amount;
     set(() => ({ currency: newCurrency > 0 ? newCurrency : 0 }));
+  },
+  resetUpgrades: () => {
+    set({
+      upgrades: {
+        healthUpgrades: 0,
+        energyUpgrades: 0,
+        weaponUpgrades: 0,
+        scoreExchanges: 0,
+      },
+    });
+  },
+  purchaseUpgrade: (upgradeType: PlayerUpgradeType) => {
+    const upgrades = get().upgrades;
+    const newUpgrades = { ...upgrades };
+    switch (upgradeType) {
+      case PlayerUpgradeType.UPGRADE_HEALTH:
+        newUpgrades.healthUpgrades += 1;
+        break;
+      case PlayerUpgradeType.UPGRADE_ENERGY:
+        newUpgrades.energyUpgrades += 1;
+        break;
+      case PlayerUpgradeType.UPGRADE_WEAPON:
+        newUpgrades.weaponUpgrades += 1;
+        break;
+      case PlayerUpgradeType.SELL_CURRENCY:
+        newUpgrades.scoreExchanges += 1;
+        break;
+    }
+    set({ upgrades: newUpgrades });
+  },
+  getUpgradeRank: (upgradeType: PlayerUpgradeType) => {
+    const upgrades = get().upgrades;
+    switch (upgradeType) {
+      case PlayerUpgradeType.UPGRADE_HEALTH:
+        return upgrades.healthUpgrades;
+      case PlayerUpgradeType.UPGRADE_ENERGY:
+        return upgrades.energyUpgrades;
+      case PlayerUpgradeType.UPGRADE_WEAPON:
+        return upgrades.weaponUpgrades;
+      case PlayerUpgradeType.SELL_CURRENCY:
+        return upgrades.scoreExchanges;
+    }
+  },
+  getUpgradeValue: (upgradeType: PlayerUpgradeType) => {
+    const data = UpgradeData.find((val) => val.type === upgradeType);
+    if (!data) return 0;
+
+    const upgradeAmount = get().getUpgradeRank(upgradeType);
+
+    console.log('Upgrade amount: ', upgradeAmount, ' for ', upgradeType);
+
+    if (upgradeAmount <= 0) {
+      return 0;
+    }
+
+    const sum = data.amountUpgrade
+      .slice(0, upgradeAmount)
+      .reduce((a, b) => a + b, 0);
+
+    console.log('Sum: ', sum);
+    return sum;
   },
 });

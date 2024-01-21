@@ -15,6 +15,9 @@ export const CharacterController = () => {
   const setShowSettingsDialog = useStore(
     (store: GameState) => store.setShowSettingsDialog
   );
+  const setShowStoreDialog = useStore(
+    (store: GameState) => store.setShowStoreDialog
+  );
 
   const { publish } = useGame();
 
@@ -25,6 +28,7 @@ export const CharacterController = () => {
   const leftPressed = useKeyboardControls<Controls>((state) => state.left);
   const downPressed = useKeyboardControls<Controls>((state) => state.back);
   const stallPressed = useKeyboardControls<Controls>((state) => state.stall);
+  const storePressed = useKeyboardControls<Controls>((state) => state.stats);
   const optionsPressed = useKeyboardControls<Controls>(
     (state) => state.options
   );
@@ -65,6 +69,12 @@ export const CharacterController = () => {
       });
     }
 
+    if (storePressed) {
+      console.log('Store is pressed');
+      setShowStoreDialog(true);
+      setGameStatus(GameStatus.GAME_MENU);
+    }
+
     if (optionsPressed) {
       setShowSettingsDialog(true);
       setGameStatus(GameStatus.GAME_MENU);
@@ -77,10 +87,12 @@ export const CharacterController = () => {
     rightPressed,
     leftPressed,
     stallPressed,
+    storePressed,
     optionsPressed,
     publish,
-    setShowSettingsDialog,
+    setShowStoreDialog,
     setGameStatus,
+    setShowSettingsDialog,
   ]);
 
   useEffect(() => {

@@ -31,6 +31,7 @@ export interface StageSlice {
   gameType: string;
   showExitDialog: boolean;
   showSettingsDialog: boolean;
+  showStoreDialog: boolean;
   gameStatus: GameStatus;
   settings: GameSettings;
   isPaused: boolean;
@@ -41,6 +42,7 @@ export interface StageSlice {
   addLocationsToDangerZones: (locations: Point2D[]) => void;
   setShowExitDialog: (showDialog: boolean) => void;
   setShowSettingsDialog: (showDialog: boolean) => void;
+  setShowStoreDialog: (showStoreDialog: boolean) => void;
   setPaused: (newPauseStatus: boolean) => void;
   // Floor Steps
   floorSteps: number;
@@ -93,6 +95,7 @@ export const createStageSlice: StateCreator<
   currentLevel: 0,
   showExitDialog: false,
   showSettingsDialog: false,
+  showStoreDialog: false,
   isPaused: false,
   floorSteps: 0,
   gameStatus: GameStatus.GAME_NONE,
@@ -122,6 +125,11 @@ export const createStageSlice: StateCreator<
   setShowSettingsDialog(showDialog: boolean) {
     set({
       showSettingsDialog: showDialog,
+    });
+  },
+  setShowStoreDialog(showStoreDialog: boolean) {
+    set({
+      showStoreDialog: showStoreDialog,
     });
   },
   resetDangerZones() {

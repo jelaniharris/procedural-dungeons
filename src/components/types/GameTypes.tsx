@@ -272,6 +272,7 @@ export enum Controls {
   jump = 'jump',
   stall = 'stall',
   options = 'options',
+  stats = 'stats',
 }
 
 export type PlayerLocalData = {
@@ -363,4 +364,26 @@ export type Projectile = {
   hurtLocations?: Point2D[];
   beforeDestroy?: () => void;
   destroy?: (id?: string) => void;
+};
+
+export enum PlayerUpgradeType {
+  UPGRADE_HEALTH,
+  UPGRADE_ENERGY,
+  UPGRADE_WEAPON,
+  SELL_CURRENCY,
+}
+
+export type PlayerUpgrades = {
+  energyUpgrades: number;
+  healthUpgrades: number;
+  weaponUpgrades: number;
+  scoreExchanges: number;
+};
+
+export type PlayerUpgradeDataInfo = {
+  type: PlayerUpgradeType;
+  name: string;
+  maxRank: number;
+  rankCost: number[];
+  amountUpgrade: number[];
 };

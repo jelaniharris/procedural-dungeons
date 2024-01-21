@@ -1,4 +1,33 @@
-import { Provision, ProvisionType } from './GameTypes';
+import {
+  PlayerUpgradeDataInfo,
+  PlayerUpgradeType,
+  Provision,
+  ProvisionType,
+} from './GameTypes';
+
+export const UpgradeData: PlayerUpgradeDataInfo[] = [
+  {
+    type: PlayerUpgradeType.UPGRADE_HEALTH,
+    name: 'Health',
+    maxRank: 3,
+    rankCost: [2, 3, 4],
+    amountUpgrade: [1, 1, 1],
+  },
+  {
+    type: PlayerUpgradeType.UPGRADE_ENERGY,
+    maxRank: 5,
+    name: 'Energy',
+    rankCost: [1, 2, 3, 4, 5],
+    amountUpgrade: [10, 15, 20, 30],
+  },
+  {
+    type: PlayerUpgradeType.UPGRADE_WEAPON,
+    maxRank: 3,
+    name: 'Weapon',
+    rankCost: [1, 3, 5],
+    amountUpgrade: [1, 1, 1],
+  },
+];
 
 export const ProvisionData: Provision[] = [
   {
