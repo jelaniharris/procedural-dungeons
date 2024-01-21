@@ -44,10 +44,10 @@ const MainMenu = () => {
       setPlayerData,
       nameChangeStep,
       pushToScreen(name: string) {
-        if (name === 'play' && playerData && playerData.name.length > 0) {
-          setCurrentScreen([name, ...currentScreen]);
-        } else {
+        if (name === 'play' && (!playerData || playerData.name.length <= 0)) {
           setCurrentScreen(['name', ...currentScreen]);
+        } else {
+          setCurrentScreen([name, ...currentScreen]);
         }
       },
       popScreen() {
