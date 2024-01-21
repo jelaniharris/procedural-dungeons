@@ -4,6 +4,7 @@ import React, { useCallback } from 'react';
 import {
   FaClock as ClockIcon,
   FaCoins as CoinIcon,
+  FaGem as DiamondIcon,
   FaBolt as EnergyIcon,
   FaLayerGroup as FloorIcon,
   FaHeart as HeartIcon,
@@ -22,6 +23,7 @@ export const GameHud = () => {
   const score = useStore((store: GameState) => store.score);
   const energy = useStore((store: GameState) => store.energy);
   const health = useStore((store: GameState) => store.health);
+  const currency = useStore((store: GameState) => store.currency);
   const getMaxHealth = useStore((store: GameState) => store.getMaxHealth);
   const attacks = useStore((store: GameState) => store.attacks);
   const maxAttacks = useStore((store: GameState) => store.maxAttacks);
@@ -143,7 +145,18 @@ export const GameHud = () => {
           </section>
           <section className="fixed w-full flex gap-8 justify-between top-16">
             <div></div>
-            <div></div>
+            <div>
+              {currency > 0 && (
+                <ContentPanel className="bg-slate-600 bg-opacity-80">
+                  <PanelLabel
+                    iconClass="text-slate-200 py-1"
+                    icon={<DiamondIcon />}
+                  >
+                    {currency}
+                  </PanelLabel>
+                </ContentPanel>
+              )}
+            </div>
             <div></div>
           </section>
           <section className="fixed w-full flex justify-center bottom-20 ">

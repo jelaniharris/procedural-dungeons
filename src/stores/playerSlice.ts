@@ -27,6 +27,7 @@ export interface PlayerSlice {
   energy: number;
   maxEnergy: number;
   health: number;
+  currency: number;
   attacks: number;
   maxAttacks: number;
   maxHealth: number;
@@ -76,6 +77,9 @@ export interface PlayerSlice {
     statusEffectEvent: StatusEffectEvent
   ) => void;
 
+  // Currency
+  adjustCurrency: (amount: number) => void;
+
   // Attacking
   canPlayerAttackEnemy: (enemy: Enemy) => boolean;
   playerPerformAttack: (enemy: Enemy) => void;
@@ -112,6 +116,7 @@ export const createPlayerSlice: StateCreator<
   maxEnergy: 100,
   attacks: 1,
   maxAttacks: 2,
+  currency: 0,
   isDead: false,
   playerRotation: 0,
   health: 2,
@@ -550,5 +555,10 @@ export const createPlayerSlice: StateCreator<
     statusEffectEvent: StatusEffectEvent
   ) => {
     console.log(statusEffectType, statusEffectEvent);
+  },
+  adjustCurrency: (amount: number) => {
+    const currency = get().currency;
+    const newCurrency = currency + amount;
+    set(() => ({ currency: newCurrency > 0 ? newCurrency : 0 }));
   },
 });

@@ -40,6 +40,15 @@ export const assignItemDetails = (
         modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(15) },
       };
       break;
+    case ItemType.ITEM_DIAMOND:
+      newItem = {
+        ...newItem,
+        rotates: true,
+        name: 'diamond',
+        modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(25) },
+      };
+      break;
+
     case ItemType.ITEM_INGOT_STACK:
       newItem = {
         ...newItem,

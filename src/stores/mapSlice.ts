@@ -1111,6 +1111,7 @@ export const createMapSlice: StateCreator<
     lootGen.add(ItemType.ITEM_WEAPON, 20);
     lootGen.add(ItemType.ITEM_CROWN, 15, 1);
     lootGen.add(ItemType.ITEM_POTION, 8, 2);
+    lootGen.add(ItemType.ITEM_DIAMOND, 30, 2);
     if (currentLevel >= 2) {
       lootGen.add(ItemType.ITEM_CHALICE, 17, 10);
     }

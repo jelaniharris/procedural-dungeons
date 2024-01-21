@@ -41,6 +41,9 @@ export const ShowOverlayEvents = () => {
       case OverLayTextType.OVERLAY_ENERGY:
         contents = { text: `+${amount}⚡`, className: 'bg-slate-800' };
         break;
+      case OverLayTextType.OVERLAY_CURRENCY:
+        contents = { text: `+${amount}💎`, className: 'bg-slate-800' };
+        break;
       case OverLayTextType.OVERLAY_NONE:
       default:
         return <></>;
@@ -107,6 +110,7 @@ export const ShowOverlayEvents = () => {
           case OverLayTextType.OVERLAY_HEALTH:
           case OverLayTextType.OVERLAY_WEAPON:
           case OverLayTextType.OVERLAY_ENERGY:
+          case OverLayTextType.OVERLAY_CURRENCY:
             if (amount && mapPosition) {
               addToMessages(
                 id,

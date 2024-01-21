@@ -24,6 +24,7 @@ export enum ItemType {
   ITEM_WEAPON,
   ITEM_APPLE,
   ITEM_INGOT_STACK,
+  ITEM_DIAMOND,
 }
 
 export enum WallType {
@@ -291,6 +292,7 @@ export enum OverLayTextType {
   OVERLAY_HEALTH,
   OVERLAY_WEAPON,
   OVERLAY_ENERGY,
+  OVERLAY_CURRENCY,
 }
 
 export enum ProvisionType {

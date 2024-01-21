@@ -100,6 +100,7 @@ const DungeonScene = () => {
   const performTurn = useStore((state: GameState) => state.performTurn);
   const modifyEnergy = useStore((state: GameState) => state.modifyEnergy);
   const adjustHealth = useStore((state: GameState) => state.adjustHealth);
+  const adjustCurrency = useStore((state: GameState) => state.adjustCurrency);
   const addScore = useStore((state: GameState) => state.addScore);
   const setDead = useStore((state: GameState) => state.setDead);
   const setGameStatus = useStore((state: GameState) => state.setGameStatus);
@@ -247,6 +248,16 @@ const DungeonScene = () => {
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_SCORE,
                 amount: chaliceScore,
+                mapPosition: locationAction.position,
+              });
+              break;
+            case ItemType.ITEM_DIAMOND:
+              playAudio('gem.ogg');
+              addScore(100, SourceType.TREASURE);
+              adjustCurrency(1);
+              publish<OverlayTextEvent>(OVERLAY_TEXT, {
+                type: OverLayTextType.OVERLAY_CURRENCY,
+                amount: 1,
                 mapPosition: locationAction.position,
               });
               break;
