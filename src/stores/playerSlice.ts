@@ -128,7 +128,7 @@ export const createPlayerSlice: StateCreator<
   maxEnergy: 100,
   attacks: 1,
   maxAttacks: 2,
-  currency: 20,
+  currency: 0,
   isDead: false,
   playerRotation: 0,
   health: 2,
