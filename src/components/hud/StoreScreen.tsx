@@ -1,6 +1,14 @@
 import { GameState, useStore } from '@/stores/useStore';
-import { FaArrowLeft, FaBolt, FaGem, FaHeart, FaSquare } from 'react-icons/fa';
+import {
+  FaArrowLeft,
+  FaBolt,
+  FaCoins,
+  FaGem,
+  FaHeart,
+  FaSquare,
+} from 'react-icons/fa';
 import { LuSword } from 'react-icons/lu';
+import { clamp } from 'three/src/math/MathUtils';
 import Button from '../input/Button';
 import { UpgradeData } from '../types/GameData';
 import { GameStatus, PlayerUpgradeType } from '../types/GameTypes';
@@ -40,6 +48,8 @@ export const StoreScreen = () => {
   const purchaseUpgrade = useStore((store: GameState) => store.purchaseUpgrade);
   const setGameStatus = useStore((store: GameState) => store.setGameStatus);
   const adjustCurrency = useStore((store: GameState) => store.adjustCurrency);
+  const addScore = useStore((store: GameState) => store.addScore);
+
   const setShowStoreDialog = useStore(
     (store: GameState) => store.setShowStoreDialog
   );
@@ -59,7 +69,7 @@ export const StoreScreen = () => {
     const currentCost = data.rankCost[rank];
 
     let purchaseDisabled = false;
-    const hasFunds = currency < currentCost;
+    const hasFunds = currency >= currentCost;
     const isMaxed = rank === data.maxRank;
 
     if (isMaxed) {
@@ -124,19 +134,68 @@ export const StoreScreen = () => {
         </div>
         <div className="flex flex-col text-lg  text-center items-center text-white p-2">
           <span className="hidden md:inline-block  font-bold">Cost:</span>
-          {!purchaseDisabled && (
+          {!isMaxed && (
             <span className="flex flex-row gap-1 items-center">
               {currentCost}
               <FaGem />
             </span>
           )}
-          {purchaseDisabled && <span>-</span>}
+          {isMaxed && <span>-</span>}
         </div>
         <div className=" p-2">
           <Button
             variant="primary"
             disabled={purchaseDisabled}
             onClick={purchaseRank}
+          >
+            {buttonText}
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  const ShowSell = () => {
+    const currencyRank = getUpgradeRank(PlayerUpgradeType.SELL_CURRENCY);
+    let cost = 150;
+    cost = cost + currencyRank * 25;
+    cost = clamp(cost, 150, 500);
+
+    const hasCurrency = currency > 0;
+    let buttonText = 'Sell';
+
+    const sellCurrency = () => {
+      adjustCurrency(-1);
+      purchaseUpgrade(PlayerUpgradeType.SELL_CURRENCY);
+      addScore(cost);
+    };
+
+    if (!hasCurrency) {
+      buttonText = 'No Funds';
+    }
+
+    return (
+      <div className="grid grid-cols-4 divide-x-2 divide-slate-600 gap-2 items-center justify-between p-1 bg-slate-700 bg-opacity-80 rounded-md">
+        <span className="flex flex-row justify-center items-center gap-1 text-lg text-white p-2">
+          {cost}
+          <span className="text-yellow-400">
+            <FaCoins />
+          </span>
+        </span>
+        <span className="text-center text-lg text-white p-2">=</span>
+        <div className="flex flex-col text-center items-center  p-2">
+          <span className="hidden md:inline-block text-lg text-white font-bold">
+            Cost:
+          </span>
+          <span className="flex flex-row items-center justify-center gap-1 text-lg text-white">
+            1 <FaGem />
+          </span>
+        </div>
+        <div className="text-lg text-white p-2">
+          <Button
+            variant="primary"
+            disabled={!hasCurrency}
+            onClick={sellCurrency}
           >
             {buttonText}
           </Button>
@@ -159,6 +218,7 @@ export const StoreScreen = () => {
       </div>
       <div className="flex flex-col gap-3">
         <span className="text-xl md:text-2xl font-bold text-white">Sell</span>
+        <ShowSell />
       </div>
       <div className="flex-auto"></div>
       <div className="pb-3 flex items-center gap-5">
