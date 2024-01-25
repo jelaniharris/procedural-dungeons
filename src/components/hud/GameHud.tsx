@@ -19,9 +19,62 @@ import { ExitOption } from './ExitOption';
 import { SettingsScreen } from './SettingsScreen';
 import { StoreScreen } from './StoreScreen';
 
+export const PanelLabel = ({
+  icon,
+  iconClass = '',
+  children,
+}: {
+  icon: React.ReactNode;
+  iconClass?: string;
+  children: React.ReactNode;
+}) => {
+  return (
+    <div className="text-2xl font-bold flex gap-2">
+      <span className={iconClass}>{icon}</span>
+      <span className="text-white">{children}</span>
+    </div>
+  );
+};
+
+export const ContentPanel = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
+  return (
+    <section
+      className={cn(
+        ' bg-slate-700 bg-opacity-60 p-2 rounded-md text-2xl font-bold text-white',
+        className
+      )}
+    >
+      {children}
+    </section>
+  );
+};
+
+export const ShowCurrentCurrency = () => {
+  const currency = useStore((store: GameState) => store.currency);
+  return (
+    <PanelLabel iconClass="text-slate-200 py-1" icon={<DiamondIcon />}>
+      {currency}
+    </PanelLabel>
+  );
+};
+
+export const ShowCurrentScore = () => {
+  const score = useStore((store: GameState) => store.score);
+  return (
+    <PanelLabel iconClass="text-yellow-400 py-1" icon={<CoinIcon />}>
+      {score}
+    </PanelLabel>
+  );
+};
+
 export const GameHud = () => {
   const currentLevel = useStore((store: GameState) => store.currentLevel);
-  const score = useStore((store: GameState) => store.score);
   const energy = useStore((store: GameState) => store.energy);
   const health = useStore((store: GameState) => store.health);
   const currency = useStore((store: GameState) => store.currency);
@@ -41,42 +94,6 @@ export const GameHud = () => {
   );
   const gameStatus = useStore((store: GameState) => store.gameStatus);
   const floorSteps = useStore((store: GameState) => store.floorSteps);
-
-  const PanelLabel = ({
-    icon,
-    iconClass = '',
-    children,
-  }: {
-    icon: React.ReactNode;
-    iconClass?: string;
-    children: React.ReactNode;
-  }) => {
-    return (
-      <div className="text-2xl font-bold flex gap-2">
-        <span className={iconClass}>{icon}</span>
-        <span className="text-white">{children}</span>
-      </div>
-    );
-  };
-
-  const ContentPanel = ({
-    children,
-    className,
-  }: {
-    children: React.ReactNode;
-    className?: string;
-  }) => {
-    return (
-      <section
-        className={cn(
-          ' bg-slate-700 bg-opacity-60 p-2 rounded-md text-2xl font-bold text-white',
-          className
-        )}
-      >
-        {children}
-      </section>
-    );
-  };
 
   const showSettings = useCallback(() => {
     setShowSettingsDialog(true);
@@ -99,12 +116,19 @@ export const GameHud = () => {
     );
   }
 
+  if (showStoreDialog) {
+    return (
+      <>
+        <StoreScreen />
+      </>
+    );
+  }
+
   const isTired = hasStatusEffect(StatusEffectType.STARVING) !== undefined;
 
   return (
     <>
       {showExitDialog && <ExitOption />}
-      {showStoreDialog && <StoreScreen />}
       {gameStatus == GameStatus.GAME_ENDED && <EndScreen />}
 
       {gameStatus != GameStatus.GAME_ENDED && !showExitDialog && (
@@ -130,12 +154,7 @@ export const GameHud = () => {
                 </PanelLabel>
               </ContentPanel>
               <ContentPanel className="bg-slate-800 bg-opacity-80">
-                <PanelLabel
-                  iconClass="text-yellow-400 py-1"
-                  icon={<CoinIcon />}
-                >
-                  {score}
-                </PanelLabel>
+                <ShowCurrentScore />
               </ContentPanel>
             </div>
             <div className="mr-5">
@@ -152,12 +171,7 @@ export const GameHud = () => {
             <div>
               {currency > 0 && (
                 <ContentPanel className="bg-slate-600 bg-opacity-80">
-                  <PanelLabel
-                    iconClass="text-slate-200 py-1"
-                    icon={<DiamondIcon />}
-                  >
-                    {currency}
-                  </PanelLabel>
+                  <ShowCurrentCurrency />
                 </ContentPanel>
               )}
             </div>

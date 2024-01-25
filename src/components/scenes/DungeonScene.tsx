@@ -30,6 +30,7 @@ import {
   EntityAliveEvent,
   EntityDiedEvent,
   EventStartGameEvent,
+  HIDE_STORE,
   ON_TICK,
   OVERLAY_TEXT,
   OverlayTextEvent,
@@ -157,7 +158,9 @@ const DungeonScene = () => {
     (state: GameState) => state.deleteProjectile
   );
   const getFloorZOffset = useStore((state: GameState) => state.getFloorZOffset);
-  const showStoreDialog = useStore((state: GameState) => state.showStoreDialog);
+  const setShowStoreDialog = useStore(
+    (state: GameState) => state.setShowStoreDialog
+  );
 
   const {
     subscribe,
@@ -498,11 +501,17 @@ const DungeonScene = () => {
       });
 
       subscribe(SHOW_STORE, () => {
-        //showStoreDialog(true);
+        console.log('Showing store');
+        setShowStoreDialog(true);
+        setShowExitDialog(false);
+        setPaused(true);
       });
 
       subscribe(HIDE_STORE, () => {
-        //showStoreDialog(false);
+        console.log('Hiding Store');
+        setShowStoreDialog(false);
+        setShowExitDialog(true);
+        setPaused(true);
       });
 
       subscribe(EXIT_NEED, () => {
@@ -623,6 +632,8 @@ const DungeonScene = () => {
       unsubscribeAllHandlers(PLAYER_REACHED_EXIT);
       unsubscribeAllHandlers(EXIT_GREED);
       unsubscribeAllHandlers(EXIT_NEED);
+      unsubscribeAllHandlers(SHOW_STORE);
+      unsubscribeAllHandlers(HIDE_STORE);
       unsubscribeAllHandlers(EVENT_STARTGAME);
       unsubscribeAllHandlers(TRIGGER_SUMMONING);
       unsubscribeAllHandlers(PROJECTILE_CREATE);

@@ -1,4 +1,4 @@
-import { useStore } from '@/stores/useStore';
+import { GameState, useStore } from '@/stores/useStore';
 import { cn } from '@/utils/classnames';
 import {
   PLAYER_ATTEMPT_MOVE,
@@ -10,6 +10,7 @@ import useGame from './useGame';
 export const GuiButtons = () => {
   const { publish } = useGame();
   const getPlayerLocation = useStore((store) => store.getPlayerLocation);
+  const showExitDialog = useStore((store: GameState) => store.showExitDialog);
 
   const waitAction = () => {
     publish<PlayerAttemptMoveEvent>(PLAYER_ATTEMPT_MOVE, {
@@ -17,6 +18,10 @@ export const GuiButtons = () => {
       desiredDirection: Direction.DIR_NONE,
     });
   };
+
+  if (showExitDialog) {
+    return <></>;
+  }
 
   return (
     <div className="absolute left-[90%] md:left-[65%] top-[90%]">

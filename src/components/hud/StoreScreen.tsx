@@ -10,9 +10,12 @@ import {
 import { LuSword } from 'react-icons/lu';
 import { clamp } from 'three/src/math/MathUtils';
 import Button from '../input/Button';
+import { HIDE_STORE } from '../types/EventTypes';
 import { UpgradeData } from '../types/GameData';
-import { GameStatus, PlayerUpgradeType } from '../types/GameTypes';
+import { PlayerUpgradeType } from '../types/GameTypes';
+import useGame from '../useGame';
 import CenterScreenContainer from './CenterScreen';
+import { ContentPanel, ShowCurrentCurrency } from './GameHud';
 
 const RankMeter = ({ rank, maxRank }: { rank: number; maxRank: number }) => {
   const pips = [];
@@ -46,18 +49,17 @@ export const StoreScreen = () => {
   const currency = useStore((store: GameState) => store.currency);
   const getUpgradeRank = useStore((store: GameState) => store.getUpgradeRank);
   const purchaseUpgrade = useStore((store: GameState) => store.purchaseUpgrade);
-  const setGameStatus = useStore((store: GameState) => store.setGameStatus);
+  //const setGameStatus = useStore((store: GameState) => store.setGameStatus);
   const adjustCurrency = useStore((store: GameState) => store.adjustCurrency);
   const addScore = useStore((store: GameState) => store.addScore);
 
-  const setShowStoreDialog = useStore(
-    (store: GameState) => store.setShowStoreDialog
-  );
+  const { publish } = useGame();
 
   const backToFloorMenu = () => {
     //setCurrentHud('mainmenu');
-    setShowStoreDialog(false);
-    setGameStatus(GameStatus.GAME_STARTED);
+    publish(HIDE_STORE);
+    //setShowStoreDialog(false);
+    //setGameStatus(GameStatus.GAME_STARTED);
     //publish(CHANGE_SCENE, { nextScene: 'menu' });
   };
 
@@ -207,6 +209,9 @@ export const StoreScreen = () => {
   return (
     <CenterScreenContainer innerClassName="bg-slate-600 bg-opacity-90">
       <span className="text-2xl md:text-3xl font-bold text-white">Store</span>
+      <ContentPanel className="bg-slate-700 bg-opacity-80">
+        <ShowCurrentCurrency />
+      </ContentPanel>
       <div className="flex-auto"></div>
       <div className="flex flex-col gap-2">
         <span className="text-xl md:text-2xl font-bold text-white">
