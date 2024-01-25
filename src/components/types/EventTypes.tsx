@@ -22,6 +22,8 @@ export const ENTITY_ALIVE = 'entity-alive';
 
 export const EXIT_GREED = 'exit-greed';
 export const EXIT_NEED = 'exit-need';
+export const SHOW_STORE = 'show-store';
+export const HIDE_STORE = 'hide-store';
 
 export const EVENT_STARTGAME = 'start-game';
 

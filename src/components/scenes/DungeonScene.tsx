@@ -46,6 +46,7 @@ import {
   PlayerDamagedTrapEvent,
   ProjectileCreateEvent,
   ProjectileDestroyEvent,
+  SHOW_STORE,
   TRIGGER_SUMMONING,
   TriggerSummoningEvent,
 } from '../types/EventTypes';
@@ -156,6 +157,7 @@ const DungeonScene = () => {
     (state: GameState) => state.deleteProjectile
   );
   const getFloorZOffset = useStore((state: GameState) => state.getFloorZOffset);
+  const showStoreDialog = useStore((state: GameState) => state.showStoreDialog);
 
   const {
     subscribe,
@@ -493,6 +495,14 @@ const DungeonScene = () => {
       subscribe(EXIT_GREED, () => {
         setShowExitDialog(false);
         advanceStage();
+      });
+
+      subscribe(SHOW_STORE, () => {
+        //showStoreDialog(true);
+      });
+
+      subscribe(HIDE_STORE, () => {
+        //showStoreDialog(false);
       });
 
       subscribe(EXIT_NEED, () => {

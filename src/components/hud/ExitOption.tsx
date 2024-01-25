@@ -1,6 +1,6 @@
 import { GameState, useStore } from '@/stores/useStore';
+import { EXIT_GREED, EXIT_NEED, SHOW_STORE } from '../types/EventTypes';
 import useGame from '../useGame';
-import { EXIT_GREED, EXIT_NEED } from '../types/EventTypes';
 
 export const ExitOption = () => {
   const score = useStore((store: GameState) => store.score);
@@ -14,6 +14,14 @@ export const ExitOption = () => {
         </span>
 
         <div className="grid grid-cols-2 gap-3 w-full">
+          <div className="flex flex-col gap-3 items-center col-span-2 md:col-span-1">
+            <button
+              className="bg-slate-400 hover:bg-slate-500 text-white w-full rounded-lg font-bold p-4 text-2xl"
+              onClick={() => publish(SHOW_STORE)}
+            >
+              STORE
+            </button>
+          </div>
           <div className="flex flex-col gap-3 items-center col-span-2 md:col-span-1">
             <button
               className="bg-red-800 hover:bg-red-600 text-white w-full rounded-lg font-bold p-4 text-2xl"
