@@ -4,6 +4,7 @@ export enum TileType {
   TILE_NONE,
   TILE_TEST,
   TILE_WATER,
+  TILE_POISON,
   TILE_FLOOR,
   TILE_FLOOR_ROOM,
   TILE_DIRT,
