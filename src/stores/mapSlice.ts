@@ -9,6 +9,7 @@ import {
   HazardType,
   Item,
   ItemType,
+  LiquidType,
   MapArea,
   POSITION_OFFSETS,
   Projectile,
@@ -27,6 +28,10 @@ import { Point2D } from '@/utils/Point2D';
 import { Queue } from '@/utils/Queue';
 import { checkPointInPoints, pointInAreas } from '@/utils/gridUtils';
 import { assignItemDetails } from '@/utils/itemUtils';
+import {
+  getLiquidTypeFromTileType,
+  getTileTypeFromLiquidType,
+} from '@/utils/mapUtils';
 import {
   getRandomRangeInt,
   randomizeFloorOrWall,
@@ -122,6 +127,13 @@ export interface MapSlice {
     //splits: SplitData[]
   ) => void;
 
+  // Liquids
+  generateLiquids: (
+    mapData: (TileType | null)[][],
+    useSeed: number
+  ) => (TileType | null)[][];
+  locationLiquidType: (location: Point2D) => LiquidType;
+
   // Projectiles
   projectiles: Projectile[];
   spawnProjectile: (projectile: Projectile) => void;
@@ -142,6 +154,7 @@ export interface MapSlice {
     mapData: (TileType | null)[][],
     location: Point2D
   ) => boolean;
+  getAllDoorLocations: () => Set<string>;
 
   // Items
   items: Item[];
@@ -197,6 +210,7 @@ export const createMapSlice: StateCreator<
     const assignRandomGenerator = get().assignRandomGenerator;
     const fillMapGaps = get().fillMapGaps;
     const resetSpawnWarnings = get().resetSpawnWarnings;
+    const generateLiquids = get().generateLiquids;
 
     resetMap();
     resetItems();
@@ -219,6 +233,7 @@ export const createMapSlice: StateCreator<
       playerPosition: randomGen(),
       enemies: randomGen(),
       hazards: randomGen(),
+      liquids: randomGen(),
     };
 
     console.log('[resetStage] Generated seeds: ', generatorSeeds);
@@ -265,6 +280,8 @@ export const createMapSlice: StateCreator<
       generatorSeeds['roomDoors'],
       allMapAreas
     );
+
+    generateLiquids(currentMapData, generatorSeeds['liquids']);
 
     set({
       mapData: currentMapData,
@@ -602,6 +619,89 @@ export const createMapSlice: StateCreator<
     console.debug('[generateMap] Generated Map');
 
     return mapData;
+  },
+  getAllDoorLocations() {
+    const doorLocations = new Set<string>();
+    get().doors.map((door) => {
+      doorLocations.add(`${door.position.x},${door.position.y}`);
+    });
+    return doorLocations;
+  },
+  generateLiquids(mapData: (TileType | null)[][], useSeed: number) {
+    const mapRandomGenerator = get().generateGenerator(useSeed);
+    const MAP_WIDTH = mapData[0].length - 1;
+    const MAP_HEIGHT = mapData.length - 1;
+    const psuedoShuffle = get().shuffleArray;
+    let emptySpots = get().getEmptyTiles();
+    emptySpots = psuedoShuffle(emptySpots, mapRandomGenerator);
+    const currentLevel = get().currentLevel;
+
+    let numberLiquids = 4 + currentLevel * 2;
+
+    // Create a new LootChance generator
+    const lootGen = new LootChance<LiquidType>();
+
+    lootGen.add(LiquidType.LIQUID_WATER, 45);
+    if (currentLevel > 1) {
+      lootGen.add(LiquidType.LIQUID_POISON, 35);
+    }
+
+    const doorLocations = get().getAllDoorLocations();
+
+    while (emptySpots.length != 0 && numberLiquids > 0) {
+      const point = emptySpots.shift();
+      if (!point) {
+        break;
+      }
+
+      // Do not generate liquids on an exit point
+      if (mapData[point.x][point.y] == TileType.TILE_EXIT) {
+        continue;
+      }
+
+      // Do not generate liquids in doors
+      if (doorLocations.has(`${point.x},${point.y}`)) {
+        continue;
+      }
+
+      const randomLiquid = lootGen.choose(mapRandomGenerator);
+
+      let desiredFloorTile = getTileTypeFromLiquidType(
+        randomLiquid ?? LiquidType.LIQUID_NONE
+      );
+      if (desiredFloorTile === TileType.TILE_NONE) {
+        desiredFloorTile = TileType.TILE_FLOOR;
+      }
+
+      // If within bounds of the map
+      if (
+        point.x >= 0 &&
+        point.x <= MAP_WIDTH &&
+        point.y >= 0 &&
+        point.y <= MAP_HEIGHT
+      ) {
+        if (mapData[point.x][point.y] === TileType.TILE_WALL_EDGE) {
+          continue;
+        }
+        mapData[point.x][point.y] = desiredFloorTile;
+      }
+      numberLiquids--;
+    }
+    return mapData;
+  },
+  locationLiquidType: (location: Point2D) => {
+    const getTilePosition = get().getTilePosition;
+
+    const tileType = getTilePosition(location.x, location.y);
+
+    if (
+      tileType &&
+      [TileType.TILE_WATER, TileType.TILE_POISON].includes(tileType)
+    ) {
+      return getLiquidTypeFromTileType(tileType);
+    }
+
+    return LiquidType.LIQUID_NONE;
   },
   checkAllLocationsForWalls(
     mapData: (TileType | null)[][],
@@ -1305,10 +1405,20 @@ export const createMapSlice: StateCreator<
   },
   getFloorZOffset(location: Point2D) {
     const locationHasHazard = get().locationHasHazard;
+    const getTilePosition = get().getTilePosition;
 
     const hazard = locationHasHazard(location);
     if (hazard && hazard.type === HazardType.TRAP_FLOOR_ARROW) {
       return 0.5;
+    }
+
+    const tilePos = getTilePosition(location.x, location.y);
+    if (tilePos) {
+      switch (tilePos) {
+        case TileType.TILE_WATER:
+        case TileType.TILE_POISON:
+          return -0.5;
+      }
     }
 
     return 0;

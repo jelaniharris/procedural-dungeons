@@ -5,6 +5,8 @@ export enum TileType {
   TILE_TEST,
   TILE_WATER,
   TILE_POISON,
+  TILE_MUD,
+  TILE_LAVA,
   TILE_FLOOR,
   TILE_FLOOR_ROOM,
   TILE_DIRT,
@@ -26,6 +28,14 @@ export enum ItemType {
   ITEM_APPLE,
   ITEM_INGOT_STACK,
   ITEM_DIAMOND,
+}
+
+export enum LiquidType {
+  LIQUID_NONE,
+  LIQUID_WATER,
+  LIQUID_LAVA,
+  LIQUID_MUD,
+  LIQUID_POISON,
 }
 
 export enum WallType {

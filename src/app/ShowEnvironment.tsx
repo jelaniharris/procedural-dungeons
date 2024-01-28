@@ -3,14 +3,16 @@ import Dirt from '@/components/models/Dirt';
 import Floor from '@/components/models/Floor';
 import FloorDetail from '@/components/models/Floor-detail';
 import { LShapeWall } from '@/components/models/LShape-Wall';
+import { LiquidWallAll } from '@/components/models/LiquidWall-All';
 import Stairs from '@/components/models/Stairs';
 import { ThreeSidedWall } from '@/components/models/Three-Sided-Wall';
 import Wall from '@/components/models/Wall';
 import WallHalf from '@/components/models/WallHalf';
 import WallNarrow from '@/components/models/WallNarrow';
 import Water from '@/components/models/Water';
-import { TileType, WallType } from '@/components/types/GameTypes';
+import { LiquidType, TileType, WallType } from '@/components/types/GameTypes';
 import { useStore } from '@/stores/useStore';
+import { getLiquidTypeFromTileType } from '@/utils/mapUtils';
 import { MathUtils } from 'three';
 import { shallow } from 'zustand/shallow';
 
@@ -112,6 +114,23 @@ export const ShowEnvironment = () => {
               />,
             ];
           }
+          break;
+        case TileType.TILE_WATER:
+        case TileType.TILE_POISON:
+        case TileType.TILE_MUD:
+        case TileType.TILE_LAVA:
+          const liquidType = getLiquidTypeFromTileType(tileType);
+          if (liquidType === LiquidType.LIQUID_NONE) {
+            continue;
+          }
+
+          tile = [
+            <LiquidWallAll
+              liquidType={liquidType}
+              key={`liquidtile-${x}-${y}`}
+              position={[tileXPos, 0, tileYPos]}
+            />,
+          ];
           break;
         case TileType.TILE_WALL_DOOR:
         case TileType.TILE_WALL:
