@@ -2,6 +2,7 @@ import {
   DIRECTIONS,
   Hazard,
   HazardType,
+  LiquidType,
   TileType,
 } from '@/components/types/GameTypes';
 import { LootChance } from '@/utils/LootChance';
@@ -31,6 +32,7 @@ export const createHazardSlice: StateCreator<
     let emptySpots = get().getEmptyTiles();
     const currentLevel = get().currentLevel;
     const currentMapData = get().mapData;
+    const locationLiquidType = get().locationLiquidType;
     const psuedoShuffle = get().shuffleArray;
     const randomGen = get().generateGenerator(seed);
     emptySpots = psuedoShuffle(emptySpots, randomGen);
@@ -43,10 +45,7 @@ export const createHazardSlice: StateCreator<
 
     let numberHazards = 6 + currentLevel * 4;
 
-    const doorLocations = new Set<string>();
-    get().doors.map((door) => {
-      doorLocations.add(`${door.position.x},${door.position.y}`);
-    });
+    const doorLocations = get().getAllDoorLocations();
 
     while (emptySpots.length != 0 && numberHazards > 0) {
       const point = emptySpots.shift();
@@ -67,6 +66,11 @@ export const createHazardSlice: StateCreator<
         doorLocations.has(`${point.x},${point.y}`) &&
         HazardType.TRAP_FLOOR_ARROW === randomTrap
       ) {
+        continue;
+      }
+
+      // Do not generate traps on top of liquids
+      if (locationLiquidType(point) != LiquidType.LIQUID_NONE) {
         continue;
       }
 
