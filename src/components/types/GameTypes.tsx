@@ -345,6 +345,7 @@ export enum StatusEffectType {
   STARVING = 1 << 0,
   POISON = 1 << 1,
   CONFUSION = 1 << 2,
+  SLOW = 1 << 3,
 }
 
 export type StatusEffect = {

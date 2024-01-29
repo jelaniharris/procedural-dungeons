@@ -73,6 +73,57 @@ export const ShowCurrentScore = () => {
   );
 };
 
+export const ShowAllStatusEffects = () => {
+  const hasStatusEffect = useStore((store: GameState) => store.hasStatusEffect);
+
+  const isTired = hasStatusEffect(StatusEffectType.STARVING) !== undefined;
+  const isSlowed = hasStatusEffect(StatusEffectType.SLOW) !== undefined;
+  const isPoisoned = hasStatusEffect(StatusEffectType.POISON) !== undefined;
+
+  const statusStyles = {
+    background: 'bg-opacity-60 px-3 py-1 rounded bg-slate-700',
+    font: 'text-3xl font-bold',
+  };
+
+  return (
+    <div className="flex flex-row gap-2">
+      {isTired && (
+        <span
+          className={cn(
+            statusStyles.background,
+            statusStyles.font,
+            'text-red-400'
+          )}
+        >
+          HUNGRY
+        </span>
+      )}
+      {isSlowed && (
+        <span
+          className={cn(
+            statusStyles.background,
+            statusStyles.font,
+            'text-blue-400'
+          )}
+        >
+          SLOW
+        </span>
+      )}
+      {isPoisoned && (
+        <span
+          className={cn(
+            statusStyles.background,
+            statusStyles.font,
+            'text-green-400'
+          )}
+        >
+          POISONED
+        </span>
+      )}
+    </div>
+  );
+};
+
 export const GameHud = () => {
   const currentLevel = useStore((store: GameState) => store.currentLevel);
   const energy = useStore((store: GameState) => store.energy);
@@ -85,7 +136,6 @@ export const GameHud = () => {
   const showExitDialog = useStore((store: GameState) => store.showExitDialog);
   const showStoreDialog = useStore((store: GameState) => store.showStoreDialog);
   const setGameStatus = useStore((store: GameState) => store.setGameStatus);
-  const hasStatusEffect = useStore((store: GameState) => store.hasStatusEffect);
   const showSettingsDialog = useStore(
     (store: GameState) => store.showSettingsDialog
   );
@@ -123,8 +173,6 @@ export const GameHud = () => {
       </>
     );
   }
-
-  const isTired = hasStatusEffect(StatusEffectType.STARVING) !== undefined;
 
   return (
     <>
@@ -178,11 +226,7 @@ export const GameHud = () => {
             <div></div>
           </section>
           <section className="fixed w-full flex justify-center bottom-20 ">
-            {isTired && (
-              <span className="text-3xl bg-opacity-60 px-3 py-1 rounded bg-slate-700 text-red-400 font-bold">
-                HUNGRY
-              </span>
-            )}
+            <ShowAllStatusEffects />
           </section>
           <section className="fixed w-full flex gap-8 justify-center bottom-4">
             <ContentPanel className="flex justify-center items-center flex-nowrap">
