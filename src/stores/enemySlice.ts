@@ -193,6 +193,7 @@ export const createEnemySlice: StateCreator<
   aiCalculateNewDirection(enemies: Enemy[]) {
     const determineValidDirections = get().determineValidDirections;
     const hasStatusEffect = get().hasStatusEffect;
+    const getTilePosition = get().getTilePosition;
     const isPlayerTired =
       hasStatusEffect(StatusEffectType.STARVING) !== undefined;
     const isPlayerSlow = hasStatusEffect(StatusEffectType.SLOW) !== undefined;
@@ -216,6 +217,12 @@ export const createEnemySlice: StateCreator<
           amountOfMoves += 1;
         }
         let lastPosition = enemy.position;
+        // If new location is water, then we reudce our number of directions to move by one
+        const tileType = getTilePosition(lastPosition.x, lastPosition.y);
+        if (tileType === TileType.TILE_WATER && amountOfMoves > 1) {
+          amountOfMoves--;
+        }
+
         while (amountOfMoves > 0) {
           amountOfMoves--;
 
@@ -267,6 +274,13 @@ export const createEnemySlice: StateCreator<
             ) {
               newDangerSpots.push(newLocation);
             }
+
+            // If new location is water, then we reudce our number of directions to move by one
+            const tileType = getTilePosition(newLocation.x, newLocation.y);
+            if (tileType === TileType.TILE_WATER) {
+              amountOfMoves--;
+            }
+
             //enemy.movementPoints.push(newLocation);
             lastPosition = newLocation;
           }
