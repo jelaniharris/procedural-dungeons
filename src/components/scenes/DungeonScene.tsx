@@ -112,6 +112,11 @@ const DungeonScene = () => {
   const determineEnergyBonus = useStore(
     (state: GameState) => state.determineEnergyBonus
   );
+  const checkPlayerStandingLocation = useStore(
+    (state: GameState) => state.checkPlayerStandingLocation
+  );
+
+  const tickPlayer = useStore((state: GameState) => state.tickPlayer);
   const modifyFloorSteps = useStore(
     (state: GameState) => state.modifyFloorSteps
   );
@@ -214,13 +219,23 @@ const DungeonScene = () => {
 
     // If in danger mode, spawn a new enemy every 9 steps
     checkDangerState();
-  }, [performTurn, publish]);
+  }, [
+    checkDangerState,
+    findGameObjectsByXY,
+    getAllRegistryById,
+    performTurn,
+    publish,
+    resetDangerZones,
+    tickPlayer,
+  ]);
 
   const playerMoved = useCallback(
     (moved: boolean) => {
       // Reduce player enemy on every step or wait action
       //TODO This should depend on the current floor type the player is on
       modifyEnergy(-1);
+
+      tickPlayer();
 
       if (moved) {
         const locationAction = checkPlayerLocation();
@@ -329,6 +344,7 @@ const DungeonScene = () => {
           }
         }
 
+        // If at a door then we open it
         if (
           (locationAction.result & LocationActionType.AT_DOOR) ===
           LocationActionType.AT_DOOR
@@ -342,6 +358,7 @@ const DungeonScene = () => {
           }
         }
 
+        // If at an exit then we exit
         if (
           (locationAction.result & LocationActionType.AT_EXIT) ===
           LocationActionType.AT_EXIT
@@ -350,6 +367,8 @@ const DungeonScene = () => {
           publish(PLAYER_REACHED_EXIT);
         }
       }
+
+      checkPlayerStandingLocation();
 
       aiTurn();
     },

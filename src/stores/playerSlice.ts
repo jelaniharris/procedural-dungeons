@@ -51,6 +51,7 @@ export interface PlayerSlice {
   ) => boolean;
   getPlayerZOffset: () => number;
   checkPlayerLocation: () => PlayerLocationResults;
+  checkPlayerStandingLocation: () => void;
   adjustHealth: (amount: number, source?: SourceType) => AdjustHealthResults;
   getMaxHealth: () => number;
   clampHealth: () => void;
@@ -63,6 +64,9 @@ export interface PlayerSlice {
   getMaxEnergy: () => number;
   isPlayerAtTileType: (tileType: TileType) => boolean;
   resetPlayer: () => void;
+
+  // Tick player
+  tickPlayer: () => void;
 
   // Status Effects
   statusEffects: StatusEffect[];
@@ -81,6 +85,7 @@ export interface PlayerSlice {
     statusEffectType: StatusEffectType,
     statusEffectEvent: StatusEffectEvent
   ) => void;
+  tickStatusEffects: () => void;
 
   // Currency
   adjustCurrency: (amount: number) => void;
@@ -409,6 +414,29 @@ export const createPlayerSlice: StateCreator<
 
     return locationResults;
   },
+  checkPlayerStandingLocation: () => {
+    const isPlayerAtTileType = get().isPlayerAtTileType;
+    // Check if player is over water
+    if (isPlayerAtTileType(TileType.TILE_WATER)) {
+      if (!get().hasStatusEffect(StatusEffectType.SLOW)) {
+        get().addStatusEffect({
+          statusEffectType: StatusEffectType.SLOW,
+          duration: 1,
+          canExpire: true,
+          canStack: true,
+        });
+      }
+    }
+
+    if (isPlayerAtTileType(TileType.TILE_POISON)) {
+      get().addStatusEffect({
+        statusEffectType: StatusEffectType.POISON,
+        duration: 1,
+        canExpire: true,
+        canStack: true,
+      });
+    }
+  },
   canPlayerAttackEnemy: (enemy: Enemy) => {
     const attacks = get().attacks;
 
@@ -590,6 +618,27 @@ export const createPlayerSlice: StateCreator<
     statusEffectEvent: StatusEffectEvent
   ) => {
     console.log(statusEffectType, statusEffectEvent);
+  },
+  tickStatusEffects: () => {
+    const statusEffects = get().statusEffects;
+    const newStatusEffectsList: StatusEffect[] = [...statusEffects];
+
+    newStatusEffectsList.forEach((effect) => {
+      if (effect.canExpire) {
+        effect.duration -= 1;
+
+        if (effect.duration < 0) {
+          effect.duration == 0;
+        }
+      }
+    });
+    set({
+      statusEffects: newStatusEffectsList,
+    });
+  },
+  tickPlayer: () => {
+    get().tickStatusEffects();
+    get().purgeExpiredStatusEffects();
   },
   adjustCurrency: (amount: number) => {
     const currency = get().currency;
