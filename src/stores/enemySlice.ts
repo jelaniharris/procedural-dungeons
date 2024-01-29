@@ -195,6 +195,7 @@ export const createEnemySlice: StateCreator<
     const hasStatusEffect = get().hasStatusEffect;
     const isPlayerTired =
       hasStatusEffect(StatusEffectType.STARVING) !== undefined;
+    const isPlayerSlow = hasStatusEffect(StatusEffectType.SLOW) !== undefined;
     const addLocationsToDangerZones = get().addLocationsToDangerZones;
     const newDangerSpots: Point2D[] = [];
 
@@ -210,6 +211,9 @@ export const createEnemySlice: StateCreator<
         let amountOfMoves = enemy.movementRange + Math.floor(variance);
         if (isPlayerTired) {
           amountOfMoves += enemy.movementRange;
+        }
+        if (isPlayerSlow) {
+          amountOfMoves += 1;
         }
         let lastPosition = enemy.position;
         while (amountOfMoves > 0) {
