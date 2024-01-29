@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 
 export const AmbientSound = ({ url }: { url: string }) => {
-  const sound = useRef<THREE.PositionalAudio>(null);
   const { camera } = useThree();
   const [listener] = useState(() => new THREE.AudioListener());
+  const sound = useRef<THREE.Audio>(new THREE.Audio(listener));
   const buffer = useLoader(THREE.AudioLoader, url);
 
   const settings = useStore((state: GameState) => state.settings);
@@ -16,7 +16,7 @@ export const AmbientSound = ({ url }: { url: string }) => {
       if (sound && sound.current) {
         console.log('[AmbientSound] Turning on');
         sound.current.setBuffer(buffer);
-        sound.current.setRefDistance(5);
+        //sound.current.setRefDistance(5);
         sound.current.setVolume(1 * ((settings.musicVolume || 0) / 100));
         sound.current.setLoop(true);
         if (!sound.current.isPlaying) {
@@ -24,6 +24,7 @@ export const AmbientSound = ({ url }: { url: string }) => {
         }
       }
       camera.add(listener);
+      //camera.add(sound);
     } else {
       if (sound && sound.current) {
         console.log('[AmbientSound] Turning off');
@@ -35,5 +36,5 @@ export const AmbientSound = ({ url }: { url: string }) => {
     };
   }, [buffer, camera, settings, listener]);
 
-  return <positionalAudio ref={sound} args={[listener]} />;
+  return <></>;
 };
