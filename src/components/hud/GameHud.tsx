@@ -26,12 +26,12 @@ export const PanelLabel = ({
 }: {
   icon: React.ReactNode;
   iconClass?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }) => {
   return (
     <div className="text-2xl font-bold flex gap-2">
       <span className={iconClass}>{icon}</span>
-      <span className="text-white">{children}</span>
+      {children && <span className="text-white">{children}</span>}
     </div>
   );
 };
@@ -71,6 +71,29 @@ export const ShowCurrentScore = () => {
       {score}
     </PanelLabel>
   );
+};
+
+export const ShowCurrentHealth = ({ showPoisoning = false }) => {
+  const health = useStore((store: GameState) => store.health);
+  const getMaxHealth = useStore((store: GameState) => store.getMaxHealth);
+  const hasStatusEffect = useStore((store: GameState) => store.hasStatusEffect);
+  const isPoisoned = hasStatusEffect(StatusEffectType.POISON) !== undefined;
+
+  let heartElements = (
+    <PanelLabel iconClass="text-red-600 py-1" icon={<HeartIcon />}>
+      {health}/{getMaxHealth()}
+    </PanelLabel>
+  );
+
+  if (showPoisoning) {
+    if (isPoisoned) {
+      heartElements = (
+        <PanelLabel iconClass="text-green-600 py-1" icon={<HeartIcon />} />
+      );
+    }
+  }
+
+  return heartElements;
 };
 
 export const ShowAllStatusEffects = () => {
@@ -127,9 +150,7 @@ export const ShowAllStatusEffects = () => {
 export const GameHud = () => {
   const currentLevel = useStore((store: GameState) => store.currentLevel);
   const energy = useStore((store: GameState) => store.energy);
-  const health = useStore((store: GameState) => store.health);
   const currency = useStore((store: GameState) => store.currency);
-  const getMaxHealth = useStore((store: GameState) => store.getMaxHealth);
   const attacks = useStore((store: GameState) => store.attacks);
   const getMaxAttacks = useStore((store: GameState) => store.getMaxAttacks);
   const getMaxEnergy = useStore((store: GameState) => store.getMaxEnergy);
@@ -238,9 +259,7 @@ export const GameHud = () => {
               </PanelLabel>
             </ContentPanel>
             <ContentPanel className="flex justify-center items-center flex-nowrap">
-              <PanelLabel iconClass="text-red-600 py-1" icon={<HeartIcon />}>
-                {health}/{getMaxHealth()}
-              </PanelLabel>
+              <ShowCurrentHealth showPoisoning />
             </ContentPanel>
             <ContentPanel className="flex justify-center items-center flex-nowrap">
               <PanelLabel

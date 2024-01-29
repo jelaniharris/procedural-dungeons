@@ -565,7 +565,7 @@ const DungeonScene = () => {
       subscribe(PLAYER_TOUCHED_ENEMY, ({ enemy }) => {
         console.log('Touched by enemy: ', enemy.name);
         playAudio('hurt_04.ogg');
-        if (!adjustHealth(-1).isDead) {
+        if (adjustHealth(-1).isDead) {
           // Then the player died
           publish(PLAYER_DIED, {});
         } else {
@@ -581,7 +581,7 @@ const DungeonScene = () => {
       subscribe<PlayerDamagedTrapEvent>(PLAYER_DAMAGED_TRAP, ({ hazard }) => {
         console.log('Touched by hazard: ', hazard.name);
         playAudio('hurt_04.ogg');
-        if (!adjustHealth(-1).isDead) {
+        if (adjustHealth(-1).isDead) {
           // Then the player died
           publish(PLAYER_DIED, {});
         } else {

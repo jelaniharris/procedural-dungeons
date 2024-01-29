@@ -256,6 +256,7 @@ export const createPlayerSlice: StateCreator<
     let newAmount = amount;
     const currentHealth = get().health;
     const maxHealth = get().getMaxHealth();
+    const hasStatusEffect = get().hasStatusEffect;
     if (source === SourceType.POTION) {
       const tinFlaskProvision = get().hasProvision(ProvisionType.TIN_FLASK);
       if (
@@ -266,9 +267,17 @@ export const createPlayerSlice: StateCreator<
         get().triggeredProvision(tinFlaskProvision);
       }
     }
+
     const newHealth = currentHealth + newAmount;
+    let isDead = newHealth <= 0;
+    const isPoisoned = hasStatusEffect(StatusEffectType.POISON) !== undefined;
+
+    if (amount < 0 && isPoisoned) {
+      isDead = true;
+    }
+
     set(() => ({ health: Math.max(0, Math.min(newHealth, maxHealth)) }));
-    return { isDead: newHealth != 0, amountAdjusted: newAmount };
+    return { isDead: isDead, amountAdjusted: newAmount };
   },
   clampHealth() {
     const currentHealth = get().health;
@@ -431,7 +440,7 @@ export const createPlayerSlice: StateCreator<
     if (isPlayerAtTileType(TileType.TILE_POISON)) {
       get().addStatusEffect({
         statusEffectType: StatusEffectType.POISON,
-        duration: 1,
+        duration: 3,
         canExpire: true,
         canStack: true,
       });
