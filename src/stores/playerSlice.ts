@@ -440,7 +440,7 @@ export const createPlayerSlice: StateCreator<
     if (isPlayerAtTileType(TileType.TILE_POISON)) {
       get().addStatusEffect({
         statusEffectType: StatusEffectType.POISON,
-        duration: 3,
+        duration: 4,
         canExpire: true,
         canStack: true,
       });
@@ -702,8 +702,6 @@ export const createPlayerSlice: StateCreator<
 
     const upgradeAmount = get().getUpgradeRank(upgradeType);
 
-    console.log('Upgrade amount: ', upgradeAmount, ' for ', upgradeType);
-
     if (upgradeAmount <= 0) {
       return 0;
     }
@@ -711,8 +709,6 @@ export const createPlayerSlice: StateCreator<
     const sum = data.amountUpgrade
       .slice(0, upgradeAmount)
       .reduce((a, b) => a + b, 0);
-
-    console.log('Sum: ', sum);
     return sum;
   },
 });
