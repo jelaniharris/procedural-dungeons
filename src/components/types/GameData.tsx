@@ -9,9 +9,9 @@ export const UpgradeData: PlayerUpgradeDataInfo[] = [
   {
     type: PlayerUpgradeType.UPGRADE_HEALTH,
     name: 'Health',
-    maxRank: 3,
-    rankCost: [2, 3, 4],
-    amountUpgrade: [1, 1, 1],
+    maxRank: 4,
+    rankCost: [2, 3, 4, 5],
+    amountUpgrade: [1, 1, 1, 1],
   },
   {
     type: PlayerUpgradeType.UPGRADE_ENERGY,
