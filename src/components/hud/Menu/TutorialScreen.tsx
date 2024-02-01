@@ -122,6 +122,11 @@ const TutorialScreen = () => {
         name: 'Dungeon Fruit',
         description: 'Gives 15 Energy',
       },
+      {
+        icon: 'DiamondIcon.png',
+        name: 'Diamond',
+        description: 'Worth 1 Currency',
+      },
     ];
 
     const ShowData = ({ data }: { data: IconsDataType }) => {
