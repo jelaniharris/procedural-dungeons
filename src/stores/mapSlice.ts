@@ -1,3 +1,4 @@
+import { LiquidWallType } from '@/components/models/LiquidWall-All';
 import {
   BlockTestOptions,
   Destructable,
@@ -147,6 +148,10 @@ export interface MapSlice {
     location: Point2D,
     liquidType: LiquidType
   ) => Point2D[];
+  determineLiquidWallType: (
+    x: number,
+    y: number
+  ) => { rotation: number; liquidWallType: LiquidWallType };
 
   // Projectiles
   projectiles: Projectile[];
@@ -483,6 +488,129 @@ export const createMapSlice: StateCreator<
     }
 
     return validDirections;
+  },
+  determineLiquidWallType: (x: number, y: number) => {
+    let rotation = 0;
+    let liquidWallType: LiquidWallType | null = null;
+
+    const getTilePosition = get().getTilePosition;
+    //const isBlockWallOrNull = get().isBlockWallOrNull;
+
+    const northBlock = getTilePosition(x, y - 1);
+    const eastBlock = getTilePosition(x + 1, y);
+    const southBlock = getTilePosition(x, y + 1);
+    const westBlock = getTilePosition(x - 1, y);
+
+    const isLiquidBlock = (tileType: TileType | null) => {
+      if (!tileType) {
+        return false;
+      }
+      return [
+        TileType.TILE_LAVA,
+        TileType.TILE_POISON,
+        TileType.TILE_WATER,
+        TileType.TILE_MUD,
+      ].includes(tileType);
+    };
+
+    // Create bitwise value
+    // N E S W
+    let bitwiseWalls = 0;
+
+    if (isLiquidBlock(northBlock)) {
+      bitwiseWalls = bitwiseWalls | 8; // 1000
+    }
+
+    if (isLiquidBlock(eastBlock)) {
+      bitwiseWalls = bitwiseWalls | 4; // 0100
+    }
+
+    if (isLiquidBlock(southBlock)) {
+      bitwiseWalls = bitwiseWalls | 2; // 0010
+    }
+
+    if (isLiquidBlock(westBlock)) {
+      bitwiseWalls = bitwiseWalls | 1; // 0001
+    }
+
+    switch (bitwiseWalls) {
+      case 15:
+        // 1 1 1 1 = 15
+        liquidWallType = LiquidWallType.TYPE_NONE;
+        break;
+      case 10:
+      case 5:
+        // 1 0 1 0 = 10
+        // 0 1 0 1 = 5
+        let spinDirection = 0;
+
+        if (bitwiseWalls == 10) {
+          spinDirection = 90;
+        }
+        rotation = spinDirection;
+        liquidWallType = LiquidWallType.TYPE_NARROW;
+        break;
+      case 8:
+      case 4:
+      case 2:
+      case 1:
+        const trisiderotationData = {
+          1: 0,
+          2: 90,
+          4: 180,
+          8: 270,
+        };
+        // 1 0 0 0 = 8
+        // 0 1 0 0 = 4
+        // 0 0 1 0 = 2
+        // 0 0 0 1 = 1
+        liquidWallType = LiquidWallType.TYPE_THREESIDED;
+        rotation = trisiderotationData[bitwiseWalls] || 0;
+        break;
+
+      case 11:
+      case 13:
+      case 14:
+      case 7:
+        // 1 0 1 1 = 11
+        // 1 1 0 1 = 13
+        // 1 1 1 0 = 14
+        // 0 1 1 1 = 7
+        const partialRotationData = {
+          7: 0,
+          11: 270,
+          13: 180, // don't chage
+          14: 90,
+        };
+        liquidWallType = LiquidWallType.TYPE_HALF;
+        rotation = partialRotationData[bitwiseWalls] || 0;
+        break;
+      case 3:
+      case 9:
+      case 12:
+      case 6:
+        // 0 0 1 1 = 3
+        // 1 0 0 1 = 9
+        // 1 1 0 0 = 12
+        // 0 1 1 0 = 6
+        const lRotationData = {
+          3: 90,
+          9: 0,
+          12: 270,
+          6: 180,
+        };
+        liquidWallType = LiquidWallType.TYPE_LSHAPE;
+        rotation = lRotationData[bitwiseWalls] || 0;
+        break;
+      default:
+        liquidWallType = LiquidWallType.TYPE_ALL;
+        break;
+    }
+
+    return {
+      rotation: rotation * (Math.PI / 180),
+      liquidWallType,
+    };
   },
   determineWallType: (x: number, y: number, tileType?: TileType) => {
     let rotation = 0;

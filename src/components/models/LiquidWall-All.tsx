@@ -12,16 +12,28 @@ import { useLiquidSpriteSheet } from './useLiquidSpriteSheet';
 type GLTFResult = GLTF & {
   nodes: {
     ['Liquid-All']: THREE.Mesh;
-    LiquidFloor: THREE.Mesh;
+    ['LWall-Half']: THREE.Mesh;
+    ['LWall-Lshape']: THREE.Mesh;
+    ['LWall-Narrow']: THREE.Mesh;
+    ['LWall-ThreeSided']: THREE.Mesh;
   };
   materials: {
     colormap: THREE.MeshStandardMaterial;
-    liquids: THREE.MeshStandardMaterial;
   };
 };
 
+export enum LiquidWallType {
+  TYPE_ALL,
+  TYPE_HALF,
+  TYPE_LSHAPE,
+  TYPE_NARROW,
+  TYPE_THREESIDED,
+  TYPE_NONE,
+}
+
 export type LiquidProps = JSX.IntrinsicElements['group'] & {
   liquidType: LiquidType;
+  wallType: LiquidWallType;
 };
 
 export function LiquidWallAll(props: LiquidProps) {
@@ -30,12 +42,39 @@ export function LiquidWallAll(props: LiquidProps) {
   const { nodes, materials } = useGLTF(
     '/models/environment/LiquidWall-All.glb'
   ) as GLTFResult;
+
   return (
     <group {...props} dispose={null}>
-      <mesh
-        geometry={nodes['Liquid-All'].geometry}
-        material={materials.colormap}
-      />
+      {props.wallType === LiquidWallType.TYPE_HALF && (
+        <mesh
+          geometry={nodes['LWall-Half'].geometry}
+          material={materials.colormap}
+        />
+      )}
+      {props.wallType === LiquidWallType.TYPE_LSHAPE && (
+        <mesh
+          geometry={nodes['LWall-Lshape'].geometry}
+          material={materials.colormap}
+        />
+      )}
+      {props.wallType === LiquidWallType.TYPE_NARROW && (
+        <mesh
+          geometry={nodes['LWall-Narrow'].geometry}
+          material={materials.colormap}
+        />
+      )}
+      {props.wallType === LiquidWallType.TYPE_THREESIDED && (
+        <mesh
+          geometry={nodes['LWall-ThreeSided'].geometry}
+          material={materials.colormap}
+        />
+      )}
+      {props.wallType === LiquidWallType.TYPE_ALL && (
+        <mesh
+          geometry={nodes['Liquid-All'].geometry}
+          material={materials.colormap}
+        />
+      )}
       <mesh
         rotation={[THREE.MathUtils.degToRad(270), 0, 0]}
         position={[0, -0.25, 0]}

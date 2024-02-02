@@ -17,17 +17,24 @@ import { MathUtils } from 'three';
 import { shallow } from 'zustand/shallow';
 
 export const ShowEnvironment = () => {
-  const { mapData, numCols, numRows, determineWallType, getTilePosition } =
-    useStore(
-      (state) => ({
-        mapData: state.mapData,
-        numCols: state.numCols,
-        numRows: state.numRows,
-        determineWallType: state.determineWallType,
-        getTilePosition: state.getTilePosition,
-      }),
-      shallow
-    );
+  const {
+    mapData,
+    numCols,
+    numRows,
+    determineWallType,
+    determineLiquidWallType,
+    getTilePosition,
+  } = useStore(
+    (state) => ({
+      mapData: state.mapData,
+      numCols: state.numCols,
+      numRows: state.numRows,
+      determineWallType: state.determineWallType,
+      determineLiquidWallType: state.determineLiquidWallType,
+      getTilePosition: state.getTilePosition,
+    }),
+    shallow
+  );
 
   const worldTiles: React.JSX.Element[] = [];
 
@@ -123,10 +130,13 @@ export const ShowEnvironment = () => {
           if (liquidType === LiquidType.LIQUID_NONE) {
             continue;
           }
+          const liquidWallResults = determineLiquidWallType(x, y);
 
           tile = [
             <LiquidWallAll
               liquidType={liquidType}
+              wallType={liquidWallResults.liquidWallType}
+              rotation={[0, liquidWallResults.rotation, 0]}
               key={`liquidtile-${x}-${y}`}
               position={[tileXPos, 0, tileYPos]}
             />,
