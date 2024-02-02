@@ -31,6 +31,7 @@ import { assignItemDetails } from '@/utils/itemUtils';
 import {
   getLiquidTypeFromTileType,
   getTileTypeFromLiquidType,
+  point2DToString,
 } from '@/utils/mapUtils';
 import {
   getRandomRangeInt,
@@ -96,6 +97,13 @@ export interface MapSlice {
     direction: Direction,
     amount: number
   ) => Point2D[];
+  isPointInBounds: (mapData: (TileType | null)[][], point: Point2D) => boolean;
+  getWanderingNodeLocations: (
+    generator: () => number,
+    mapData: (TileType | null)[][],
+    startingLocation: Point2D,
+    amountToTravel: number
+  ) => Point2D[];
 
   // Areas
   getAreasFromMap: (mapData: (TileType | null)[][]) => MapArea[];
@@ -133,6 +141,12 @@ export interface MapSlice {
     useSeed: number
   ) => (TileType | null)[][];
   locationLiquidType: (location: Point2D) => LiquidType;
+  getLiquidSpreadLocations: (
+    mapData: (TileType | null)[][],
+    generator: () => number,
+    location: Point2D,
+    liquidType: LiquidType
+  ) => Point2D[];
 
   // Projectiles
   projectiles: Projectile[];
@@ -627,10 +641,108 @@ export const createMapSlice: StateCreator<
     });
     return doorLocations;
   },
-  generateLiquids(mapData: (TileType | null)[][], useSeed: number) {
-    const mapRandomGenerator = get().generateGenerator(useSeed);
+  getWanderingNodeLocations(
+    generator: () => number,
+    mapData: (TileType | null)[][],
+    startingLocation: Point2D,
+    amountToTravel: number
+  ): Point2D[] {
+    const locations: Point2D[] = [];
+    let walksLeft = amountToTravel;
+    const isPointInBounds = get().isPointInBounds;
+    const psuedoShuffle = get().shuffleArray;
+
+    const travelledList = new Set<string>();
+    const nextList = new Queue<Point2D>();
+    nextList.enqueue(startingLocation);
+
+    while (!nextList.isEmpty() && walksLeft > 0) {
+      const currentPoint = nextList.dequeue();
+      const currentPointAsStr = point2DToString(currentPoint);
+
+      // Ensure the location is in bounds
+      if (!isPointInBounds(mapData, currentPoint)) {
+        continue;
+      }
+
+      // If point is already in our list than continue
+      if (travelledList.has(currentPointAsStr)) {
+        continue;
+      }
+
+      walksLeft--;
+
+      // Add to travelledList
+      travelledList.add(currentPointAsStr);
+      locations.push(currentPoint);
+
+      let offsets = [...POSITION_OFFSETS];
+      offsets = psuedoShuffle(offsets, generator);
+      const take = 2;
+      for (let i = 0; i < take; i++) {
+        const offset = offsets.shift();
+        if (offset) {
+          const newLocation: Point2D = {
+            x: currentPoint.x + offset.position.x,
+            y: currentPoint.y + offset.position.y,
+          };
+          nextList.enqueue(newLocation);
+        }
+      }
+    }
+
+    return locations;
+  },
+  isPointInBounds(mapData: (TileType | null)[][], point: Point2D): boolean {
     const MAP_WIDTH = mapData[0].length - 1;
     const MAP_HEIGHT = mapData.length - 1;
+    // If within bounds of the map
+    if (
+      point.x >= 0 &&
+      point.x <= MAP_WIDTH &&
+      point.y >= 0 &&
+      point.y <= MAP_HEIGHT &&
+      mapData[point.x][point.y] !== TileType.TILE_WALL_EDGE
+    ) {
+      return true;
+    }
+    return false;
+  },
+  getLiquidSpreadLocations(
+    mapData: (TileType | null)[][],
+    generator: () => number,
+    location: Point2D,
+    liquidType: LiquidType
+  ): Point2D[] {
+    let spreadAmount = 1;
+    let locations: Point2D[] = [];
+    switch (liquidType) {
+      case LiquidType.LIQUID_WATER:
+        spreadAmount = getRandomRangeInt(generator, 1, 8);
+        break;
+      case LiquidType.LIQUID_LAVA:
+        spreadAmount = getRandomRangeInt(generator, 1, 3);
+        break;
+      case LiquidType.LIQUID_MUD:
+        spreadAmount = getRandomRangeInt(generator, 1, 3);
+        break;
+      case LiquidType.LIQUID_POISON:
+        spreadAmount = getRandomRangeInt(generator, 1, 5);
+        break;
+    }
+    console.log('Spread amount is: ', spreadAmount);
+
+    locations = get().getWanderingNodeLocations(
+      generator,
+      mapData,
+      location,
+      spreadAmount
+    );
+
+    return locations;
+  },
+  generateLiquids(mapData: (TileType | null)[][], useSeed: number) {
+    const mapRandomGenerator = get().generateGenerator(useSeed);
     const psuedoShuffle = get().shuffleArray;
     let emptySpots = get().getEmptyTiles();
     emptySpots = psuedoShuffle(emptySpots, mapRandomGenerator);
@@ -641,18 +753,65 @@ export const createMapSlice: StateCreator<
     // Create a new LootChance generator
     const lootGen = new LootChance<LiquidType>();
 
-    lootGen.add(LiquidType.LIQUID_WATER, 45);
-    if (currentLevel > 1) {
-      lootGen.add(LiquidType.LIQUID_POISON, 35);
+    if (currentLevel === 1) {
+      lootGen.add(LiquidType.LIQUID_WATER, 100);
+    } else if (currentLevel > 1) {
+      lootGen.add(LiquidType.LIQUID_WATER, 85);
+      lootGen.add(LiquidType.LIQUID_POISON, 15);
+    } else if (currentLevel > 2) {
+      lootGen.add(LiquidType.LIQUID_WATER, 70);
+      lootGen.add(LiquidType.LIQUID_POISON, 20);
+      lootGen.add(LiquidType.LIQUID_LAVA, 2);
+      lootGen.add(LiquidType.LIQUID_MUD, 8);
+    } else if (currentLevel > 4) {
+      lootGen.add(LiquidType.LIQUID_WATER, 55);
+      lootGen.add(LiquidType.LIQUID_POISON, 25);
+      lootGen.add(LiquidType.LIQUID_LAVA, 5);
+      lootGen.add(LiquidType.LIQUID_MUD, 15);
     }
 
     const doorLocations = get().getAllDoorLocations();
 
-    while (emptySpots.length != 0 && numberLiquids > 0) {
+    type LiquidLocationType = {
+      liquidType: LiquidType;
+      location: Point2D;
+    };
+    let liquidLocations: LiquidLocationType[] = [];
+
+    while (emptySpots.length > 0 && numberLiquids > 0) {
       const point = emptySpots.shift();
       if (!point) {
         break;
       }
+
+      const randomLiquid = lootGen.choose(mapRandomGenerator);
+      if (randomLiquid === null || randomLiquid === LiquidType.LIQUID_NONE) {
+        continue;
+      }
+
+      const spreadedLiquidPoints = get().getLiquidSpreadLocations(
+        mapData,
+        mapRandomGenerator,
+        point,
+        randomLiquid
+      );
+
+      liquidLocations = liquidLocations.concat(
+        spreadedLiquidPoints.map<LiquidLocationType>((spr) => ({
+          liquidType: randomLiquid,
+          location: spr,
+        }))
+      );
+
+      numberLiquids--;
+    }
+
+    while (liquidLocations.length > 0) {
+      const liquidLocation = liquidLocations.shift();
+      if (!liquidLocation) continue;
+
+      const point = liquidLocation.location;
+      const desiredLiquid = liquidLocation.liquidType;
 
       // Do not generate liquids on an exit point
       if (mapData[point.x][point.y] == TileType.TILE_EXIT) {
@@ -664,28 +823,19 @@ export const createMapSlice: StateCreator<
         continue;
       }
 
-      const randomLiquid = lootGen.choose(mapRandomGenerator);
-
       let desiredFloorTile = getTileTypeFromLiquidType(
-        randomLiquid ?? LiquidType.LIQUID_NONE
+        desiredLiquid ?? LiquidType.LIQUID_NONE
       );
       if (desiredFloorTile === TileType.TILE_NONE) {
         desiredFloorTile = TileType.TILE_FLOOR;
       }
 
       // If within bounds of the map
-      if (
-        point.x >= 0 &&
-        point.x <= MAP_WIDTH &&
-        point.y >= 0 &&
-        point.y <= MAP_HEIGHT
-      ) {
-        if (mapData[point.x][point.y] === TileType.TILE_WALL_EDGE) {
-          continue;
-        }
-        mapData[point.x][point.y] = desiredFloorTile;
-      }
-      numberLiquids--;
+      //if (isPointInBounds(mapData, point)) {
+      mapData[point.x][point.y] = desiredFloorTile;
+      //}
+
+      //numberLiquids--;
     }
     return mapData;
   },
@@ -770,9 +920,10 @@ export const createMapSlice: StateCreator<
       const currentLocation = locationsToVisit.shift();
 
       if (!currentLocation) continue;
+      const currentLocationStr = point2DToString(currentLocation);
 
       // Check if we've already been here
-      if (areaCache.has(`${currentLocation.x},${currentLocation.y}`)) {
+      if (areaCache.has(currentLocationStr)) {
         continue;
       }
 
@@ -784,7 +935,7 @@ export const createMapSlice: StateCreator<
       // Add open location to area
       //console.log('Adding to area: ', currentLocation);
       areaLocations.push(currentLocation);
-      areaCache.add(`${currentLocation.x},${currentLocation.y}`);
+      areaCache.add(currentLocationStr);
 
       // Calculate the location of the currounded coordinates
       const surroundingCoordinates = [
@@ -795,7 +946,7 @@ export const createMapSlice: StateCreator<
       ];
 
       surroundingCoordinates.forEach((coordinate) => {
-        const coordinateHash = `${coordinate.x},${coordinate.y}`;
+        const coordinateHash = point2DToString(coordinate);
         // If this coordinate is already in our visit in the future cache, then continue
         if (toVisitCache.has(coordinateHash)) {
           return;

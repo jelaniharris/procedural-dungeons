@@ -1,4 +1,5 @@
 import { LiquidType, TileType } from '@/components/types/GameTypes';
+import { Point2D } from './Point2D';
 
 export const getLiquidTypeFromTileType = (tileType: TileType): LiquidType => {
   switch (tileType) {
@@ -32,4 +33,13 @@ export const getTileTypeFromLiquidType = (liquidType: LiquidType): TileType => {
       break;
   }
   return desiredFloorTile;
+};
+
+export const point2DToString = (location: Point2D): string => {
+  return `${location.x},${location.y}`;
+};
+
+export const stringToPoint2D = (pointAsStr: string): Point2D => {
+  const [x, y] = pointAsStr.split(',');
+  return { x: parseInt(x, 10), y: parseInt(y, 10) } as Point2D;
 };
