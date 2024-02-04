@@ -883,6 +883,7 @@ export const createMapSlice: StateCreator<
 
     if (currentLevel === 1) {
       lootGen.add(LiquidType.LIQUID_WATER, 100);
+      lootGen.add(LiquidType.LIQUID_LAVA, 50);
     } else if (currentLevel > 1) {
       lootGen.add(LiquidType.LIQUID_WATER, 85);
       lootGen.add(LiquidType.LIQUID_POISON, 15);

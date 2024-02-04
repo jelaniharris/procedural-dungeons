@@ -368,7 +368,15 @@ const DungeonScene = () => {
         }
       }
 
-      checkPlayerStandingLocation();
+      const standingEvent = checkPlayerStandingLocation();
+      if (standingEvent.sourceType === SourceType.LAVA) {
+        console.log('Burnt by lava.');
+        playAudio('hurt_04.ogg');
+        if (adjustHealth(-1).isDead) {
+          // Then the player died
+          publish(PLAYER_DIED, {});
+        }
+      }
 
       aiTurn();
     },

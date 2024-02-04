@@ -51,7 +51,7 @@ export interface PlayerSlice {
   ) => boolean;
   getPlayerZOffset: () => number;
   checkPlayerLocation: () => PlayerLocationResults;
-  checkPlayerStandingLocation: () => void;
+  checkPlayerStandingLocation: () => StandingEventResults;
   adjustHealth: (amount: number, source?: SourceType) => AdjustHealthResults;
   getMaxHealth: () => number;
   clampHealth: () => void;
@@ -118,6 +118,11 @@ export type PlayerLocationResults = {
 export type AdjustHealthResults = {
   isDead: boolean;
   amountAdjusted: number;
+};
+
+export type StandingEventResults = {
+  healthAdjustment: number;
+  sourceType?: SourceType;
 };
 
 export const createPlayerSlice: StateCreator<
@@ -423,7 +428,10 @@ export const createPlayerSlice: StateCreator<
 
     return locationResults;
   },
-  checkPlayerStandingLocation: () => {
+  checkPlayerStandingLocation: (): StandingEventResults => {
+    let eventResults: StandingEventResults = {
+      healthAdjustment: 0,
+    };
     const isPlayerAtTileType = get().isPlayerAtTileType;
     // Check if player is over water
     if (isPlayerAtTileType(TileType.TILE_WATER)) {
@@ -437,6 +445,24 @@ export const createPlayerSlice: StateCreator<
       }
     }
 
+    if (isPlayerAtTileType(TileType.TILE_MUD)) {
+      if (!get().hasStatusEffect(StatusEffectType.SLOW)) {
+        get().addStatusEffect({
+          statusEffectType: StatusEffectType.SLOW,
+          duration: 3,
+          canExpire: true,
+          canStack: true,
+        });
+      }
+    }
+
+    if (isPlayerAtTileType(TileType.TILE_LAVA)) {
+      eventResults = {
+        healthAdjustment: -1,
+        sourceType: SourceType.LAVA,
+      };
+    }
+
     if (isPlayerAtTileType(TileType.TILE_POISON)) {
       get().addStatusEffect({
         statusEffectType: StatusEffectType.POISON,
@@ -445,6 +471,7 @@ export const createPlayerSlice: StateCreator<
         canStack: true,
       });
     }
+    return eventResults;
   },
   canPlayerAttackEnemy: (enemy: Enemy) => {
     const attacks = get().attacks;

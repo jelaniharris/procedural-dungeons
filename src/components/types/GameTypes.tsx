@@ -329,6 +329,7 @@ export enum ProvisionType {
 export enum SourceType {
   NONE,
   TREASURE,
+  LAVA,
   KILL,
   POTION,
 }
