@@ -33,6 +33,9 @@ export const AmbientSound = ({ url }: { url: string }) => {
     }
     return () => {
       camera.remove(listener);
+      if (sound.current) {
+        sound.current.stop();
+      }
     };
   }, [buffer, camera, settings, listener]);
 
