@@ -152,6 +152,8 @@ export const createPlayerSlice: StateCreator<
   },
   statusEffects: [],
   resetPlayer() {
+    const playerPosition = get().playerPosition;
+    const currentZOffset = get().getFloorZOffset(playerPosition);
     const resetSet = {
       score: 0,
       energy: 50,
@@ -163,6 +165,7 @@ export const createPlayerSlice: StateCreator<
       health: 2,
       maxHealth: 2,
       statusEffects: [],
+      currentZOffset: currentZOffset,
     };
     set(resetSet);
     get().resetUpgrades();
@@ -205,8 +208,6 @@ export const createPlayerSlice: StateCreator<
       return false;
     }
 
-    //console.log('[adjustPlayer] Old position:', playerData);
-
     playerData.x = playerData.x + xOffset;
     playerData.y = playerData.y + yOffset;
 
@@ -221,8 +222,6 @@ export const createPlayerSlice: StateCreator<
     } else if (yOffset > 0) {
       currentPlayerRotation = MathUtils.degToRad(0);
     }
-
-    //console.log('[adjustPlayer] New position:', playerData);
 
     set(() => ({
       playerPosition: playerData,

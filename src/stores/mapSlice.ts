@@ -883,10 +883,10 @@ export const createMapSlice: StateCreator<
 
     if (currentLevel === 1) {
       lootGen.add(LiquidType.LIQUID_WATER, 100);
-      lootGen.add(LiquidType.LIQUID_LAVA, 50);
     } else if (currentLevel > 1) {
-      lootGen.add(LiquidType.LIQUID_WATER, 85);
+      lootGen.add(LiquidType.LIQUID_WATER, 75);
       lootGen.add(LiquidType.LIQUID_POISON, 15);
+      lootGen.add(LiquidType.LIQUID_MUD, 10);
     } else if (currentLevel > 2) {
       lootGen.add(LiquidType.LIQUID_WATER, 70);
       lootGen.add(LiquidType.LIQUID_POISON, 20);
@@ -1697,6 +1697,8 @@ export const createMapSlice: StateCreator<
       switch (tilePos) {
         case TileType.TILE_WATER:
         case TileType.TILE_POISON:
+        case TileType.TILE_MUD:
+        case TileType.TILE_LAVA:
           return -0.5;
       }
     }

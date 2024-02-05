@@ -427,7 +427,6 @@ const DungeonScene = () => {
             playerGO.getComponent<MoveableObjectRef>('Moveable');
 
           const zOffset = getFloorZOffset(nextPosition);
-          console.log(zOffset);
 
           const moved = await movementRef.move(
             nextPosition,

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { useStore } from '@/stores/useStore';
 import { Point2D } from '@/utils/Point2D';
 import { ConsumerEvent } from '@/utils/pubSub';
 import wait from '@/utils/wait';
@@ -45,6 +46,8 @@ export const MoveableObject = ({
   movementDuration = 200,
 }: MoveableObjectProps) => {
   const { transform, zOffset, publish, nodeRef } = useGameObject();
+  const getFloorZOffset = useStore((state) => state.getFloorZOffset);
+  const getPlayerZOffset = useStore((state) => state.getPlayerZOffset);
   const nextPosition = useRef<Vector3>([
     transform.x,
     zOffset ? zOffset : 0,
@@ -61,7 +64,7 @@ export const MoveableObject = ({
       await wait(delayMs);
       canMove.current = true;
     },
-    async move(targetPosition: Point2D, type, zOffset) {
+    async move(targetPosition: Point2D, type, targetZOffset) {
       if (isStatic) return false;
       if (!canMove.current) return false;
 
@@ -69,9 +72,11 @@ export const MoveableObject = ({
       const isPushed = type === 'push';
       const isForced = isJumping || isPushed;
 
+      const currentZOffset = getPlayerZOffset();
+
       const targetPosition3D: Vector3 = [
         targetPosition.x,
-        zOffset ? zOffset : 0,
+        targetZOffset ? targetZOffset : 0,
         targetPosition.y,
       ];
 
@@ -79,10 +84,10 @@ export const MoveableObject = ({
 
       const fromX = transform.x;
       const fromY = transform.y;
-      const fromZ = 0;
+      const fromZ = currentZOffset ? currentZOffset : 0;
       const toX = targetPosition.x;
       const toY = targetPosition.y;
-      const toZ = zOffset ? zOffset : 0;
+      const toZ = targetZOffset ? targetZOffset : 0;
 
       canMove.current = false;
 
@@ -122,7 +127,7 @@ export const MoveableObject = ({
             x: targetPosition3D[0],
             y: targetPosition3D[2],
           },
-          zOffset: zOffset ? zOffset : 0,
+          zOffset: targetZOffset ? targetZOffset : 0,
         });
       return true;
     },
