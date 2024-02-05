@@ -1,6 +1,6 @@
 import { GameState, useStore } from '@/stores/useStore';
 import { cn } from '@/utils/classnames';
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   FaClock as ClockIcon,
   FaCoins as CoinIcon,
@@ -12,7 +12,9 @@ import {
   FaSkull as SkullIcon,
 } from 'react-icons/fa';
 import { GiPlainDagger as AttacksIcon } from 'react-icons/gi';
+import { shallow } from 'zustand/shallow';
 import Button from '../input/Button';
+import { StatusEffectData } from '../types/GameData';
 import { GameStatus, StatusEffectType } from '../types/GameTypes';
 import { EndScreen } from './EndScreen';
 import { ExitOption } from './ExitOption';
@@ -96,53 +98,74 @@ export const ShowCurrentHealth = ({ showPoisoning = false }) => {
   return heartElements;
 };
 
-export const ShowAllStatusEffects = () => {
+export const ShowStatusEffect = ({
+  statusEffect,
+}: {
+  statusEffect: StatusEffectType;
+}) => {
   const hasStatusEffect = useStore((store: GameState) => store.hasStatusEffect);
+  const currentStatusEffect = hasStatusEffect(statusEffect);
 
-  const isTired = hasStatusEffect(StatusEffectType.STARVING) !== undefined;
-  const isSlowed = hasStatusEffect(StatusEffectType.SLOW) !== undefined;
-  const isPoisoned = hasStatusEffect(StatusEffectType.POISON) !== undefined;
+  const statusEffectInfo = useMemo(() => {
+    return currentStatusEffect
+      ? StatusEffectData.find(
+          (ef) => ef.statusEffectType === currentStatusEffect.statusEffectType
+        )
+      : null;
+  }, [currentStatusEffect]);
+
+  const statusEffectText = () => {
+    if (!statusEffectInfo || !currentStatusEffect) {
+      return '';
+    }
+    let duration = '';
+    if (currentStatusEffect.canExpire) {
+      duration = `(${currentStatusEffect.duration})`;
+    }
+
+    return `${statusEffectInfo.name}${duration}`;
+  };
 
   const statusStyles = {
     background: 'bg-opacity-60 px-3 py-1 rounded bg-slate-700',
     font: 'text-3xl font-bold',
   };
 
+  if (!statusEffectInfo || !currentStatusEffect) {
+    return null;
+  }
+
+  return (
+    <span
+      className={cn(
+        statusStyles.background,
+        statusStyles.font,
+        statusEffectInfo.cssStyles,
+        'uppercase'
+      )}
+    >
+      {statusEffectText()}
+    </span>
+  );
+};
+
+export const ShowAllStatusEffects = () => {
+  const statusEffects = useStore(
+    (store: GameState) => store.statusEffects,
+    shallow
+  );
+  console.log('REDNERING ALL STATUS EFFECTS');
+
   return (
     <div className="flex flex-row gap-2">
-      {isTired && (
-        <span
-          className={cn(
-            statusStyles.background,
-            statusStyles.font,
-            'text-red-400'
-          )}
-        >
-          HUNGRY
-        </span>
-      )}
-      {isSlowed && (
-        <span
-          className={cn(
-            statusStyles.background,
-            statusStyles.font,
-            'text-blue-400'
-          )}
-        >
-          SLOW
-        </span>
-      )}
-      {isPoisoned && (
-        <span
-          className={cn(
-            statusStyles.background,
-            statusStyles.font,
-            'text-green-400'
-          )}
-        >
-          POISONED
-        </span>
-      )}
+      {statusEffects.map((sf) => {
+        return (
+          <ShowStatusEffect
+            key={`statuseffect-${sf.statusEffectType}`}
+            statusEffect={sf.statusEffectType}
+          />
+        );
+      })}
     </div>
   );
 };

@@ -3,6 +3,8 @@ import {
   PlayerUpgradeType,
   Provision,
   ProvisionType,
+  StatusEffectDataInfo,
+  StatusEffectType,
 } from './GameTypes';
 
 export const UpgradeData: PlayerUpgradeDataInfo[] = [
@@ -26,6 +28,34 @@ export const UpgradeData: PlayerUpgradeDataInfo[] = [
     name: 'Weapon',
     rankCost: [1, 3, 5],
     amountUpgrade: [1, 1, 1],
+  },
+];
+
+export const StatusEffectData: StatusEffectDataInfo[] = [
+  {
+    statusEffectType: StatusEffectType.NONE,
+    name: 'None',
+    cssStyles: 'text-slate-400',
+  },
+  {
+    statusEffectType: StatusEffectType.STARVING,
+    name: 'Starving',
+    cssStyles: 'text-red-400',
+  },
+  {
+    statusEffectType: StatusEffectType.POISON,
+    name: 'Poison',
+    cssStyles: 'text-green-400',
+  },
+  {
+    statusEffectType: StatusEffectType.CONFUSION,
+    name: 'Confusion',
+    cssStyles: 'text-yellow-400',
+  },
+  {
+    statusEffectType: StatusEffectType.SLOW,
+    name: 'Slow',
+    cssStyles: 'text-blue-400',
   },
 ];
 

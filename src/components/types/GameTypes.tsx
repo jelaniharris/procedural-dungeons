@@ -362,6 +362,13 @@ export enum StatusEffectEvent {
   ADDED,
 }
 
+export type StatusEffectDataInfo = {
+  name: string;
+  statusEffectType: StatusEffectType;
+  icon?: React.ReactElement;
+  cssStyles: string;
+};
+
 export enum ProjectileType {
   NONE,
   BEAM_ARROW,

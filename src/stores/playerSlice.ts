@@ -305,7 +305,6 @@ export const createPlayerSlice: StateCreator<
     );
 
     maxHealth += upgradeValue;
-    console.log('Max Health: ', upgradeValue);
 
     return maxHealth;
   },
@@ -445,14 +444,12 @@ export const createPlayerSlice: StateCreator<
     }
 
     if (isPlayerAtTileType(TileType.TILE_MUD)) {
-      if (!get().hasStatusEffect(StatusEffectType.SLOW)) {
-        get().addStatusEffect({
-          statusEffectType: StatusEffectType.SLOW,
-          duration: 3,
-          canExpire: true,
-          canStack: true,
-        });
-      }
+      get().addStatusEffect({
+        statusEffectType: StatusEffectType.SLOW,
+        duration: 3,
+        canExpire: true,
+        canStack: true,
+      });
     }
 
     if (isPlayerAtTileType(TileType.TILE_LAVA)) {
