@@ -367,6 +367,7 @@ export type StatusEffectDataInfo = {
   statusEffectType: StatusEffectType;
   icon?: React.ReactElement;
   cssStyles: string;
+  description?: string;
 };
 
 export enum ProjectileType {

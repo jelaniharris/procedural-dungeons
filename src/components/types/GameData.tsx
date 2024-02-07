@@ -36,26 +36,31 @@ export const StatusEffectData: StatusEffectDataInfo[] = [
     statusEffectType: StatusEffectType.NONE,
     name: 'None',
     cssStyles: 'text-slate-400',
+    description: 'No description',
   },
   {
     statusEffectType: StatusEffectType.STARVING,
     name: 'Starving',
     cssStyles: 'text-red-400',
+    description: 'Doubles enemies movement distance. Eat food to remove.',
   },
   {
     statusEffectType: StatusEffectType.POISON,
     name: 'Poison',
     cssStyles: 'text-green-400',
+    description: 'Turns your health to one point. Decays over time.',
   },
   {
     statusEffectType: StatusEffectType.CONFUSION,
     name: 'Confusion',
     cssStyles: 'text-yellow-400',
+    description: 'Makes you move in a random direction.',
   },
   {
     statusEffectType: StatusEffectType.SLOW,
     name: 'Slow',
     cssStyles: 'text-blue-400',
+    description: "Increases enemy's movement distance by 1",
   },
 ];
 

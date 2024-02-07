@@ -1,4 +1,10 @@
 import Button from '@/components/input/Button';
+import { StatusEffectData } from '@/components/types/GameData';
+import {
+  StatusEffectDataInfo,
+  StatusEffectType,
+} from '@/components/types/GameTypes';
+import { cn } from '@/utils/classnames';
 import { clamp } from '@/utils/numberUtils';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -19,7 +25,7 @@ type EnemyDataType = {
 const TutorialScreen = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const { popScreen } = useMainMenuContext();
-  const maxPage = 4;
+  const maxPage = 5;
 
   const advancePage = () => {
     const nextPage = clamp(currentPage + 1, 1, maxPage);
@@ -86,7 +92,7 @@ const TutorialScreen = () => {
           for the daily or adventure game types.
         </p>
         <p>If you die, your score will not save</p>
-        <h2 className="text-xl font-bold pb-2">Floor Timer</h2>
+        <h2 className="text-xl font-bold py-2">Floor Timer</h2>
         <p>
           Some floors have a round timer that will tick down for every step you
           take. Take too long on a floor, and enemies will start spawning on the
@@ -207,12 +213,57 @@ const TutorialScreen = () => {
     );
   };
 
+  const StatusEffectPage = () => {
+    const ShowEffectDescription = ({
+      data,
+    }: {
+      data: StatusEffectDataInfo;
+    }) => {
+      return (
+        <div className="flex flex-row gap-2 flex-nowrap text-white items-center">
+          <span
+            className={cn(
+              'bg-slate-900 rounded-md p-2',
+              'text-xl font-bold uppercase',
+              data.cssStyles
+            )}
+          >
+            {data.name}
+          </span>
+          <div>{data.description}</div>
+        </div>
+      );
+    };
+
+    return (
+      <>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {StatusEffectData.map((data) => {
+            if (
+              ![StatusEffectType.NONE, StatusEffectType.CONFUSION].includes(
+                data.statusEffectType
+              )
+            ) {
+              return (
+                <ShowEffectDescription
+                  key={`effect-${data.name}`}
+                  data={data}
+                />
+              );
+            }
+          })}
+        </div>
+      </>
+    );
+  };
+
   const DisplayPage = ({ page }: { page: number }) => {
     const pages = [
       { pageNumber: 1, pageTitle: 'Overview', element: overviewPage },
       { pageNumber: 2, pageTitle: 'Overview II', element: overviewPageTwo },
       { pageNumber: 3, pageTitle: 'Items', element: itemsPage },
-      { pageNumber: 4, pageTitle: 'Enemies', element: enemyPage },
+      { pageNumber: 4, pageTitle: 'Status Effects', element: StatusEffectPage },
+      { pageNumber: 5, pageTitle: 'Enemies', element: enemyPage },
     ];
 
     const pageContent = pages.find((pg) => pg.pageNumber === page);
