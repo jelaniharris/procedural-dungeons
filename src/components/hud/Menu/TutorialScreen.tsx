@@ -91,6 +91,11 @@ const TutorialScreen = () => {
           with your current score. This score is saved to the high score tables
           for the daily or adventure game types.
         </p>
+        <p>
+          <strong className="text-green-400">STORE: </strong>Spend your diamonds
+          in the store to upgrade your health, stamina, and amount of weapons
+          for that run.
+        </p>
         <p>If you die, your score will not save</p>
         <h2 className="text-xl font-bold py-2">Floor Timer</h2>
         <p>
