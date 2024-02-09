@@ -92,9 +92,10 @@ const TutorialScreen = () => {
           for the daily or adventure game types.
         </p>
         <p>
-          <strong className="text-green-400">STORE: </strong>Spend your diamonds
-          in the store to upgrade your health, stamina, and amount of weapons
-          for that run.
+          <strong className="text-slate-400">STORE: </strong>Spend diamonds you
+          find in the dungeon in the store to upgrade your health, stamina, and
+          amount of weapons for that run. Or you can sell your diamonds for more
+          score.
         </p>
         <p>If you die, your score will not save</p>
         <h2 className="text-xl font-bold py-2">Floor Timer</h2>
