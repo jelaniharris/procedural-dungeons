@@ -324,17 +324,21 @@ export const createPlayerSlice: StateCreator<
 
     let newEnergy = currentEnergy + amount;
     newEnergy = Math.max(0, Math.min(newEnergy, maxEnergy));
-
+    const isPlayerTired =
+      get().hasStatusEffect(StatusEffectType.STARVING) !== undefined;
     if (newEnergy <= 0) {
-      get().addStatusEffect({
-        statusEffectType: StatusEffectType.STARVING,
-        duration: 0,
-        canExpire: false,
-        canStack: false,
-      });
+      if (!isPlayerTired) {
+        get().addStatusEffect({
+          statusEffectType: StatusEffectType.STARVING,
+          duration: 0,
+          canExpire: false,
+          canStack: false,
+        });
+      }
+
       get().clampHealth();
     } else {
-      if (get().hasStatusEffect(StatusEffectType.STARVING)) {
+      if (isPlayerTired) {
         get().removeStatusEffect(StatusEffectType.STARVING);
       }
     }
@@ -610,11 +614,9 @@ export const createPlayerSlice: StateCreator<
     const newStatusEffectsList: StatusEffect[] = [];
 
     for (const seff of statusEffects) {
+      if (!seff) continue;
       // If status efect cannot expire
-      if (!seff.canExpire) {
-        continue;
-      }
-      if (seff.canExpire && seff.duration > 0) {
+      if (!seff.canExpire || seff.duration > 0) {
         newStatusEffectsList.push(seff);
       } else {
         triggerStatusEffect(seff.statusEffectType, StatusEffectEvent.REMOVED);
@@ -656,7 +658,7 @@ export const createPlayerSlice: StateCreator<
     const newStatusEffectsList: StatusEffect[] = [...statusEffects];
 
     newStatusEffectsList.forEach((effect) => {
-      if (effect.canExpire) {
+      if (effect && effect.canExpire) {
         effect.duration -= 1;
 
         if (effect.duration < 0) {
