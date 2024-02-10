@@ -103,4 +103,11 @@ export const ProvisionData: Provision[] = [
     provisionType: ProvisionType.CHAIN_MAIL,
     description: 'Adds %NUM% more max health if not in STARVATION',
   },
+  {
+    name: 'Studded Bracelet',
+    numberValue: 3,
+    provisionType: ProvisionType.STUDDED_BRACELET,
+    description:
+      'If at full health, adds %NUM% diamonds when you enter a new floor.',
+  },
 ];

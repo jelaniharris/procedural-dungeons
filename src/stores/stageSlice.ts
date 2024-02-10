@@ -37,6 +37,7 @@ export interface StageSlice {
   isPaused: boolean;
   setGameStatus: (newStatus: GameStatus) => void;
   advanceStage: () => void;
+  newStageTriggers: () => void;
   performTurn: (props: PerformTurnProps) => void;
   resetDangerZones: () => void;
   addLocationsToDangerZones: (locations: Point2D[]) => void;
@@ -111,6 +112,16 @@ export const createStageSlice: StateCreator<
       gameStatus: GameStatus.GAME_STARTED,
     }));
     resetStage(false);
+  },
+  newStageTriggers() {
+    const atFullHealth = get().atFullHealth;
+    const adjustCurrency = get().adjustCurrency;
+    const studdedBraceletProvision = get().hasProvision(
+      ProvisionType.STUDDED_BRACELET
+    );
+    if (atFullHealth() && studdedBraceletProvision) {
+      adjustCurrency(studdedBraceletProvision.numberValue);
+    }
   },
   setGameStatus(newStatus: GameStatus) {
     set({

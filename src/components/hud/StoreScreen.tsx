@@ -52,6 +52,7 @@ export const StoreScreen = () => {
   //const setGameStatus = useStore((store: GameState) => store.setGameStatus);
   const adjustCurrency = useStore((store: GameState) => store.adjustCurrency);
   const addScore = useStore((store: GameState) => store.addScore);
+  const adjustHealth = useStore((store: GameState) => store.adjustHealth);
 
   const { publish } = useGame();
 
@@ -86,6 +87,9 @@ export const StoreScreen = () => {
 
     const purchaseRank = () => {
       purchaseUpgrade(upgradeType);
+      if (upgradeType === PlayerUpgradeType.UPGRADE_HEALTH) {
+        adjustHealth(1);
+      }
       adjustCurrency(-currentCost);
     };
 

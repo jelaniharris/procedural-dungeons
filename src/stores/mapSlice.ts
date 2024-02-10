@@ -312,6 +312,8 @@ export const createMapSlice: StateCreator<
     generateExit();
     generateEnemies(generatorSeeds['enemies']);
     generateHazards(generatorSeeds['hazards']);
+
+    get().newStageTriggers();
   },
   resetMap: () => {
     const mapNumRows = 15 + 3 * get().currentLevel;
