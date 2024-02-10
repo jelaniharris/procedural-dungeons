@@ -116,11 +116,11 @@ const TutorialScreen = () => {
         name: 'Chalice',
         description: 'Worth 25 Gold',
       },
-      { icon: 'CrownIcon.png', name: 'Crown', description: 'Worth 150 Gold' },
+      { icon: 'CrownIcon.png', name: 'Crown', description: 'Worth 75 Gold' },
       {
         icon: 'GoldStackIcon.png',
         name: 'Ignot Stack',
-        description: 'Worth 250 Gold',
+        description: 'Worth 200 Gold',
       },
       { icon: 'DaggerIcon.png', name: 'Dagger', description: 'Gives 1 Weapon' },
       { icon: 'PotionIcon.png', name: 'Potion', description: 'Gives 1 Health' },

@@ -283,7 +283,7 @@ const DungeonScene = () => {
               break;
             case ItemType.ITEM_CROWN:
               playAudio('coin.ogg');
-              const crownscore = addScore(150, SourceType.TREASURE);
+              const crownscore = addScore(75, SourceType.TREASURE);
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_SCORE,
                 amount: crownscore,
@@ -292,7 +292,7 @@ const DungeonScene = () => {
               break;
             case ItemType.ITEM_INGOT_STACK:
               playAudio('coin.ogg');
-              const ingotscore = addScore(250, SourceType.TREASURE);
+              const ingotscore = addScore(200, SourceType.TREASURE);
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_SCORE,
                 amount: ingotscore,
