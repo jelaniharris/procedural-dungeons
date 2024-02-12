@@ -1,6 +1,7 @@
 import { cn } from '@/utils/classnames';
 import { displayPlayerName } from '@/utils/playerUtils';
 import Image from 'next/image';
+import { FaUser } from 'react-icons/fa';
 import useMainMenuContext from '../useMainMenuContext';
 
 interface ScreenHeaderProps {
@@ -19,7 +20,14 @@ const ScreenHeader = ({ hideName = false }: ScreenHeaderProps) => {
         priority
         alt="Tower of Greed Logo"
       />
-      <span className={cn(' text-sm text-gray-500', hideName ? 'hidden' : '')}>
+      <span
+        className={cn(
+          'flex flex-row gap-2 rounded-md p-2 items-center',
+          'bg-black bg-opacity-25 text-sm text-gray-500',
+          hideName ? 'hidden' : ''
+        )}
+      >
+        <FaUser />
         {playerData ? displayPlayerName(playerData) : 'Anonmyous'}
       </span>
     </div>
