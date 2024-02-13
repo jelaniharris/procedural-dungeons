@@ -1,24 +1,13 @@
-import { trpc } from '@/app/_trpc/client';
 import Button from '@/components/input/Button';
 import { getDailyUniqueSeed } from '@/utils/seed';
 import { useState } from 'react';
 import { ScoreList } from '../ScoreList';
+import { LocalScoresList } from '../scores/LocalScoresList';
 import useMainMenuContext from '../useMainMenuContext';
 
 const ScoresScreen = () => {
   const [tab, setTab] = useState('local');
   const { popScreen } = useMainMenuContext();
-  const getScores = trpc.getScores.useQuery({
-    gameType: 'daily',
-    seed: getDailyUniqueSeed(),
-  });
-
-  const ScoreListing = () => {
-    if (!getScores || !getScores.data) {
-      return <></>;
-    }
-    return <p>{JSON.stringify(getScores.data)}</p>;
-  };
 
   return (
     <>
@@ -50,7 +39,9 @@ const ScoresScreen = () => {
       {tab === 'local' && (
         <>
           <h2 className="text-xl text-white font-bold">Last Climbs</h2>
-          <ScoreListing />
+          <div className="overflow-y-scroll" style={{ height: '50vh' }}>
+            <LocalScoresList />
+          </div>
         </>
       )}
       {tab === 'daily' && (
