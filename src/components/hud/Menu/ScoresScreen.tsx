@@ -40,7 +40,7 @@ const ScoresScreen = () => {
         <>
           <h2 className="text-xl text-white font-bold">Last Climbs</h2>
           <div className="overflow-y-scroll" style={{ height: '50vh' }}>
-            <LocalScoresList />
+            <LocalScoresList showAllAttempts={true} />
           </div>
         </>
       )}

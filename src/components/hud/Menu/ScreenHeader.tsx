@@ -23,7 +23,7 @@ const ScreenHeader = ({ hideName = false }: ScreenHeaderProps) => {
       <span
         className={cn(
           'flex flex-row gap-2 rounded-md p-2 items-center',
-          'bg-black bg-opacity-25 text-sm text-gray-500',
+          'bg-slate-700 text-sm text-gray-500',
           hideName ? 'hidden' : ''
         )}
       >

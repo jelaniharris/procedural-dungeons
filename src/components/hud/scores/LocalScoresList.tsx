@@ -4,15 +4,19 @@ import { cn } from '@/utils/classnames';
 import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-export const LocalScoresList = () => {
+export const LocalScoresList = ({
+  showAllAttempts,
+}: {
+  showAllAttempts: boolean;
+}) => {
   const [attempts, setAttempts] = useState<RunData[]>([]);
   const getLocalAttempts = useStore(
     (store: GameState) => store.getLocalAttempts
   );
 
   useEffect(() => {
-    setAttempts(getLocalAttempts());
-  }, []);
+    setAttempts(getLocalAttempts(showAllAttempts));
+  }, [getLocalAttempts]);
 
   const AttemptComponentRow = ({ attempt }: { attempt: RunData }) => {
     return (

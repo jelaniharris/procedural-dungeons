@@ -159,6 +159,7 @@ export const ShowAllStatusEffects = () => {
   return (
     <div className="flex flex-row gap-2">
       {statusEffects.map((sf) => {
+        if (!sf) return null;
         return (
           <ShowStatusEffect
             key={`statuseffect-${sf.statusEffectType}`}

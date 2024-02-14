@@ -77,7 +77,7 @@ export const EndScreen = () => {
         Final Score: {score}
       </span>
       <div className="overflow-y-scroll" style={{ height: '50vh' }}>
-        <LocalScoresList />
+        <LocalScoresList showAllAttempts={false} />
       </div>
       <div className="flex-auto"></div>
       <div className="pb-3 flex items-center gap-5">

@@ -8,7 +8,6 @@ import {
 } from '@/components/types/GameTypes';
 import { RunData } from '@/components/types/RecordTypes';
 import { Point2D } from '@/utils/Point2D';
-import { getDailyUniqueSeed } from '@/utils/seed';
 import { v4 as uuidv4 } from 'uuid';
 import { StateCreator } from 'zustand';
 import { EnemySlice } from './enemySlice';
@@ -52,7 +51,7 @@ export interface StageSlice {
   // Attempts
   getAttemptData: () => RunData;
   recordLocalAttempt: () => void;
-  getLocalAttempts: () => RunData[];
+  getLocalAttempts: (showAllAttempts: boolean) => RunData[];
   // Settings
   getSettings: () => GameSettings;
   saveSettings: (settings: GameSettings) => void;
@@ -198,8 +197,7 @@ export const createStageSlice: StateCreator<
   },
   recordLocalAttempt() {
     const attempt = get().getAttemptData();
-    const gameType = get().gameType;
-    const storageName = `${gameType}Attempts`;
+    const storageName = `AllAttempts`;
     //const seed = get().seed;
 
     let lastRun: RunData[];
@@ -213,7 +211,7 @@ export const createStageSlice: StateCreator<
     // Add latest attempt to the front
     lastRun.unshift({ ...attempt, id: uuidv4() });
 
-    lastRun = lastRun.filter((run) => {
+    /*lastRun = lastRun.filter((run) => {
       // Filter out daily runs that don't take place today
       if (run.type === 'daily' && run.seed !== getDailyUniqueSeed()) {
         return false;
@@ -222,14 +220,14 @@ export const createStageSlice: StateCreator<
       //TODO Filter out adventure runs older than 5 days
 
       return true;
-    });
+    });*/
 
     // Save in local storage
     localStorage.setItem(storageName, JSON.stringify(lastRun));
   },
-  getLocalAttempts() {
+  getLocalAttempts(showAllAttempts = false) {
     const gameType = get().gameType;
-    const storageName = `${gameType}Attempts`;
+    const storageName = `AllAttempts`;
 
     let allAttempts: RunData[];
     const allAttemptsString = localStorage.getItem(storageName);
@@ -238,6 +236,16 @@ export const createStageSlice: StateCreator<
     } else {
       allAttempts = [];
     }
+
+    if (!showAllAttempts) {
+      allAttempts = allAttempts.filter((run) => {
+        if (run.type !== gameType) {
+          return false;
+        }
+        return true;
+      });
+    }
+
     return allAttempts;
   },
   getLocalSettings() {
