@@ -213,6 +213,12 @@ export type Point3D = {
   z: number;
 };
 
+export enum ItemStatus {
+  NONE,
+  CLOSED,
+  OPEN,
+}
+
 export type Item = {
   id: number;
   type: ItemType;
@@ -221,6 +227,8 @@ export type Item = {
   modelRotation: Point3D;
   modelPositionOffset: Point3D;
   name?: string;
+  contains?: ItemType;
+  status?: ItemStatus;
 };
 
 export type ItemLocationType = {

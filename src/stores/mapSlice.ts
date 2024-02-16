@@ -136,6 +136,9 @@ export interface MapSlice {
     //splits: SplitData[]
   ) => void;
 
+  // Chests
+  generateChests: (mapData: (TileType | null)[][], useSeed: number) => void;
+
   // Liquids
   generateLiquids: (
     mapData: (TileType | null)[][],
@@ -230,6 +233,7 @@ export const createMapSlice: StateCreator<
     const fillMapGaps = get().fillMapGaps;
     const resetSpawnWarnings = get().resetSpawnWarnings;
     const generateLiquids = get().generateLiquids;
+    const generateChests = get().generateChests;
 
     resetMap();
     resetItems();
@@ -253,6 +257,7 @@ export const createMapSlice: StateCreator<
       enemies: randomGen(),
       hazards: randomGen(),
       liquids: randomGen(),
+      chests: randomGen(),
     };
 
     console.log('[resetStage] Generated seeds: ', generatorSeeds);
@@ -301,6 +306,8 @@ export const createMapSlice: StateCreator<
     );
 
     generateLiquids(currentMapData, generatorSeeds['liquids']);
+
+    generateChests(currentMapData, generatorSeeds['chests']);
 
     set({
       mapData: currentMapData,
@@ -870,6 +877,39 @@ export const createMapSlice: StateCreator<
     );
 
     return locations;
+  },
+  generateChests(mapData: (TileType | null)[][], useSeed: number) {
+    const mapRandomGenerator = get().generateGenerator(useSeed);
+    const psuedoShuffle = get().shuffleArray;
+    let emptySpots = get().getEmptyTiles();
+    emptySpots = psuedoShuffle(emptySpots, mapRandomGenerator);
+    const currentLevel = get().currentLevel;
+    const countSurroundingWalls = get().countSurroundingWalls;
+
+    let numberofChests = 2 + currentLevel * 2;
+
+    while (emptySpots.length > 0 && numberofChests > 0) {
+      const point = emptySpots.shift();
+      if (!point) {
+        break;
+      }
+
+      const numberOfWalls = countSurroundingWalls(mapData, point);
+
+      if (numberOfWalls >= 2) {
+        /*
+        const newItem = assignItemDetails(randomItem, point, newItemIndex);
+
+        if (newItem.type != ItemType.ITEM_NONE) {
+          newItemData[
+            getItemPositionOnGrid(newItem.position.x, newItem.position.y)
+          ] = newItem;
+        }
+*/
+      }
+
+      numberofChests--;
+    }
   },
   generateLiquids(mapData: (TileType | null)[][], useSeed: number) {
     const mapRandomGenerator = get().generateGenerator(useSeed);
@@ -1477,13 +1517,14 @@ export const createMapSlice: StateCreator<
     const itemIndex = get().itemIndex;
     const randomGen = get().generateGenerator(seed);
     const psuedoShuffle = get().shuffleArray;
+    const items = get().items;
 
     let numberItems = 15 + currentLevel * 4;
     let emptySpots = get().getEmptyTiles();
     emptySpots = psuedoShuffle(emptySpots, randomGen);
 
     let newItemIndex = itemIndex;
-    const newItemData: Item[] = [];
+    const newItemData: Item[] = items ?? [];
 
     // Create a new LootChance generator
     const lootGen = new LootChance<ItemType>();
