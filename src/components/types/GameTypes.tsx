@@ -213,11 +213,24 @@ export type Point3D = {
   z: number;
 };
 
-export enum ItemStatus {
+export enum ItemContainerStatus {
   NONE,
   CLOSED,
   OPEN,
 }
+
+export enum ItemContainerType {
+  CONTAINER_CHEST,
+}
+
+export type ItemContainer = {
+  id: number;
+  position: Point2D;
+  modelRotation: Point3D;
+  type: ItemContainerType;
+  contains?: ItemType;
+  status?: ItemContainerStatus;
+};
 
 export type Item = {
   id: number;
@@ -227,8 +240,6 @@ export type Item = {
   modelRotation: Point3D;
   modelPositionOffset: Point3D;
   name?: string;
-  contains?: ItemType;
-  status?: ItemStatus;
 };
 
 export type ItemLocationType = {

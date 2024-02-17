@@ -1,5 +1,6 @@
 'use client';
 
+import { ShowContainers } from '@/app/ShowContainers';
 import { ShowDangerIndicators } from '@/app/ShowDangerIndicators';
 import { ShowDestructables } from '@/app/ShowDestructables';
 import { ShowEnemies } from '@/app/ShowEnemies';
@@ -21,6 +22,7 @@ import { FollowCamera } from '../FollowCamera';
 import { MoveableObjectRef } from '../entities/MoveableObject';
 import Player from '../entities/Player';
 import {
+  CONTAINER_OPEN,
   DOOR_OPEN,
   ENTITY_ALIVE,
   ENTITY_DIED,
@@ -56,6 +58,7 @@ import {
   Direction,
   Enemy,
   GameStatus,
+  ItemContainerStatus,
   ItemType,
   LocationActionType,
   OverLayTextType,
@@ -166,6 +169,10 @@ const DungeonScene = () => {
   const setShowStoreDialog = useStore(
     (state: GameState) => state.setShowStoreDialog
   );
+  const getClosestContainerAtLocation = useStore(
+    (state: GameState) => state.getClosestContainerAtLocation
+  );
+  const openContainer = useStore((state: GameState) => state.openContainer);
 
   const {
     subscribe,
@@ -491,6 +498,22 @@ const DungeonScene = () => {
         }
       } else {
         // Direction is none, stall was pressed?
+
+        // Check if a chest is close by
+        const foundChest = getClosestContainerAtLocation(currentPosition);
+        console.log('FOUNDCHEST:', foundChest);
+        if (foundChest && foundChest.status === ItemContainerStatus.CLOSED) {
+          const gameObjects = findGameObjectsByXY(
+            foundChest.position.x,
+            foundChest.position.y
+          );
+          for (const gObj of gameObjects) {
+            gObj.publish(CONTAINER_OPEN);
+          }
+          openContainer(foundChest.id);
+          playAudio('chestopen.ogg');
+        }
+
         publish('player-moved', { moved: false });
         modifyFloorSteps(-1);
       }
@@ -688,6 +711,7 @@ const DungeonScene = () => {
         <ShowSummoningIndicators />
         <ShowOverlayEvents />
         <ShowProjectiles />
+        <ShowContainers />
       </Suspense>
     </>
   );

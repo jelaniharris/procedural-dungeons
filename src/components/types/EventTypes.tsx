@@ -36,6 +36,9 @@ export const TRIGGER_SUMMONING = 'trigger-summoning';
 export const DOOR_OPEN = 'door-open';
 export const DOOR_CLOSE = 'door-close';
 
+export const CONTAINER_OPEN = 'container-open';
+export const CONTAINER_CLOSE = 'container-close';
+
 export const OVERLAY_TEXT = 'overlay-text';
 
 export const PROJECTILE_CREATE = 'projectile-create';
@@ -89,6 +92,9 @@ export type OnTickEvent = ConsumerEvent<'on-tick'>;
 
 export type DoorOpenEvent = ConsumerEvent<'door-open'>;
 export type DoorCloseEvent = ConsumerEvent<'door-close'>;
+
+export type ContainerOpenEvent = ConsumerEvent<'container-open'>;
+export type ContainerClosedEvent = ConsumerEvent<'container-close'>;
 
 export type TriggerSummoningEvent = ConsumerEvent<
   'trigger-summoning',

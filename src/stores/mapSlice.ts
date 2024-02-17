@@ -9,6 +9,9 @@ import {
   GameStatus,
   HazardType,
   Item,
+  ItemContainer,
+  ItemContainerStatus,
+  ItemContainerType,
   ItemType,
   LiquidType,
   MapArea,
@@ -137,7 +140,12 @@ export interface MapSlice {
   ) => void;
 
   // Chests
-  generateChests: (mapData: (TileType | null)[][], useSeed: number) => void;
+  itemContainers: ItemContainer[];
+  itemContainerIndex: number;
+  generateContainers: (mapData: (TileType | null)[][], useSeed: number) => void;
+  getContainerAtLocation: (location: Point2D) => ItemContainer | null;
+  getClosestContainerAtLocation: (location: Point2D) => ItemContainer | null;
+  openContainer: (containerId: number) => void;
 
   // Liquids
   generateLiquids: (
@@ -214,6 +222,8 @@ export const createMapSlice: StateCreator<
   numCols: 5,
   items: [],
   doors: [],
+  itemContainers: [],
+  itemContainerIndex: 0,
   spawnWarnings: new Map<string, SpawnWarning>(),
   destructables: new Map<string, Destructable>(),
   itemIndex: 0,
@@ -233,7 +243,7 @@ export const createMapSlice: StateCreator<
     const fillMapGaps = get().fillMapGaps;
     const resetSpawnWarnings = get().resetSpawnWarnings;
     const generateLiquids = get().generateLiquids;
-    const generateChests = get().generateChests;
+    const generateContainers = get().generateContainers;
 
     resetMap();
     resetItems();
@@ -307,7 +317,7 @@ export const createMapSlice: StateCreator<
 
     generateLiquids(currentMapData, generatorSeeds['liquids']);
 
-    generateChests(currentMapData, generatorSeeds['chests']);
+    generateContainers(currentMapData, generatorSeeds['chests']);
 
     set({
       mapData: currentMapData,
@@ -342,6 +352,7 @@ export const createMapSlice: StateCreator<
       numRows: mapNumRows,
       numCols: mapNumCols,
       doors: [],
+      itemContainers: [],
       destructables: new Map<string, Destructable>(),
     });
   },
@@ -435,6 +446,58 @@ export const createMapSlice: StateCreator<
     }
 
     return { result: true, type: WalkableType.BLOCK_NONE };
+  },
+  getClosestContainerAtLocation(location: Point2D): ItemContainer | null {
+    const getContainerAtLocation = get().getContainerAtLocation;
+    let foundContainer = null;
+    POSITION_OFFSETS.forEach((posoff) => {
+      const newLocation = {
+        x: location.x + posoff.position.x,
+        y: location.y + posoff.position.y,
+      };
+      const containerAtLocation = getContainerAtLocation(newLocation);
+      if (
+        containerAtLocation &&
+        containerAtLocation.status === ItemContainerStatus.CLOSED
+      ) {
+        foundContainer = containerAtLocation;
+        return;
+      }
+    });
+    return foundContainer;
+  },
+  getContainerAtLocation(location: Point2D): ItemContainer | null {
+    const itemContainers = get().itemContainers;
+    const containerAtLocation =
+      itemContainers[get().getItemPositionOnGrid(location.x, location.y)];
+    if (containerAtLocation) {
+      return containerAtLocation;
+    }
+    return null;
+  },
+  openContainer(containerId: number) {
+    const itemContainers = get().itemContainers;
+
+    const foundContainerIndex = itemContainers.findIndex(
+      (cont) => cont && cont.id === containerId
+    );
+    if (foundContainerIndex > 0) {
+      const foundContainer = itemContainers[foundContainerIndex];
+      if (foundContainer) {
+        itemContainers[foundContainerIndex] = {
+          ...foundContainer,
+          status: ItemContainerStatus.OPEN,
+        };
+        get().addItem(
+          foundContainer.contains ?? ItemType.ITEM_NONE,
+          itemContainers[foundContainerIndex].position
+        );
+      }
+    }
+
+    set({
+      itemContainers: [...itemContainers],
+    });
   },
   countSurroundingWalls: (
     mapData: (TileType | null)[][],
@@ -878,7 +941,7 @@ export const createMapSlice: StateCreator<
 
     return locations;
   },
-  generateChests(mapData: (TileType | null)[][], useSeed: number) {
+  generateContainers(mapData: (TileType | null)[][], useSeed: number) {
     const mapRandomGenerator = get().generateGenerator(useSeed);
     const psuedoShuffle = get().shuffleArray;
     let emptySpots = get().getEmptyTiles();
@@ -886,9 +949,23 @@ export const createMapSlice: StateCreator<
     const currentLevel = get().currentLevel;
     const countSurroundingWalls = get().countSurroundingWalls;
 
-    let numberofChests = 2 + currentLevel * 2;
+    const itemContainers = get().itemContainers;
+    const getItemPositionOnGrid = get().getItemPositionOnGrid;
+    const itemContainerIndex = get().itemContainerIndex;
 
-    while (emptySpots.length > 0 && numberofChests > 0) {
+    let numberOfContainers = 9 + currentLevel * 2;
+
+    const lootGen = new LootChance<ItemType>();
+    lootGen.add(ItemType.ITEM_COIN, 15);
+    lootGen.add(ItemType.ITEM_CHICKEN, 15);
+    lootGen.add(ItemType.ITEM_CROWN, 25);
+    lootGen.add(ItemType.ITEM_DIAMOND, 25);
+    lootGen.add(ItemType.ITEM_INGOT_STACK, 10);
+
+    const newContainerList: ItemContainer[] = itemContainers ?? [];
+    let containerIndex = itemContainerIndex;
+
+    while (emptySpots.length > 0 && numberOfContainers > 0) {
       const point = emptySpots.shift();
       if (!point) {
         break;
@@ -896,20 +973,34 @@ export const createMapSlice: StateCreator<
 
       const numberOfWalls = countSurroundingWalls(mapData, point);
 
-      if (numberOfWalls >= 2) {
-        /*
-        const newItem = assignItemDetails(randomItem, point, newItemIndex);
+      if (numberOfWalls >= 1) {
+        // Choose the random item
+        const randomItem = lootGen.choose(mapRandomGenerator);
 
-        if (newItem.type != ItemType.ITEM_NONE) {
-          newItemData[
-            getItemPositionOnGrid(newItem.position.x, newItem.position.y)
-          ] = newItem;
-        }
-*/
+        const newContainer = {
+          id: containerIndex,
+          position: point,
+          contains: randomItem ?? ItemType.ITEM_NONE,
+          type: ItemContainerType.CONTAINER_CHEST,
+          status: ItemContainerStatus.CLOSED,
+        } as ItemContainer;
+
+        newContainerList[
+          getItemPositionOnGrid(
+            newContainer.position.x,
+            newContainer.position.y
+          )
+        ] = newContainer;
       }
 
-      numberofChests--;
+      numberOfContainers--;
+      containerIndex++;
     }
+
+    set({
+      itemContainers: itemContainers,
+      itemContainerIndex: containerIndex,
+    });
   },
   generateLiquids(mapData: (TileType | null)[][], useSeed: number) {
     const mapRandomGenerator = get().generateGenerator(useSeed);
