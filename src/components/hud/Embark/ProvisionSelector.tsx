@@ -22,14 +22,11 @@ export const ProvisionSelector = () => {
 
   const prepareProvisionList = useCallback(
     (amount: number) => {
-      const baseProvisions = getLocalSettings().provisionUnlocks;
-      console.log(baseProvisions);
       const pData = ProvisionData.filter(
         () => true //baseProvisions[data.provisionType] === true
       );
       const randomGen = generateGenerator(seed);
       let pList = shuffleArray([...pData], randomGen);
-      console.log('Running', pData);
       pList.push({
         name: 'No Provision',
         description: 'Nothing but your wits',
@@ -45,7 +42,6 @@ export const ProvisionSelector = () => {
   useEffect(() => {
     if (provisions.length === 0) {
       const provisions = prepareProvisionList(3);
-      console.log(provisions);
       setProvisions(provisions);
     }
   }, [prepareProvisionList, provisions]);
