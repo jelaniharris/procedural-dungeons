@@ -953,13 +953,13 @@ export const createMapSlice: StateCreator<
     const getItemPositionOnGrid = get().getItemPositionOnGrid;
     const itemContainerIndex = get().itemContainerIndex;
 
-    let numberOfContainers = 6 + currentLevel * 2;
+    let numberOfContainers = 6 + currentLevel * 3;
 
     const lootGen = new LootChance<ItemType>();
     lootGen.add(ItemType.ITEM_COIN, 15);
     lootGen.add(ItemType.ITEM_CHICKEN, 15);
     lootGen.add(ItemType.ITEM_CROWN, 25);
-    lootGen.add(ItemType.ITEM_DIAMOND, 25);
+    lootGen.add(ItemType.ITEM_DIAMOND, 35);
     lootGen.add(ItemType.ITEM_INGOT_STACK, 10);
 
     const newContainerList: ItemContainer[] = itemContainers ?? [];
