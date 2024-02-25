@@ -44,6 +44,9 @@ export const ShowOverlayEvents = () => {
       case OverLayTextType.OVERLAY_CURRENCY:
         contents = { text: `+${amount}💎`, className: 'bg-slate-800' };
         break;
+      case OverLayTextType.OVERLAY_KEY:
+        contents = { text: `+${amount}🔑`, className: 'bg-slate-800' };
+        break;
       case OverLayTextType.OVERLAY_NONE:
       default:
         return <></>;

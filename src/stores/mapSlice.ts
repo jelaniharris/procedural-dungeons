@@ -1621,13 +1621,14 @@ export const createMapSlice: StateCreator<
     const lootGen = new LootChance<ItemType>();
 
     lootGen.add(ItemType.ITEM_COIN, 65);
-    lootGen.add(ItemType.ITEM_CHICKEN, 25);
+    lootGen.add(ItemType.ITEM_CHICKEN, 30);
     lootGen.add(ItemType.ITEM_WEAPON, 20);
-    lootGen.add(ItemType.ITEM_CROWN, 15, 1);
     lootGen.add(ItemType.ITEM_POTION, 8, 2);
-    lootGen.add(ItemType.ITEM_DIAMOND, 30, 2);
+    lootGen.add(ItemType.ITEM_DIAMOND, 30, 4);
+    lootGen.add(ItemType.ITEM_KEY, 40);
     if (currentLevel >= 2) {
       lootGen.add(ItemType.ITEM_CHALICE, 17, 10);
+      lootGen.add(ItemType.ITEM_CROWN, 15, 1);
     }
     if (currentLevel >= 3) {
       lootGen.add(ItemType.ITEM_INGOT_STACK, 2, 2);

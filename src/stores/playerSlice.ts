@@ -34,6 +34,7 @@ export interface PlayerSlice {
   attacks: number;
   maxAttacks: number;
   maxHealth: number;
+  containerKeys: number;
   isDead: boolean;
   provisions: Provision[];
   setDead: () => void;
@@ -86,6 +87,10 @@ export interface PlayerSlice {
     statusEffectEvent: StatusEffectEvent
   ) => void;
   tickStatusEffects: () => void;
+
+  // Keys
+  adjustKeys: (amount: number) => void;
+  hasKeys: () => boolean;
 
   // Currency
   adjustCurrency: (amount: number) => void;
@@ -143,6 +148,7 @@ export const createPlayerSlice: StateCreator<
   playerRotation: 0,
   health: 2,
   maxHealth: 2,
+  containerKeys: 0,
   provisions: [],
   upgrades: {
     healthUpgrades: 0,
@@ -673,6 +679,15 @@ export const createPlayerSlice: StateCreator<
   tickPlayer: () => {
     get().tickStatusEffects();
     get().purgeExpiredStatusEffects();
+  },
+  adjustKeys: (amount: number) => {
+    const containerKeys = get().containerKeys;
+    const newContainerKeys = containerKeys + amount;
+    set(() => ({ containerKeys: newContainerKeys > 0 ? newContainerKeys : 0 }));
+  },
+  hasKeys: (): boolean => {
+    const containerKeys = get().containerKeys;
+    return containerKeys > 0;
   },
   adjustCurrency: (amount: number) => {
     const currency = get().currency;

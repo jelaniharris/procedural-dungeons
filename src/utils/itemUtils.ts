@@ -48,7 +48,14 @@ export const assignItemDetails = (
         modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(25) },
       };
       break;
-
+    case ItemType.ITEM_KEY:
+      newItem = {
+        ...newItem,
+        rotates: true,
+        name: 'key',
+        modelRotation: { x: 0, y: MathUtils.degToRad(25), z: 0 },
+      };
+      break;
     case ItemType.ITEM_INGOT_STACK:
       newItem = {
         ...newItem,

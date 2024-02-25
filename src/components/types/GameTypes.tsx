@@ -28,6 +28,7 @@ export enum ItemType {
   ITEM_APPLE,
   ITEM_INGOT_STACK,
   ITEM_DIAMOND,
+  ITEM_KEY,
 }
 
 export enum LiquidType {
@@ -324,6 +325,7 @@ export enum OverLayTextType {
   OVERLAY_WEAPON,
   OVERLAY_ENERGY,
   OVERLAY_CURRENCY,
+  OVERLAY_KEY,
 }
 
 export enum ProvisionType {

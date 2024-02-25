@@ -8,6 +8,7 @@ import {
   FaBolt as EnergyIcon,
   FaLayerGroup as FloorIcon,
   FaHeart as HeartIcon,
+  FaKey as KeyIcon,
   FaCog as SettingsIcon,
   FaSkull as SkullIcon,
 } from 'react-icons/fa';
@@ -62,6 +63,15 @@ export const ShowCurrentCurrency = () => {
   return (
     <PanelLabel iconClass="text-slate-200 py-1" icon={<DiamondIcon />}>
       {currency}
+    </PanelLabel>
+  );
+};
+
+export const ShowCurrentKeys = () => {
+  const containerKeys = useStore((store: GameState) => store.containerKeys);
+  return (
+    <PanelLabel iconClass="text-yellow-600 py-1" icon={<KeyIcon />}>
+      {containerKeys}
     </PanelLabel>
   );
 };
@@ -175,6 +185,7 @@ export const GameHud = () => {
   const currentLevel = useStore((store: GameState) => store.currentLevel);
   const energy = useStore((store: GameState) => store.energy);
   const currency = useStore((store: GameState) => store.currency);
+  const containerKeys = useStore((store: GameState) => store.containerKeys);
   const attacks = useStore((store: GameState) => store.attacks);
   const getMaxAttacks = useStore((store: GameState) => store.getMaxAttacks);
   const getMaxEnergy = useStore((store: GameState) => store.getMaxEnergy);
@@ -261,10 +272,15 @@ export const GameHud = () => {
           </section>
           <section className="fixed w-full flex gap-8 justify-between top-16">
             <div></div>
-            <div>
+            <div className="flex flex-row gap-2">
               {currency > 0 && (
                 <ContentPanel className="bg-slate-600 bg-opacity-80">
                   <ShowCurrentCurrency />
+                </ContentPanel>
+              )}
+              {containerKeys > 0 && (
+                <ContentPanel className="bg-slate-600 bg-opacity-80">
+                  <ShowCurrentKeys />
                 </ContentPanel>
               )}
             </div>

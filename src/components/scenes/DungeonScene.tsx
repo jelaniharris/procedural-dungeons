@@ -106,7 +106,9 @@ const DungeonScene = () => {
   const modifyEnergy = useStore((state: GameState) => state.modifyEnergy);
   const adjustHealth = useStore((state: GameState) => state.adjustHealth);
   const adjustCurrency = useStore((state: GameState) => state.adjustCurrency);
+  const adjustKeys = useStore((state: GameState) => state.adjustKeys);
   const addScore = useStore((state: GameState) => state.addScore);
+  const hasKeys = useStore((state: GameState) => state.hasKeys);
   const setDead = useStore((state: GameState) => state.setDead);
   const setGameStatus = useStore((state: GameState) => state.setGameStatus);
   const setPaused = useStore((state: GameState) => state.setPaused);
@@ -284,6 +286,16 @@ const DungeonScene = () => {
               adjustCurrency(1);
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_CURRENCY,
+                amount: 1,
+                mapPosition: locationAction.position,
+              });
+              break;
+            case ItemType.ITEM_KEY:
+              playAudio('coin.ogg');
+              addScore(5, SourceType.TREASURE);
+              adjustKeys(1);
+              publish<OverlayTextEvent>(OVERLAY_TEXT, {
+                type: OverLayTextType.OVERLAY_KEY,
                 amount: 1,
                 mapPosition: locationAction.position,
               });
@@ -502,7 +514,11 @@ const DungeonScene = () => {
         // Check if a chest is close by
         const foundChest = getClosestContainerAtLocation(currentPosition);
         console.log('FOUNDCHEST:', foundChest);
-        if (foundChest && foundChest.status === ItemContainerStatus.CLOSED) {
+        if (
+          foundChest &&
+          foundChest.status === ItemContainerStatus.CLOSED &&
+          hasKeys()
+        ) {
           const gameObjects = findGameObjectsByXY(
             foundChest.position.x,
             foundChest.position.y
@@ -512,6 +528,7 @@ const DungeonScene = () => {
           }
           openContainer(foundChest.id);
           playAudio('chestopen.ogg');
+          adjustKeys(-1);
         }
 
         publish('player-moved', { moved: false });
