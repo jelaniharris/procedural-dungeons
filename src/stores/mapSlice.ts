@@ -1288,10 +1288,12 @@ export const createMapSlice: StateCreator<
 
     lootGen.add(ItemType.ITEM_NONE, 45);
     lootGen.add(ItemType.ITEM_COIN, 25);
-    lootGen.add(ItemType.ITEM_CHICKEN, 5);
+    lootGen.add(ItemType.ITEM_KEY, 10);
     lootGen.add(ItemType.ITEM_APPLE, 15);
+    lootGen.add(ItemType.ITEM_CHICKEN, 5);
     lootGen.add(ItemType.ITEM_WEAPON, 5);
     lootGen.add(ItemType.ITEM_POTION, 5);
+    lootGen.add(ItemType.ITEM_DIAMOND, 3);
     lootGen.add(ItemType.ITEM_INGOT_STACK, 1);
 
     for (const room of rooms) {
@@ -1632,6 +1634,7 @@ export const createMapSlice: StateCreator<
     }
     if (currentLevel >= 3) {
       lootGen.add(ItemType.ITEM_INGOT_STACK, 2, 2);
+      lootGen.add(ItemType.ITEM_COIN, 45);
     }
 
     while (emptySpots.length != 0 && numberItems > 0) {
