@@ -122,6 +122,11 @@ const TutorialScreen = () => {
         name: 'Ignot Stack',
         description: 'Worth 200 Gold',
       },
+      {
+        icon: 'KeyIcon.png',
+        name: 'Key',
+        description: 'Worth 5 Gold. Allows you to open chests.',
+      },
       { icon: 'DaggerIcon.png', name: 'Dagger', description: 'Gives 1 Weapon' },
       { icon: 'PotionIcon.png', name: 'Potion', description: 'Gives 1 Health' },
       {

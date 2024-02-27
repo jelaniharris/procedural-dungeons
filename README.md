@@ -41,6 +41,7 @@ Move onto treasure to collect them
 - [Bottle sound by artisticdude](https://opengameart.org/content/rpg-sound-pack)
 - [Game Over by Oiboo](https://opengameart.org/content/game-over-bad-chest-sfx)
 - [Wood Breaking sound by Independent.Ni](https://opengameart.org/content/35-wooden-crackshitsdestructions)
+- [Items 01](https://opengameart.org/content/100-cc0-sfx-2)
 
 ### Other Assets
 

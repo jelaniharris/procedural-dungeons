@@ -291,7 +291,7 @@ const DungeonScene = () => {
               });
               break;
             case ItemType.ITEM_KEY:
-              playAudio('coin.ogg');
+              playAudio('key.ogg');
               addScore(5, SourceType.TREASURE);
               adjustKeys(1);
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
