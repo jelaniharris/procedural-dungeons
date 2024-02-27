@@ -63,6 +63,11 @@ export class LootChance<T> {
     const chosenLoot = this.table[choice];
     this.table[choice].quantity--;
 
+    if (chosenLoot.item instanceof LootChance) {
+      console.log('LootChance is ', chosenLoot.item);
+      return chosenLoot.item.choose(randomFunction);
+    }
+
     return chosenLoot.item;
   }
 }

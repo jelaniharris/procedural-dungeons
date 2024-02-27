@@ -1620,22 +1620,36 @@ export const createMapSlice: StateCreator<
     const newItemData: Item[] = items ?? [];
 
     // Create a new LootChance generator
-    const lootGen = new LootChance<ItemType>();
-
-    lootGen.add(ItemType.ITEM_COIN, 65);
-    lootGen.add(ItemType.ITEM_CHICKEN, 30);
-    lootGen.add(ItemType.ITEM_WEAPON, 20);
-    lootGen.add(ItemType.ITEM_POTION, 8, 2);
-    lootGen.add(ItemType.ITEM_DIAMOND, 30, 4);
-    lootGen.add(ItemType.ITEM_KEY, 40);
+    const treasureGen = new LootChance<ItemType>();
+    if (currentLevel < 3) {
+      treasureGen.add(ItemType.ITEM_COIN, 50);
+    } else {
+      treasureGen.add(ItemType.ITEM_COIN, 40);
+    }
     if (currentLevel >= 2) {
-      lootGen.add(ItemType.ITEM_CHALICE, 17, 10);
-      lootGen.add(ItemType.ITEM_CROWN, 15, 1);
+      treasureGen.add(ItemType.ITEM_CHALICE, 15, 10);
+      treasureGen.add(ItemType.ITEM_CROWN, 15, 1);
     }
     if (currentLevel >= 3) {
-      lootGen.add(ItemType.ITEM_INGOT_STACK, 2, 2);
-      lootGen.add(ItemType.ITEM_COIN, 45);
+      treasureGen.add(ItemType.ITEM_INGOT_STACK, 3, 2);
     }
+
+    const foodGen = new LootChance<ItemType>();
+    foodGen.add(ItemType.ITEM_CHICKEN, 70);
+    if (currentLevel >= 3) {
+      foodGen.add(ItemType.ITEM_APPLE, 30);
+    }
+
+    const itemGen = new LootChance<ItemType>();
+    itemGen.add(ItemType.ITEM_KEY, 35);
+    itemGen.add(ItemType.ITEM_DIAMOND, 25, 5);
+    itemGen.add(ItemType.ITEM_WEAPON, 20);
+    itemGen.add(ItemType.ITEM_POTION, 10, 3);
+
+    const lootGen = new LootChance<ItemType>();
+    lootGen.add(treasureGen, 45);
+    lootGen.add(itemGen, 30);
+    lootGen.add(foodGen, 25);
 
     while (emptySpots.length != 0 && numberItems > 0) {
       const point = emptySpots.shift();
