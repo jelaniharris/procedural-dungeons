@@ -175,6 +175,7 @@ const DungeonScene = () => {
     (state: GameState) => state.getClosestContainerAtLocation
   );
   const openContainer = useStore((state: GameState) => state.openContainer);
+  const addStatusEffect = useStore((state: GameState) => state.addStatusEffect);
 
   const {
     subscribe,
@@ -358,6 +359,12 @@ const DungeonScene = () => {
                 type: OverLayTextType.OVERLAY_ENERGY,
                 amount: appleAmount,
                 mapPosition: locationAction.position,
+              });
+              addStatusEffect({
+                statusEffectType: StatusEffectType.HASTE,
+                duration: 10,
+                canExpire: true,
+                canStack: true,
               });
               break;
           }

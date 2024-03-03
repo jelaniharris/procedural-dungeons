@@ -62,6 +62,12 @@ export const StatusEffectData: StatusEffectDataInfo[] = [
     cssStyles: 'text-blue-400',
     description: "Increases enemy's movement distance by 1",
   },
+  {
+    statusEffectType: StatusEffectType.HASTE,
+    name: 'Haste',
+    cssStyles: 'text-yellow-400',
+    description: "Reduces enemy's movement distance by 1",
+  },
 ];
 
 export const ProvisionData: Provision[] = [

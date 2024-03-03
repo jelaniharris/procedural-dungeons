@@ -368,6 +368,7 @@ export enum StatusEffectType {
   POISON = 1 << 1,
   CONFUSION = 1 << 2,
   SLOW = 1 << 3,
+  HASTE = 1 << 4,
 }
 
 export type StatusEffect = {

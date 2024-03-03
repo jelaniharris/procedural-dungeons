@@ -128,7 +128,11 @@ const TutorialScreen = () => {
         description: 'Worth 5 Gold. Allows you to open chests.',
       },
       { icon: 'DaggerIcon.png', name: 'Dagger', description: 'Gives 1 Weapon' },
-      { icon: 'PotionIcon.png', name: 'Potion', description: 'Gives 1 Health' },
+      {
+        icon: 'PotionIcon.png',
+        name: 'Potion',
+        description: 'Recovers 1 missing health',
+      },
       {
         icon: 'ChickenIcon.png',
         name: 'Floor Chicken',
@@ -137,7 +141,7 @@ const TutorialScreen = () => {
       {
         icon: 'AppleIcon.png',
         name: 'Dungeon Fruit',
-        description: 'Gives 15 Energy',
+        description: 'Gives 15 Energy. Also gives HASTE for 10 turns.',
       },
       {
         icon: 'DiamondIcon.png',

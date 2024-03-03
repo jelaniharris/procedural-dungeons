@@ -164,7 +164,7 @@ export const ShowAllStatusEffects = () => {
     (store: GameState) => store.statusEffects,
     shallow
   );
-  console.log('REDNERING ALL STATUS EFFECTS');
+  console.log('REDNERING ALL STATUS EFFECTS: ', statusEffects);
 
   return (
     <div className="flex flex-row gap-2">

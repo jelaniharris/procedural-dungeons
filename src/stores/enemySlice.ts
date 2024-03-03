@@ -197,6 +197,8 @@ export const createEnemySlice: StateCreator<
     const isPlayerTired =
       hasStatusEffect(StatusEffectType.STARVING) !== undefined;
     const isPlayerSlow = hasStatusEffect(StatusEffectType.SLOW) !== undefined;
+    const isPlayerHasted =
+      hasStatusEffect(StatusEffectType.HASTE) !== undefined;
     const addLocationsToDangerZones = get().addLocationsToDangerZones;
     const newDangerSpots: Point2D[] = [];
 
@@ -215,6 +217,9 @@ export const createEnemySlice: StateCreator<
         }
         if (isPlayerSlow) {
           amountOfMoves += 1;
+        }
+        if (isPlayerHasted) {
+          amountOfMoves -= 1;
         }
         let lastPosition = enemy.position;
         // If new location is water, then we reudce our number of directions to move by one
