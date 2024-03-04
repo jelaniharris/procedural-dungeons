@@ -1624,14 +1624,14 @@ export const createMapSlice: StateCreator<
     if (currentLevel < 3) {
       treasureGen.add(ItemType.ITEM_COIN, 50);
     } else {
-      treasureGen.add(ItemType.ITEM_COIN, 40);
+      treasureGen.add(ItemType.ITEM_COIN, 35);
     }
     if (currentLevel >= 2) {
       treasureGen.add(ItemType.ITEM_CHALICE, 15, 10);
       treasureGen.add(ItemType.ITEM_CROWN, 15, 1);
     }
     if (currentLevel >= 3) {
-      treasureGen.add(ItemType.ITEM_INGOT_STACK, 3, 2);
+      treasureGen.add(ItemType.ITEM_INGOT_STACK, 5, 2);
     }
 
     const foodGen = new LootChance<ItemType>();
