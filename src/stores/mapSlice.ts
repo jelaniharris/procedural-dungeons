@@ -965,15 +965,31 @@ export const createMapSlice: StateCreator<
     const newContainerList: ItemContainer[] = itemContainers ?? [];
     let containerIndex = itemContainerIndex;
 
+    const doorLocations = get().getAllDoorLocations();
+
     while (emptySpots.length > 0 && numberOfContainers > 0) {
       const point = emptySpots.shift();
       if (!point) {
         break;
       }
 
-      const numberOfWalls = countSurroundingWalls(mapData, point);
+      // If chest is inside a door, then don't use it
+      if (doorLocations.has(point2DToString(point))) {
+        continue;
+      }
 
-      if (numberOfWalls >= 1) {
+      const numberOfWalls = countSurroundingWalls(mapData, point);
+      let minWalls = 3;
+      const wallsReq = mapRandomGenerator();
+      if (wallsReq <= 0.25) {
+        minWalls = 0;
+      } else if (wallsReq <= 0.5) {
+        minWalls = 1;
+      } else if (wallsReq <= 0.65) {
+        minWalls = 2;
+      }
+
+      if (numberOfWalls >= minWalls) {
         // Choose the random item
         const randomItem = lootGen.choose(mapRandomGenerator);
 
