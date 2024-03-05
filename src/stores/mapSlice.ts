@@ -957,7 +957,7 @@ export const createMapSlice: StateCreator<
 
     const lootGen = new LootChance<ItemType>();
     lootGen.add(ItemType.ITEM_COIN, 15);
-    lootGen.add(ItemType.ITEM_CHICKEN, 15);
+    lootGen.add(ItemType.ITEM_CHICKEN, 10);
     lootGen.add(ItemType.ITEM_CROWN, 25);
     lootGen.add(ItemType.ITEM_DIAMOND, 35);
     lootGen.add(ItemType.ITEM_INGOT_STACK, 10);
