@@ -82,7 +82,7 @@ export const assignItemDetails = (
         modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(15) },
       };
       break;
-    case ItemType.ITEM_POTION:
+    case ItemType.ITEM_HEALTH_POTION:
       newItem = {
         ...newItem,
         rotates: true,

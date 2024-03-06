@@ -1308,7 +1308,7 @@ export const createMapSlice: StateCreator<
     lootGen.add(ItemType.ITEM_APPLE, 15);
     lootGen.add(ItemType.ITEM_CHICKEN, 5);
     lootGen.add(ItemType.ITEM_WEAPON, 5);
-    lootGen.add(ItemType.ITEM_POTION, 5);
+    lootGen.add(ItemType.ITEM_HEALTH_POTION, 5);
     lootGen.add(ItemType.ITEM_DIAMOND, 3);
     lootGen.add(ItemType.ITEM_INGOT_STACK, 1);
 
@@ -1660,7 +1660,7 @@ export const createMapSlice: StateCreator<
     itemGen.add(ItemType.ITEM_KEY, 35);
     itemGen.add(ItemType.ITEM_DIAMOND, 25, 5);
     itemGen.add(ItemType.ITEM_WEAPON, 20);
-    itemGen.add(ItemType.ITEM_POTION, 10, 3);
+    itemGen.add(ItemType.ITEM_HEALTH_POTION, 10, 3);
 
     const lootGen = new LootChance<ItemType>();
     lootGen.add(treasureGen, 45);

@@ -396,7 +396,7 @@ export const createPlayerSlice: StateCreator<
       const oldItems = [...items];
       let itemCollectable: boolean = false;
       switch (itemAtLocation.type) {
-        case ItemType.ITEM_POTION:
+        case ItemType.ITEM_HEALTH_POTION:
           if (!atFullHealth()) {
             itemCollectable = true;
           }

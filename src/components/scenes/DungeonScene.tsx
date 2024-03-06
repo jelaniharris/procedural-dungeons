@@ -319,7 +319,7 @@ const DungeonScene = () => {
                 mapPosition: locationAction.position,
               });
               break;
-            case ItemType.ITEM_POTION:
+            case ItemType.ITEM_HEALTH_POTION:
               playAudio('bottle.ogg', 0.5);
               const healthResults = adjustHealth(1, SourceType.POTION);
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
