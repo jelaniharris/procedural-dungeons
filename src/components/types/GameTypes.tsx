@@ -23,6 +23,7 @@ export enum ItemType {
   ITEM_CHALICE,
   ITEM_CROWN,
   ITEM_HEALTH_POTION,
+  ITEM_FLY_POTION,
   ITEM_CHICKEN,
   ITEM_WEAPON,
   ITEM_APPLE,
@@ -369,6 +370,7 @@ export enum StatusEffectType {
   CONFUSION = 1 << 2,
   SLOW = 1 << 3,
   HASTE = 1 << 4,
+  FLYING = 1 << 5,
 }
 
 export type StatusEffect = {

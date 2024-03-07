@@ -11,7 +11,7 @@ import { GLTF } from 'three-stdlib';
 import useGameObject from '../entities/useGameObject';
 import useGameObjectEvent from '../entities/useGameObjectEvent';
 import { OnTickEvent, PLAYER_DAMAGED_TRAP } from '../types/EventTypes';
-import { Hazard } from '../types/GameTypes';
+import { Hazard, StatusEffectType } from '../types/GameTypes';
 import useGame from '../useGame';
 
 interface GLTFAction extends THREE.AnimationClip {
@@ -54,6 +54,7 @@ export function SpikeTrap(props: SpikeTrapProps) {
     (state) => state.addLocationsToDangerZones
   );
   const playerInDamageZone = useStore((state) => state.playerInDamageZone);
+  const hasStatusEffect = useStore((state) => state.hasStatusEffect);
 
   useGameObjectEvent<OnTickEvent>('on-tick', () => {
     if (isActive.current) {
@@ -72,7 +73,10 @@ export function SpikeTrap(props: SpikeTrapProps) {
         // Spike is active, do damage if the player is on top of me
         isActive.current = true;
         setAnimation('show');
-        if (playerInDamageZone([props.data.worldPosition])) {
+        if (
+          !hasStatusEffect(StatusEffectType.FLYING) &&
+          playerInDamageZone([props.data.worldPosition])
+        ) {
           publish(PLAYER_DAMAGED_TRAP, { hazard: props.data });
         }
       }

@@ -319,6 +319,15 @@ const DungeonScene = () => {
                 mapPosition: locationAction.position,
               });
               break;
+            case ItemType.ITEM_FLY_POTION:
+              playAudio('bottle.ogg', 0.5);
+              addStatusEffect({
+                statusEffectType: StatusEffectType.FLYING,
+                duration: 10,
+                canExpire: true,
+                canStack: true,
+              });
+              break;
             case ItemType.ITEM_HEALTH_POTION:
               playAudio('bottle.ogg', 0.5);
               const healthResults = adjustHealth(1, SourceType.POTION);

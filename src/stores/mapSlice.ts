@@ -21,6 +21,7 @@ import {
   SpawnWarningType,
   SplitData,
   SplitType,
+  StatusEffectType,
   TileType,
   UnitTraits,
   WalkableType,
@@ -1309,6 +1310,7 @@ export const createMapSlice: StateCreator<
     lootGen.add(ItemType.ITEM_CHICKEN, 5);
     lootGen.add(ItemType.ITEM_WEAPON, 5);
     lootGen.add(ItemType.ITEM_HEALTH_POTION, 5);
+    lootGen.add(ItemType.ITEM_FLY_POTION, 1);
     lootGen.add(ItemType.ITEM_DIAMOND, 3);
     lootGen.add(ItemType.ITEM_INGOT_STACK, 1);
 
@@ -1661,6 +1663,7 @@ export const createMapSlice: StateCreator<
     itemGen.add(ItemType.ITEM_DIAMOND, 25, 5);
     itemGen.add(ItemType.ITEM_WEAPON, 20);
     itemGen.add(ItemType.ITEM_HEALTH_POTION, 10, 3);
+    itemGen.add(ItemType.ITEM_FLY_POTION, 1, 3);
 
     const lootGen = new LootChance<ItemType>();
     lootGen.add(treasureGen, 45);
@@ -1854,6 +1857,11 @@ export const createMapSlice: StateCreator<
   getFloorZOffset(location: Point2D) {
     const locationHasHazard = get().locationHasHazard;
     const getTilePosition = get().getTilePosition;
+    const hasStatusEffect = get().hasStatusEffect;
+
+    if (hasStatusEffect(StatusEffectType.FLYING)) {
+      return 0.4;
+    }
 
     const hazard = locationHasHazard(location);
     if (hazard && hazard.type === HazardType.TRAP_FLOOR_ARROW) {

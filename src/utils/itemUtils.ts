@@ -90,6 +90,14 @@ export const assignItemDetails = (
         modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(15) },
       };
       break;
+    case ItemType.ITEM_FLY_POTION:
+      newItem = {
+        ...newItem,
+        rotates: true,
+        name: 'potion2',
+        modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(15) },
+      };
+      break;
     case null:
     default:
       break;

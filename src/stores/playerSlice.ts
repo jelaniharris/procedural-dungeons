@@ -441,6 +441,13 @@ export const createPlayerSlice: StateCreator<
       healthAdjustment: 0,
     };
     const isPlayerAtTileType = get().isPlayerAtTileType;
+    const hasStatusEffect = get().hasStatusEffect;
+
+    // IF flying, then ground doesn't effect the player
+    if (hasStatusEffect(StatusEffectType.FLYING)) {
+      return eventResults;
+    }
+
     // Check if player is over water
     if (isPlayerAtTileType(TileType.TILE_WATER)) {
       if (!get().hasStatusEffect(StatusEffectType.SLOW)) {

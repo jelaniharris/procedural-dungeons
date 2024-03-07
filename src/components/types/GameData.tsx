@@ -68,6 +68,12 @@ export const StatusEffectData: StatusEffectDataInfo[] = [
     cssStyles: 'text-yellow-400',
     description: "Reduces enemy's movement distance by 1",
   },
+  {
+    statusEffectType: StatusEffectType.FLYING,
+    name: 'Flying',
+    cssStyles: 'text-purple-400',
+    description: 'Ignore effects from liquids and spike traps',
+  },
 ];
 
 export const ProvisionData: Provision[] = [
