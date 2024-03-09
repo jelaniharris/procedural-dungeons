@@ -22,6 +22,12 @@ type EnemyDataType = {
   description: string;
 };
 
+type HazardDataType = {
+  icon: string;
+  name: string;
+  description: string;
+};
+
 const TutorialScreen = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const { popScreen } = useMainMenuContext();
@@ -199,6 +205,16 @@ const TutorialScreen = () => {
       },
     ];
 
+    const hazardData: HazardDataType[] = [
+      {
+        icon: 'WaterIcon.png',
+        name: 'Water',
+        description: 'Adds SLOW for as long as you are in the water',
+      },
+    ];
+
+    const trapData: HazardDataType[] = [];
+
     const ShowData = ({ data }: { data: IconsDataType }) => {
       return (
         <div className="flex flex-row gap-3 bg-slate-500 rounded-sm p-3 text-white">
@@ -222,6 +238,16 @@ const TutorialScreen = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {enemyData.map((data) => (
             <ShowData key={`enemydata-${data.name}`} data={data} />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {hazardData.map((data) => (
+            <ShowData key={`hazarddata-${data.name}`} data={data} />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {trapData.map((data) => (
+            <ShowData key={`trapData-${data.name}`} data={data} />
           ))}
         </div>
       </>
@@ -278,7 +304,7 @@ const TutorialScreen = () => {
       { pageNumber: 2, pageTitle: 'Overview II', element: overviewPageTwo },
       { pageNumber: 3, pageTitle: 'Items', element: itemsPage },
       { pageNumber: 4, pageTitle: 'Status Effects', element: StatusEffectPage },
-      { pageNumber: 5, pageTitle: 'Enemies', element: enemyPage },
+      { pageNumber: 5, pageTitle: 'Enemies & Hazards', element: enemyPage },
     ];
 
     const pageContent = pages.find((pg) => pg.pageNumber === page);
