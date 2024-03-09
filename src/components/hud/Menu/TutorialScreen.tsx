@@ -209,11 +209,38 @@ const TutorialScreen = () => {
       {
         icon: 'WaterIcon.png',
         name: 'Water',
-        description: 'Adds SLOW for as long as you are in the water',
+        description: 'Adds SLOW for as long as you are in this liquid',
+      },
+      {
+        icon: 'PoisonIcon.png',
+        name: 'Poison',
+        description:
+          'Adds 3 POISON stacks for each turn you are in this liquid',
+      },
+      {
+        icon: 'MudIcon.png',
+        name: 'Mud',
+        description: 'Adds 3 SLOW stacks for each turn you are in this liquid',
+      },
+      {
+        icon: 'LavaIcon.png',
+        name: 'Lava',
+        description: 'Deals 1 damage for each turn you are in this liquid',
       },
     ];
 
-    const trapData: HazardDataType[] = [];
+    const trapData: HazardDataType[] = [
+      {
+        icon: 'SpikeTrapIcon.png',
+        name: 'Spike Trap',
+        description: 'Triggers every 3 turns. Deals 1 damage.',
+      },
+      {
+        icon: 'ArrowTrapIcon.png',
+        name: 'Arrow Trap',
+        description: 'Triggers every 5 turns. Deals 1 damage.',
+      },
+    ];
 
     const ShowData = ({ data }: { data: IconsDataType }) => {
       return (
@@ -235,17 +262,17 @@ const TutorialScreen = () => {
 
     return (
       <>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
           {enemyData.map((data) => (
             <ShowData key={`enemydata-${data.name}`} data={data} />
           ))}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
           {hazardData.map((data) => (
             <ShowData key={`hazarddata-${data.name}`} data={data} />
           ))}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
           {trapData.map((data) => (
             <ShowData key={`trapData-${data.name}`} data={data} />
           ))}

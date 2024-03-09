@@ -1031,18 +1031,18 @@ export const createMapSlice: StateCreator<
     // Create a new LootChance generator
     const lootGen = new LootChance<LiquidType>();
 
-    if (currentLevel === 1) {
+    if (currentLevel < 2) {
       lootGen.add(LiquidType.LIQUID_WATER, 100);
-    } else if (currentLevel > 1) {
+    } else if (currentLevel < 4) {
       lootGen.add(LiquidType.LIQUID_WATER, 75);
       lootGen.add(LiquidType.LIQUID_POISON, 15);
       lootGen.add(LiquidType.LIQUID_MUD, 10);
-    } else if (currentLevel > 2) {
+    } else if (currentLevel < 6) {
       lootGen.add(LiquidType.LIQUID_WATER, 70);
       lootGen.add(LiquidType.LIQUID_POISON, 20);
       lootGen.add(LiquidType.LIQUID_LAVA, 2);
       lootGen.add(LiquidType.LIQUID_MUD, 8);
-    } else if (currentLevel > 4) {
+    } else {
       lootGen.add(LiquidType.LIQUID_WATER, 55);
       lootGen.add(LiquidType.LIQUID_POISON, 25);
       lootGen.add(LiquidType.LIQUID_LAVA, 5);
