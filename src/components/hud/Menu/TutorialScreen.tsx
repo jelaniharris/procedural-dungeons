@@ -76,12 +76,20 @@ const TutorialScreen = () => {
           If you have any weapons, you can walk into an enemy to attack them.
         </p>
         <h2 className="text-xl font-bold py-2">Opening Chests</h2>
-        <p>
-          If you are next to a treasure chest and you have a key, if you use the
-          WAIT action you will unlock the closest chest to you. If you are
-          surrounded by more than one chest, you attempt to open them one at a
-          time starting NORTH and in a clockwise direction.
-        </p>
+        <div className="flex flex-row gap-2">
+          <Image
+            src="/tutorial/ChestExample.png"
+            width={200}
+            height={200}
+            alt={'Player next to chest'}
+          />
+          <p>
+            If you are next to a treasure chest and you have a key, if you use
+            the WAIT action you will unlock the closest chest to you. If you are
+            surrounded by more than one chest, you attempt to open them one at a
+            time starting NORTH and in a clockwise direction.
+          </p>
+        </div>
       </div>
     );
   };
