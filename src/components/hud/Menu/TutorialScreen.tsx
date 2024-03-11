@@ -49,7 +49,7 @@ const TutorialScreen = () => {
         <h2 className="text-lg md:text-xl font-bold pb-2">
           Controls and Movement
         </h2>
-        <p>Move with WASD, wait a turn with SPACEBAR</p>
+        <p>MOVE with WASD, WAIT a turn with SPACEBAR</p>
         <p>
           If on mobile, you can use the thimble at the bottom of the screen to
           move. Drag and release on a direction to move your hero that way. Tap
@@ -74,6 +74,13 @@ const TutorialScreen = () => {
         </p>
         <p>
           If you have any weapons, you can walk into an enemy to attack them.
+        </p>
+        <h2 className="text-xl font-bold py-2">Opening Chests</h2>
+        <p>
+          If you are next to a treasure chest and you have a key, if you use the
+          WAIT action you will unlock the closest chest to you. If you are
+          surrounded by more than one chest, you attempt to open them one at a
+          time starting NORTH and in a clockwise direction.
         </p>
       </div>
     );
