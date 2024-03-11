@@ -27,6 +27,7 @@ import {
   ENTITY_ALIVE,
   ENTITY_DIED,
   EVENT_STARTGAME,
+  EXIT_EXIT,
   EXIT_GREED,
   EXIT_NEED,
   EntityAliveEvent,
@@ -580,6 +581,12 @@ const DungeonScene = () => {
       subscribe(EXIT_GREED, () => {
         setShowExitDialog(false);
         advanceStage();
+      });
+
+      subscribe(EXIT_EXIT, () => {
+        setShowExitDialog(false);
+        setGameStatus(GameStatus.GAME_STARTED);
+        setPaused(false);
       });
 
       subscribe(SHOW_STORE, () => {

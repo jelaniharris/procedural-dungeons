@@ -1,8 +1,13 @@
-import { FaCartPlus } from 'react-icons/fa';
+import { FaArrowLeft, FaCartPlus } from 'react-icons/fa';
 import { FaStairs } from 'react-icons/fa6';
 import { GiExitDoor } from 'react-icons/gi';
 import Button from '../input/Button';
-import { EXIT_GREED, EXIT_NEED, SHOW_STORE } from '../types/EventTypes';
+import {
+  EXIT_EXIT,
+  EXIT_GREED,
+  EXIT_NEED,
+  SHOW_STORE,
+} from '../types/EventTypes';
 import useGame from '../useGame';
 import { ContentPanel, ShowCurrentCurrency, ShowCurrentScore } from './GameHud';
 
@@ -71,6 +76,15 @@ export const ExitOption = () => {
             <span className="text-md text-white">
               (Only lasts for this run.)
             </span>
+          </div>
+          <div className="flex flex-col gap-3 items-center py-0 md:py-10 col-span-1 md:col-span-2">
+            <Button
+              className="bg-purple-500 hover:bg-purple-600 w-full p-4 text-xl"
+              leftIcon={<FaArrowLeft />}
+              onClick={() => publish(EXIT_EXIT)}
+            >
+              Return To Game
+            </Button>
           </div>
         </div>
       </section>
