@@ -55,6 +55,7 @@ import {
   TriggerSummoningEvent,
 } from '../types/EventTypes';
 import {
+  DIRECTIONS,
   DestructableType,
   Direction,
   Enemy,
@@ -121,7 +122,8 @@ const DungeonScene = () => {
   const checkPlayerStandingLocation = useStore(
     (state: GameState) => state.checkPlayerStandingLocation
   );
-
+  const hasStatusEffect = useStore((state: GameState) => state.hasStatusEffect);
+  const psuedoShuffle = useStore((state: GameState) => state.shuffleArray);
   const tickPlayer = useStore((state: GameState) => state.tickPlayer);
   const modifyFloorSteps = useStore(
     (state: GameState) => state.modifyFloorSteps
@@ -433,11 +435,23 @@ const DungeonScene = () => {
 
   const playerAttemptMove = useCallback(
     async (currentPosition: Point2D, desiredDirection: Direction) => {
+      let actualDirection = desiredDirection;
+      let isConfused = false;
+      if (hasStatusEffect(StatusEffectType.CONFUSION)) {
+        if (Math.random() < 0.75) {
+          isConfused = true;
+          const randomDirection = psuedoShuffle(DIRECTIONS, Math.random)[0];
+          actualDirection = randomDirection;
+        }
+      }
+
       console.log(
         'Current Pos:',
         currentPosition,
         ' Desired Direction:',
-        desiredDirection
+        actualDirection,
+        ' Confused: ',
+        isConfused
       );
 
       const playerGO = findGameObjectByName('player');
@@ -448,7 +462,7 @@ const DungeonScene = () => {
 
       // Find offset
       const desiredOffset = POSITION_OFFSETS.find(
-        (offset) => offset.direction == desiredDirection
+        (offset) => offset.direction == actualDirection
       );
       if (desiredOffset) {
         const nextPosition: Point2D = {
@@ -522,6 +536,9 @@ const DungeonScene = () => {
             case WalkableType.BLOCK_WALL:
             case WalkableType.BLOCK_NONE:
             default:
+              if (isConfused) {
+                publish('player-moved', { moved: false });
+              }
               break;
           }
         }
@@ -552,7 +569,25 @@ const DungeonScene = () => {
         modifyFloorSteps(-1);
       }
     },
-    [checkIfWalkable, findGameObjectByName, publish, reduceHealthDestructible]
+    [
+      adjustKeys,
+      canPlayerAttackEnemy,
+      checkIfWalkable,
+      findGameObjectByName,
+      findGameObjectsByXY,
+      getClosestContainerAtLocation,
+      getEnemiesAtLocation,
+      getFloorZOffset,
+      hasKeys,
+      hasStatusEffect,
+      modifyFloorSteps,
+      openContainer,
+      playAudio,
+      playerPerformAttack,
+      psuedoShuffle,
+      publish,
+      reduceHealthDestructible,
+    ]
   );
   console.log('[DungeonScene] RENDERING GAME SCENE');
 
