@@ -159,6 +159,10 @@ const DungeonScene = () => {
     (state: GameState) => state.checkDangerState
   );
 
+  const isPlayerOnLiquid = useStore(
+    (state: GameState) => state.isPlayerOnLiquid
+  );
+
   const checkPlayerLocation = useStore(
     (state: GameState) => state.checkPlayerLocation
   );
@@ -707,8 +711,12 @@ const DungeonScene = () => {
       );
 
       subscribe(PLAYER_MOVED, ({ moved }) => {
+        let soundToPlay = 'stepstone_1.ogg';
+        if (isPlayerOnLiquid()) {
+          soundToPlay = 'sfx100v2_footstep_wet_03.ogg';
+        }
         if (moved) {
-          playAudio('stepstone_1.wav', 0.2);
+          playAudio(soundToPlay, 0.2);
         }
         playerMoved(moved);
       });

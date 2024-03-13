@@ -16,6 +16,7 @@ import {
   TileType,
 } from '@/components/types/GameTypes';
 import { Point2D } from '@/utils/Point2D';
+import { isTileTypeLiquid } from '@/utils/mapUtils';
 import { MathUtils } from 'three';
 import { StateCreator } from 'zustand';
 import { AudioSlice } from './audioSlice';
@@ -65,6 +66,8 @@ export interface PlayerSlice {
   getMaxEnergy: () => number;
   isPlayerAtTileType: (tileType: TileType) => boolean;
   resetPlayer: () => void;
+
+  isPlayerOnLiquid: () => boolean;
 
   // Tick player
   tickPlayer: () => void;
@@ -355,6 +358,17 @@ export const createPlayerSlice: StateCreator<
     let maxEnergy = get().maxEnergy;
     maxEnergy += get().getUpgradeValue(PlayerUpgradeType.UPGRADE_ENERGY);
     return maxEnergy;
+  },
+  isPlayerOnLiquid() {
+    const currentMapData = get().mapData;
+    const currentPlayerData = get().playerPosition;
+
+    const tilePlayer = currentMapData[currentPlayerData.x][currentPlayerData.y];
+
+    if (tilePlayer && isTileTypeLiquid(tilePlayer)) {
+      return true;
+    }
+    return false;
   },
   isPlayerAtTileType(tileType: TileType) {
     const currentMapData = get().mapData;

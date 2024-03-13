@@ -1,6 +1,17 @@
 import { LiquidType, TileType } from '@/components/types/GameTypes';
 import { Point2D } from './Point2D';
 
+export const isTileTypeLiquid = (tileType: TileType) => {
+  switch (tileType) {
+    case TileType.TILE_WATER:
+    case TileType.TILE_POISON:
+    case TileType.TILE_MUD:
+    case TileType.TILE_LAVA:
+      return true;
+  }
+  return false;
+};
+
 export const getLiquidTypeFromTileType = (tileType: TileType): LiquidType => {
   switch (tileType) {
     case TileType.TILE_WATER:
