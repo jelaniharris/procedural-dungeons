@@ -716,7 +716,7 @@ const DungeonScene = () => {
           soundToPlay = 'sfx100v2_footstep_wet_03.ogg';
         }
         if (moved) {
-          playAudio(soundToPlay, 0.2);
+          playAudio(soundToPlay, 0.4);
         }
         playerMoved(moved);
       });
