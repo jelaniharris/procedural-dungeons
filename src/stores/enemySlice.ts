@@ -84,6 +84,7 @@ export const createEnemySlice: StateCreator<
 
     // Create a new LootChance generator
     const enemyTypeGenerator = new LootChance<EnemyType>();
+    enemyTypeGenerator.add(EnemyType.ENEMY_GAS_CONFUSION, 60);
     enemyTypeGenerator.add(EnemyType.ENEMY_ORC, 60);
     if (currentLevel > 2) {
       enemyTypeGenerator.add(EnemyType.ENEMY_SKELETON, 35);
@@ -142,6 +143,7 @@ export const createEnemySlice: StateCreator<
       movementRange: 1,
       traits: UnitTraits.NONE,
       movementVariance: 0,
+      lifetime: 0,
     };
 
     switch (newEnemy.type) {
@@ -163,6 +165,17 @@ export const createEnemySlice: StateCreator<
           movementVariance: 2,
           name: 'Ghost',
           traits: UnitTraits.NOCLIP,
+        };
+        break;
+      case EnemyType.ENEMY_GAS_POISON:
+      case EnemyType.ENEMY_GAS_CONFUSION:
+        newEnemy = {
+          ...newEnemy,
+          movementRange: 1,
+          movementVariance: 0,
+          name: 'Gas',
+          lifetime: 10,
+          traits: UnitTraits.EXPIRES | UnitTraits.PERMEABLE,
         };
         break;
       default:

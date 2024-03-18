@@ -1,8 +1,9 @@
+import { Gas } from '@/components/models/Gas';
 import { Skull } from '@/components/models/Skull';
 import { Ghost } from '@/components/models/characters/CharacterGhost';
 import { Orc } from '@/components/models/characters/CharacterOrc';
 import { Skeleton } from '@/components/models/characters/CharacterSkeleton';
-import { EnemyStatus, EnemyType } from '@/components/types/GameTypes';
+import { EnemyStatus, EnemyType, Gases } from '@/components/types/GameTypes';
 import { GameState, useStore } from '@/stores/useStore';
 import { useRef } from 'react';
 import { Vector3 } from 'three';
@@ -70,6 +71,32 @@ export const ShowEnemies = () => {
                 position={new Vector3(enemy.position.x, 0, enemy.position.y)}
                 enemy={enemy}
                 enemyId={enemy.id}
+                ref={(el) => {
+                  if (el) {
+                    enemiesRef.current[enemy.id] = el;
+                  }
+                }}
+              />
+            );
+            break;
+          case EnemyType.ENEMY_GAS_CONFUSION:
+          case EnemyType.ENEMY_GAS_POISON:
+            let gasType = Gases.GAS_NONE;
+            switch (enemy.type) {
+              case EnemyType.ENEMY_GAS_POISON:
+                gasType = Gases.GAS_POISON;
+                break;
+              case EnemyType.ENEMY_GAS_CONFUSION:
+                gasType = Gases.GAS_CONFUSION;
+                break;
+            }
+            enemyElement = (
+              <Gas
+                key={`${enemy.name}-${enemy.id}`}
+                position={new Vector3(enemy.position.x, 0, enemy.position.y)}
+                enemy={enemy}
+                enemyId={enemy.id}
+                gasType={gasType}
                 ref={(el) => {
                   if (el) {
                     enemiesRef.current[enemy.id] = el;

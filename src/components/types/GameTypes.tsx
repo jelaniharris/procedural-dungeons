@@ -61,6 +61,8 @@ export enum EnemyType {
   ENEMY_ORC,
   ENEMY_SKELETON,
   ENEMY_GHOST,
+  ENEMY_GAS_POISON,
+  ENEMY_GAS_CONFUSION,
 }
 
 export enum EnemyStatus {
@@ -125,6 +127,8 @@ export enum UnitTraits {
   NONE = 0,
   NOCLIP = 1 << 0,
   OPENDOORS = 1 << 1,
+  PERMEABLE = 1 << 2,
+  EXPIRES = 1 << 3,
 }
 
 export enum DoorStatus {
@@ -142,6 +146,7 @@ export type Enemy = {
   traits: UnitTraits;
   movementRange: number;
   movementVariance: number;
+  lifetime: number;
   movementPoints: Point2D[];
 };
 
@@ -163,6 +168,12 @@ export type Destructable = {
   type: DestructableType;
   contains: ItemType;
 };
+
+export enum Gases {
+  GAS_NONE,
+  GAS_POISON,
+  GAS_CONFUSION,
+}
 
 export enum TouchControls {
   CONTROL_NONE,
