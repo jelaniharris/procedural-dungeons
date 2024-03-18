@@ -2,6 +2,7 @@ import {
   Direction,
   Enemy,
   EnemyStatus,
+  EnemyTouchType,
   EnemyType,
   LocationActionType,
   StatusEffectType,
@@ -84,13 +85,17 @@ export const createEnemySlice: StateCreator<
 
     // Create a new LootChance generator
     const enemyTypeGenerator = new LootChance<EnemyType>();
-    enemyTypeGenerator.add(EnemyType.ENEMY_GAS_CONFUSION, 60);
+
     enemyTypeGenerator.add(EnemyType.ENEMY_ORC, 60);
     if (currentLevel > 2) {
       enemyTypeGenerator.add(EnemyType.ENEMY_SKELETON, 35);
     }
     if (currentLevel > 3) {
       enemyTypeGenerator.add(EnemyType.ENEMY_GHOST, 25);
+    }
+    if (currentLevel > 5) {
+      enemyTypeGenerator.add(EnemyType.ENEMY_GAS_CONFUSION, 10);
+      enemyTypeGenerator.add(EnemyType.ENEMY_GAS_POISON, 10);
     }
 
     while (emptySpots.length != 0 && numberEnemies > 0) {
@@ -141,6 +146,8 @@ export const createEnemySlice: StateCreator<
       nextDirection: { x: 0, y: 0 },
       movementPoints: [],
       movementRange: 1,
+      touchType: EnemyTouchType.TOUCHTYPE_DAMAGE,
+      touchStatusEffect: StatusEffectType.NONE,
       traits: UnitTraits.NONE,
       movementVariance: 0,
       lifetime: 0,
@@ -169,13 +176,28 @@ export const createEnemySlice: StateCreator<
         break;
       case EnemyType.ENEMY_GAS_POISON:
       case EnemyType.ENEMY_GAS_CONFUSION:
+        let statusType = StatusEffectType.NONE;
+        switch (newEnemy.type) {
+          case EnemyType.ENEMY_GAS_POISON:
+            statusType = StatusEffectType.POISON;
+            break;
+          case EnemyType.ENEMY_GAS_CONFUSION:
+            statusType = StatusEffectType.CONFUSION;
+            break;
+        }
+
         newEnemy = {
           ...newEnemy,
           movementRange: 1,
           movementVariance: 0,
           name: 'Gas',
+          touchType: EnemyTouchType.TOUCHTYPE_STATUS,
+          touchStatusEffect: statusType,
           lifetime: 10,
-          traits: UnitTraits.EXPIRES | UnitTraits.PERMEABLE,
+          traits:
+            UnitTraits.EXPIRES |
+            UnitTraits.PERMEABLE |
+            UnitTraits.NON_ATTACKABLE,
         };
         break;
       default:

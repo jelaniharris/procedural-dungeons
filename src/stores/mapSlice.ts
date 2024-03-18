@@ -442,6 +442,18 @@ export const createMapSlice: StateCreator<
       return { result: false, type: WalkableType.BLOCK_DESTRUCTIBLE };
     }
     const enemiesAtLocation = get().getEnemiesAtLocation(location);
+
+    // If all enemies are permeable
+    if (
+      enemiesAtLocation.every(
+        (enemy) =>
+          (enemy.traits & UnitTraits.PERMEABLE) === UnitTraits.PERMEABLE
+      )
+    ) {
+      return { result: true, type: WalkableType.THROUGH_ENEMY };
+    }
+
+    // Some are permeable, or all are not, so we overall block
     if (enemiesAtLocation.length > 0) {
       return { result: false, type: WalkableType.BLOCK_ENEMY };
     }

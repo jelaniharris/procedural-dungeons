@@ -129,11 +129,17 @@ export enum UnitTraits {
   OPENDOORS = 1 << 1,
   PERMEABLE = 1 << 2,
   EXPIRES = 1 << 3,
+  NON_ATTACKABLE = 1 << 4,
 }
 
 export enum DoorStatus {
   CLOSED,
   OPENED,
+}
+
+export enum EnemyTouchType {
+  TOUCHTYPE_DAMAGE,
+  TOUCHTYPE_STATUS,
 }
 
 export type Enemy = {
@@ -144,6 +150,8 @@ export type Enemy = {
   status: EnemyStatus;
   nextDirection: Point2D;
   traits: UnitTraits;
+  touchType: EnemyTouchType;
+  touchStatusEffect: StatusEffectType;
   movementRange: number;
   movementVariance: number;
   lifetime: number;
@@ -161,6 +169,7 @@ export enum WalkableType {
   BLOCK_WALL,
   BLOCK_DESTRUCTIBLE,
   BLOCK_ENEMY,
+  THROUGH_ENEMY,
 }
 
 export type Destructable = {

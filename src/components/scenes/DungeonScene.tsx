@@ -59,6 +59,7 @@ import {
   DestructableType,
   Direction,
   Enemy,
+  EnemyTouchType,
   GameStatus,
   ItemContainerStatus,
   ItemType,
@@ -489,6 +490,16 @@ const DungeonScene = () => {
           );
           modifyFloorSteps(-1);
 
+          switch (checkWalkable.type) {
+            case WalkableType.THROUGH_ENEMY:
+              // Get all enemies in the next location
+              const throughEnemies = getEnemiesAtLocation(nextPosition);
+              throughEnemies.forEach((enemy) => {
+                publish(PLAYER_TOUCHED_ENEMY, { enemy: enemy });
+              });
+              break;
+          }
+
           if (moved) {
             publish('player-moved', { moved: true });
           }
@@ -535,7 +546,6 @@ const DungeonScene = () => {
                   publish('player-moved', { moved: false });
                 }
               });
-
               break;
             case WalkableType.BLOCK_WALL:
             case WalkableType.BLOCK_NONE:
@@ -673,17 +683,29 @@ const DungeonScene = () => {
 
       subscribe(PLAYER_TOUCHED_ENEMY, ({ enemy }) => {
         console.log('Touched by enemy: ', enemy.name);
-        playAudio('hurt_04.ogg');
-        if (adjustHealth(-1).isDead) {
-          // Then the player died
-          publish(PLAYER_DIED, {});
+
+        if (enemy.touchType === EnemyTouchType.TOUCHTYPE_DAMAGE) {
+          playAudio('hurt_04.ogg');
+          if (adjustHealth(-1).isDead) {
+            // Then the player died
+            publish(PLAYER_DIED, {});
+          } else {
+            /*const playerGO = findGameObjectByName('player');
+            if (playerGO) {
+              playerGO.publish<PlayAnimationEvent>('play-animation', {
+                animName: 'fall',
+              });
+            }*/
+          }
         } else {
-          /*const playerGO = findGameObjectByName('player');
-          if (playerGO) {
-            playerGO.publish<PlayAnimationEvent>('play-animation', {
-              animName: 'fall',
-            });
-          }*/
+          // Touch type is status
+          playAudio('hurt_04.ogg');
+          addStatusEffect({
+            statusEffectType: enemy.touchStatusEffect,
+            duration: 10,
+            canExpire: true,
+            canStack: true,
+          });
         }
       });
 

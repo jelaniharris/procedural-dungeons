@@ -14,6 +14,7 @@ import {
   StatusEffectEvent,
   StatusEffectType,
   TileType,
+  UnitTraits,
 } from '@/components/types/GameTypes';
 import { Point2D } from '@/utils/Point2D';
 import { isTileTypeLiquid } from '@/utils/mapUtils';
@@ -503,7 +504,16 @@ export const createPlayerSlice: StateCreator<
   canPlayerAttackEnemy: (enemy: Enemy) => {
     const attacks = get().attacks;
 
+    // If dead then can't attack
     if (enemy.status == EnemyStatus.STATUS_DEAD) {
+      return false;
+    }
+
+    // If can't be attack, then can't attack
+    if (
+      (enemy.traits & UnitTraits.NON_ATTACKABLE) ==
+      UnitTraits.NON_ATTACKABLE
+    ) {
       return false;
     }
 
