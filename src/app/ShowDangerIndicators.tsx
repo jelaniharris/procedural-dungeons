@@ -1,6 +1,6 @@
 import DangerIndicator from '@/components/models/DangerIndicator';
+import { DangerType } from '@/components/types/GameTypes';
 import { GameState, useStore } from '@/stores/useStore';
-import { Point2D } from '@/utils/Point2D';
 
 const indicatorHeight = 0.5;
 
@@ -15,11 +15,12 @@ export const ShowDangerIndicators = () => {
     return <></>;
   }
 
-  dangerZones.forEach((dzone: Point2D, i) => {
+  dangerZones.forEach((dzone: DangerType, i) => {
     indicators.push(
       <DangerIndicator
         key={`dangerIndicator-${i}`}
-        position={[dzone.x, indicatorHeight, dzone.y]}
+        position={[dzone.location.x, indicatorHeight, dzone.location.y]}
+        indicatorType={dzone.indicatorType}
       />
     );
   });

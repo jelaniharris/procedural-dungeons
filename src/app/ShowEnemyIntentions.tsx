@@ -4,8 +4,8 @@ import { PathChain, generatePathChain } from '@/utils/gridUtils';
 import { MathUtils } from 'three';
 
 export const ShowEnemyIntention = () => {
-  const { enemies, isDead } = useStore((store: GameState) => ({
-    enemies: store.enemies,
+  const enemies = useStore((store: GameState) => store.enemies);
+  const { isDead } = useStore((store: GameState) => ({
     isDead: store.isDead,
   }));
 
@@ -34,6 +34,7 @@ export const ShowEnemyIntention = () => {
           position={[chain.position.x, arrowHeight, chain.position.y]}
           curveType={chain.curveType}
           rotation={[0, MathUtils.degToRad(chain.tileRotation), 0]}
+          touchType={enemy.touchType}
         />
       );
     });

@@ -6,21 +6,35 @@ Command: npx gltfjsx@6.2.10 .\public\models\indicators\DirectionArrow.glb -t
 import { useLoader } from '@react-three/fiber';
 import { useEffect, useMemo } from 'react';
 import * as THREE from 'three';
-import { PathCurves } from '../types/GameTypes';
+import { EnemyTouchType, PathCurves } from '../types/GameTypes';
 
 type DirectionArrowType = JSX.IntrinsicElements['group'] & {
   curveType?: PathCurves;
+  touchType: EnemyTouchType;
 };
 
 export default function DirectionArrow(props: DirectionArrowType) {
   const rows = 2;
   const cols = 2;
-  const lspriteSheet = useLoader(
+
+  const damageSpriteSheet = useLoader(
     THREE.TextureLoader,
     '/textures/ArrowsOverLay.png'
   );
-  const spriteSheet = useMemo(() => lspriteSheet.clone(), [lspriteSheet]);
-  spriteSheet.minFilter = THREE.LinearFilter;
+  const statusSpriteSheet = useLoader(
+    THREE.TextureLoader,
+    '/textures/StatusArrowsOverLay.png'
+  );
+
+  const spriteSheet = useMemo(() => {
+    if (props.touchType === EnemyTouchType.TOUCHTYPE_DAMAGE) {
+      return damageSpriteSheet.clone();
+    }
+    return statusSpriteSheet.clone();
+  }, [damageSpriteSheet, props.touchType, statusSpriteSheet]);
+
+  spriteSheet.minFilter = THREE.NearestFilter;
+
   spriteSheet.repeat.x = 1 / cols;
   spriteSheet.repeat.y = 1 / rows;
 

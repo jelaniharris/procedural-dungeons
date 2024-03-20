@@ -11,7 +11,7 @@ import * as THREE from 'three';
 import { GLTF } from 'three-stdlib';
 import useGameObjectEvent from '../entities/useGameObjectEvent';
 import { OnTickEvent, PLAYER_TOUCHED_ENEMY } from '../types/EventTypes';
-import { Hazard } from '../types/GameTypes';
+import { DangerIndicator, Hazard } from '../types/GameTypes';
 import useGame from '../useGame';
 
 type GLTFResult = GLTF & {
@@ -55,7 +55,10 @@ export function FloorGrates(props: FloorGratesProps) {
 
       // Phase before trigger = give the player a warning
       if (currentPhase.current === 1) {
-        addLocationsToDangerZones([props.data.worldPosition]);
+        addLocationsToDangerZones(
+          [props.data.worldPosition],
+          DangerIndicator.STATUS_EFFECT
+        );
       }
 
       if (currentPhase.current <= 0) {

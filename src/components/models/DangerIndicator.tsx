@@ -1,11 +1,17 @@
-import * as THREE from 'three';
-import React from 'react';
 import { useLoader } from '@react-three/fiber';
+import * as THREE from 'three';
+import { DangerIndicator as DangerIndicatorType } from '../types/GameTypes';
 
-export default function DangerIndicator(props: JSX.IntrinsicElements['group']) {
+type DangerIndicatorProps = JSX.IntrinsicElements['group'] & {
+  indicatorType: DangerIndicatorType;
+};
+
+export default function DangerIndicator(props: DangerIndicatorProps) {
   const lspriteSheet = useLoader(
     THREE.TextureLoader,
-    '/textures/DangerIcon.png'
+    props.indicatorType === DangerIndicatorType.DAMAGE
+      ? '/textures/DangerIcon.png'
+      : '/textures/WarningIcon.png'
   );
   const material = new THREE.SpriteMaterial({
     map: lspriteSheet,

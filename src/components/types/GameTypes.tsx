@@ -319,6 +319,17 @@ export type WorldDataType = {
   tiles: (TileType | null)[][];
 };
 
+export enum DangerIndicator {
+  NONE,
+  DAMAGE,
+  STATUS_EFFECT,
+}
+
+export type DangerType = {
+  location: Point2D;
+  indicatorType: DangerIndicator;
+};
+
 export enum Controls {
   forward = 'forward',
   back = 'back',

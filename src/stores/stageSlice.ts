@@ -1,4 +1,6 @@
 import {
+  DangerIndicator,
+  DangerType,
   Enemy,
   GameSettings,
   GameStatus,
@@ -26,7 +28,6 @@ export type PerformTurnProps = {
 
 export interface StageSlice {
   currentLevel: number;
-  dangerZones: Point2D[];
   gameType: string;
   showExitDialog: boolean;
   showSettingsDialog: boolean;
@@ -38,8 +39,15 @@ export interface StageSlice {
   advanceStage: () => void;
   newStageTriggers: () => void;
   performTurn: (props: PerformTurnProps) => void;
+
+  // Danger Zones
+  dangerZones: DangerType[];
   resetDangerZones: () => void;
-  addLocationsToDangerZones: (locations: Point2D[]) => void;
+  addLocationsToDangerZones: (
+    locations: Point2D[],
+    dangerIndicator?: DangerIndicator
+  ) => void;
+  // Dialogs
   setShowExitDialog: (showDialog: boolean) => void;
   setShowSettingsDialog: (showDialog: boolean) => void;
   setShowStoreDialog: (showStoreDialog: boolean) => void;
@@ -147,10 +155,23 @@ export const createStageSlice: StateCreator<
       dangerZones: [],
     });
   },
-  addLocationsToDangerZones(locations: Point2D[]) {
+  addLocationsToDangerZones(
+    locations: Point2D[],
+    dangerIndicator = DangerIndicator.DAMAGE
+  ) {
     const currentDangerZones = get().dangerZones;
+
+    const newDangerZones = [...currentDangerZones];
+
+    locations.forEach((location) => {
+      newDangerZones.push({
+        location,
+        indicatorType: dangerIndicator,
+      } as DangerType);
+    });
+
     set({
-      dangerZones: [...currentDangerZones, ...locations],
+      dangerZones: newDangerZones,
     });
   },
   async performTurn({ enemyLocationResultCallback }: PerformTurnProps) {
