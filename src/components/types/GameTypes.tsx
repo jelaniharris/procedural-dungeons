@@ -54,6 +54,7 @@ export enum HazardType {
   TRAP_NONE,
   TRAP_FLOOR_SPIKES,
   TRAP_FLOOR_ARROW,
+  TRAP_FLOOR_GRATES,
 }
 
 export enum EnemyType {
@@ -154,6 +155,7 @@ export type Enemy = {
   touchStatusEffect: StatusEffectType;
   movementRange: number;
   movementVariance: number;
+  leavesCorpse: boolean;
   lifetime: number;
   movementPoints: Point2D[];
 };
@@ -218,6 +220,7 @@ export type Hazard = BaseGameObject & {
   isActive: boolean;
   currentPhase: number;
   maxPhase: number;
+  emitterGas?: Gases;
   facingDirection?: Direction;
 };
 

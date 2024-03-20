@@ -11,6 +11,7 @@ import {
 } from '@/components/types/GameTypes';
 import { LootChance } from '@/utils/LootChance';
 import { Point2D } from '@/utils/Point2D';
+import { getStatusTypeFromEnemyType } from '@/utils/hazardUtils';
 import randomIntFromInterval from '@/utils/numberUtils';
 import { Vector2 } from 'three';
 import { StateCreator } from 'zustand';
@@ -37,7 +38,10 @@ export interface EnemySlice {
     enemyType: EnemyType,
     newEnemyIndex: number
   ) => Enemy | null;
-  spawnEnemy: (location: Point2D, spawnType: EnemyType) => void;
+  spawnEnemy: (location: Point2D, spawnType: EnemyType) => Enemy | null;
+  flagExpiredEnemies: (enemies: Enemy[]) => boolean;
+  flagEnemyAsDead: (enemy: Enemy) => void;
+  filterExpiredEnemies: (enemies: Enemy[]) => Enemy[];
 }
 
 export interface EnemyLocationResultsCallback {
@@ -145,6 +149,7 @@ export const createEnemySlice: StateCreator<
       status: EnemyStatus.STATUS_ROAMING,
       nextDirection: { x: 0, y: 0 },
       movementPoints: [],
+      leavesCorpse: true,
       movementRange: 1,
       touchType: EnemyTouchType.TOUCHTYPE_DAMAGE,
       touchStatusEffect: StatusEffectType.NONE,
@@ -176,15 +181,7 @@ export const createEnemySlice: StateCreator<
         break;
       case EnemyType.ENEMY_GAS_POISON:
       case EnemyType.ENEMY_GAS_CONFUSION:
-        let statusType = StatusEffectType.NONE;
-        switch (newEnemy.type) {
-          case EnemyType.ENEMY_GAS_POISON:
-            statusType = StatusEffectType.POISON;
-            break;
-          case EnemyType.ENEMY_GAS_CONFUSION:
-            statusType = StatusEffectType.CONFUSION;
-            break;
-        }
+        const statusType = getStatusTypeFromEnemyType(newEnemy.type);
 
         newEnemy = {
           ...newEnemy,
@@ -193,7 +190,8 @@ export const createEnemySlice: StateCreator<
           name: 'Gas',
           touchType: EnemyTouchType.TOUCHTYPE_STATUS,
           touchStatusEffect: statusType,
-          lifetime: 10,
+          lifetime: 5,
+          leavesCorpse: false,
           traits:
             UnitTraits.EXPIRES |
             UnitTraits.PERMEABLE |
@@ -206,7 +204,7 @@ export const createEnemySlice: StateCreator<
     }
     return newEnemy;
   },
-  spawnEnemy(location: Point2D, spawnType: EnemyType) {
+  spawnEnemy(location: Point2D, spawnType: EnemyType): Enemy | null {
     const enemyIndex = get().enemyIndex;
     let newEnemyIndex = enemyIndex;
     const enemies = get().enemies;
@@ -217,6 +215,7 @@ export const createEnemySlice: StateCreator<
     const newEnemy = spawnEnemyData(location, spawnType, newEnemyIndex);
     if (newEnemy) {
       newEnemyData.push(newEnemy);
+      console.log(newEnemy);
       newEnemyIndex++;
     }
 
@@ -224,6 +223,7 @@ export const createEnemySlice: StateCreator<
       enemyIndex: newEnemyIndex,
       enemies: newEnemyData,
     });
+    return newEnemy;
   },
   aiCalculateNewDirection(enemies: Enemy[]) {
     const determineValidDirections = get().determineValidDirections;
@@ -412,6 +412,9 @@ export const createEnemySlice: StateCreator<
 
           currentEnemies[i].position.x = nextLocation.x;
           currentEnemies[i].position.y = nextLocation.y;
+          if (currentEnemies[i].lifetime > 0) {
+            currentEnemies[i].lifetime -= 1;
+          }
         }
       }
     });
@@ -420,6 +423,18 @@ export const createEnemySlice: StateCreator<
 
     set({ enemies: currentEnemies });
     return enemyHasMovementLeft;
+  },
+  flagEnemyAsDead: (enemy: Enemy) => {
+    enemy.status = EnemyStatus.STATUS_DEAD;
+    enemy.movementPoints = [];
+  },
+  filterExpiredEnemies: (enemies: Enemy[]): Enemy[] => {
+    const newEnemies: Enemy[] = enemies.filter(
+      (enemy) =>
+        (enemy.status & EnemyStatus.STATUS_DEAD) != EnemyStatus.STATUS_DEAD &&
+        enemy.leavesCorpse
+    );
+    return newEnemies;
   },
   removeEnemy: (enemy: Enemy) => {
     const enemies = get().enemies;
@@ -442,5 +457,24 @@ export const createEnemySlice: StateCreator<
       return true;
     }
     return false;
+  },
+  flagExpiredEnemies: (enemies: Enemy[]) => {
+    const flagEnemyAsDead = get().flagEnemyAsDead;
+    let flaggedEnemy = false;
+
+    enemies.forEach(async (enemy) => {
+      if ((enemy.status & EnemyStatus.STATUS_DEAD) == EnemyStatus.STATUS_DEAD) {
+        return;
+      }
+
+      if (
+        (enemy.traits & UnitTraits.EXPIRES) === UnitTraits.EXPIRES &&
+        enemy.lifetime <= 0
+      ) {
+        flagEnemyAsDead(enemy);
+        flaggedEnemy = true;
+      }
+    });
+    return flaggedEnemy;
   },
 });

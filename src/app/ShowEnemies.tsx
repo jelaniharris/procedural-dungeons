@@ -3,8 +3,9 @@ import { Skull } from '@/components/models/Skull';
 import { Ghost } from '@/components/models/characters/CharacterGhost';
 import { Orc } from '@/components/models/characters/CharacterOrc';
 import { Skeleton } from '@/components/models/characters/CharacterSkeleton';
-import { EnemyStatus, EnemyType, Gases } from '@/components/types/GameTypes';
+import { EnemyStatus, EnemyType } from '@/components/types/GameTypes';
 import { GameState, useStore } from '@/stores/useStore';
+import { getGasFromEnemyType } from '@/utils/hazardUtils';
 import { useRef } from 'react';
 import { Vector3 } from 'three';
 
@@ -25,7 +26,7 @@ export const ShowEnemies = () => {
     if (enemy && enemy.id >= 0) {
       let enemyElement;
 
-      if (enemy.status == EnemyStatus.STATUS_DEAD) {
+      if (enemy.status == EnemyStatus.STATUS_DEAD && enemy.leavesCorpse) {
         enemyElement = (
           <Skull
             key={`${enemy.name}-${enemy.id}`}
@@ -81,15 +82,8 @@ export const ShowEnemies = () => {
             break;
           case EnemyType.ENEMY_GAS_CONFUSION:
           case EnemyType.ENEMY_GAS_POISON:
-            let gasType = Gases.GAS_NONE;
-            switch (enemy.type) {
-              case EnemyType.ENEMY_GAS_POISON:
-                gasType = Gases.GAS_POISON;
-                break;
-              case EnemyType.ENEMY_GAS_CONFUSION:
-                gasType = Gases.GAS_CONFUSION;
-                break;
-            }
+            const gasType = getGasFromEnemyType(enemy.type);
+
             enemyElement = (
               <Gas
                 key={`${enemy.name}-${enemy.id}`}

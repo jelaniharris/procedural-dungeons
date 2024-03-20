@@ -156,6 +156,8 @@ export const createStageSlice: StateCreator<
   async performTurn({ enemyLocationResultCallback }: PerformTurnProps) {
     const aiMove = get().aiMove;
     const aiCalculateNewDirection = get().aiCalculateNewDirection;
+    const flagExpiredEnemies = get().flagExpiredEnemies;
+    const filterExpiredEnemies = get().filterExpiredEnemies;
 
     // All of the enemies move
     let hasMovesLeft = true;
@@ -168,11 +170,12 @@ export const createStageSlice: StateCreator<
       }
     }
 
-    // Then trigger traps
-
     // Calculate the new direction the enemies are going
-    const currentEnemies = get().enemies;
+    let currentEnemies = get().enemies;
     aiCalculateNewDirection(currentEnemies);
+    if (flagExpiredEnemies(currentEnemies)) {
+      currentEnemies = filterExpiredEnemies(currentEnemies);
+    }
     set({ enemies: currentEnemies });
   },
   setPaused(newPauseStatus: boolean) {

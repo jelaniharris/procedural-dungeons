@@ -1,5 +1,6 @@
 import {
   DIRECTIONS,
+  Gases,
   Hazard,
   HazardType,
   LiquidType,
@@ -42,6 +43,7 @@ export const createHazardSlice: StateCreator<
     const lootGen = new LootChance<HazardType>();
     lootGen.add(HazardType.TRAP_FLOOR_SPIKES, 50);
     lootGen.add(HazardType.TRAP_FLOOR_ARROW, 50);
+    lootGen.add(HazardType.TRAP_FLOOR_GRATES, 70);
 
     let numberHazards = 6 + currentLevel * 4;
 
@@ -96,6 +98,15 @@ export const createHazardSlice: StateCreator<
           newHazard = {
             ...newHazard,
             name: 'Spike Trap',
+          };
+          break;
+        case HazardType.TRAP_FLOOR_GRATES:
+          const gasType =
+            randomGen() < 0.5 ? Gases.GAS_CONFUSION : Gases.GAS_POISON;
+          newHazard = {
+            ...newHazard,
+            emitterGas: gasType,
+            name: 'Gas Trap',
           };
           break;
       }
