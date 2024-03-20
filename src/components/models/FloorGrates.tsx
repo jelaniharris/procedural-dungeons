@@ -64,7 +64,6 @@ export function FloorGrates(props: FloorGratesProps) {
       if (currentPhase.current <= 0) {
         // Spike is active, do damage if the player is on top of me
         isActive.current = true;
-        console.log('Should emit: ', props.data.emitterGas);
         if (props.data.emitterGas) {
           const enemyType = getEnemyTypeFromGasType(props.data.emitterGas);
           const enemy = spawnEnemy({ ...props.data.worldPosition }, enemyType);
