@@ -699,7 +699,7 @@ const DungeonScene = () => {
           }
         } else {
           // Touch type is status
-          playAudio('hurt_04.ogg');
+          playAudio('cough_03.ogg');
           addStatusEffect({
             statusEffectType: enemy.touchStatusEffect,
             duration: 10,

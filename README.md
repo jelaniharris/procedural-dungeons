@@ -37,7 +37,7 @@ Move onto treasure to collect them
 - [Plingy Coin by Fupi](https://opengameart.org/content/plingy-coin)
 - [Footstep sounds by Jute](https://opengameart.org/content/foot-walking-step-sounds-on-stone-water-snow-wood-and-dirt)
 - [Ambient Dungeon Sound by JaggedStone](https://opengameart.org/content/loopable-dungeon-ambience)
-- [Hurt and Eating Sounds by RubberDuck](https://opengameart.org/content/80-cc0-creature-sfx)
+- [Hurt, Coughing, and Eating Sounds by RubberDuck](https://opengameart.org/content/80-cc0-creature-sfx)
 - [Bottle sound by artisticdude](https://opengameart.org/content/rpg-sound-pack)
 - [Game Over by Oiboo](https://opengameart.org/content/game-over-bad-chest-sfx)
 - [Wood Breaking sound by Independent.Ni](https://opengameart.org/content/35-wooden-crackshitsdestructions)
