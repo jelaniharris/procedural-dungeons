@@ -42,8 +42,8 @@ export const createHazardSlice: StateCreator<
 
     const lootGen = new LootChance<HazardType>();
     lootGen.add(HazardType.TRAP_FLOOR_SPIKES, 50);
-    lootGen.add(HazardType.TRAP_FLOOR_ARROW, 50);
-    lootGen.add(HazardType.TRAP_FLOOR_GRATES, 70);
+    lootGen.add(HazardType.TRAP_FLOOR_ARROW, 40);
+    lootGen.add(HazardType.TRAP_FLOOR_GRATES, 30);
 
     let numberHazards = 6 + currentLevel * 4;
 

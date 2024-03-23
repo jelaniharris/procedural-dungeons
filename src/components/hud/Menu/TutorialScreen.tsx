@@ -31,7 +31,7 @@ type HazardDataType = {
 const TutorialScreen = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const { popScreen } = useMainMenuContext();
-  const maxPage = 5;
+  const maxPage = 6;
 
   const advancePage = () => {
     const nextPage = clamp(currentPage + 1, 1, maxPage);
@@ -41,6 +41,24 @@ const TutorialScreen = () => {
   const decreasePage = () => {
     const prevPage = clamp(currentPage - 1, 1, maxPage);
     setCurrentPage(prevPage);
+  };
+
+  const ShowData = ({ data }: { data: IconsDataType }) => {
+    return (
+      <div className="flex flex-row gap-3 bg-slate-500 rounded-sm p-3 text-white">
+        <Image
+          src={`/images/icons/${data.icon}`}
+          className="border border-slate-400"
+          width={100}
+          height={100}
+          alt={data.name}
+        />
+        <div className="flex flex-col gap-1">
+          <strong>{data.name}</strong>
+          {data.description}
+        </div>
+      </div>
+    );
   };
 
   const overviewPage = () => {
@@ -171,24 +189,6 @@ const TutorialScreen = () => {
       },
     ];
 
-    const ShowData = ({ data }: { data: IconsDataType }) => {
-      return (
-        <div className="flex flex-row gap-3 bg-slate-500 rounded-sm p-3 text-white">
-          <Image
-            src={`/images/icons/${data.icon}`}
-            className="border border-slate-400"
-            width={70}
-            height={70}
-            alt={data.name}
-          />
-          <div className="flex flex-col gap-1">
-            <strong>{data.name}</strong>
-            {data.description}
-          </div>
-        </div>
-      );
-    };
-
     return (
       <>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -200,26 +200,7 @@ const TutorialScreen = () => {
     );
   };
 
-  const enemyPage = () => {
-    const enemyData: EnemyDataType[] = [
-      {
-        icon: 'OrcIcon.png',
-        name: 'Orcman',
-        description:
-          'Always moves two spaces randomly. Can open doors to rooms.',
-      },
-      {
-        icon: 'SkeletonIcon.png',
-        name: 'Skelebruh',
-        description: 'Moves 0-2 spaces randomly.',
-      },
-      {
-        icon: 'GhostIcon.png',
-        name: 'Ghoulie',
-        description: 'Moves 0-3 spaces randomly. Can move through walls.',
-      },
-    ];
-
+  const enemyPageTwo = () => {
     const hazardData: HazardDataType[] = [
       {
         icon: 'WaterIcon.png',
@@ -255,33 +236,16 @@ const TutorialScreen = () => {
         name: 'Arrow Trap',
         description: 'Triggers every 5 turns. Deals 1 damage.',
       },
+      {
+        icon: 'GasTrapIcon.png',
+        name: 'Gas Trap',
+        description:
+          'Triggers every 6 turns. Spawns gas that gives status effects.',
+      },
     ];
-
-    const ShowData = ({ data }: { data: IconsDataType }) => {
-      return (
-        <div className="flex flex-row gap-3 bg-slate-500 rounded-sm p-3 text-white">
-          <Image
-            src={`/images/icons/${data.icon}`}
-            className="border border-slate-400"
-            width={100}
-            height={100}
-            alt={data.name}
-          />
-          <div className="flex flex-col gap-1">
-            <strong>{data.name}</strong>
-            {data.description}
-          </div>
-        </div>
-      );
-    };
 
     return (
       <>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-          {enemyData.map((data) => (
-            <ShowData key={`enemydata-${data.name}`} data={data} />
-          ))}
-        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
           {hazardData.map((data) => (
             <ShowData key={`hazarddata-${data.name}`} data={data} />
@@ -290,6 +254,49 @@ const TutorialScreen = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
           {trapData.map((data) => (
             <ShowData key={`trapData-${data.name}`} data={data} />
+          ))}
+        </div>
+      </>
+    );
+  };
+
+  const enemyPageOne = () => {
+    const enemyData: EnemyDataType[] = [
+      {
+        icon: 'OrcIcon.png',
+        name: 'Orcman',
+        description:
+          'Always moves two spaces randomly. Can open doors to rooms.',
+      },
+      {
+        icon: 'SkeletonIcon.png',
+        name: 'Skelebruh',
+        description: 'Moves 0-2 spaces randomly.',
+      },
+      {
+        icon: 'GhostIcon.png',
+        name: 'Ghoulie',
+        description: 'Moves 0-3 spaces randomly. Can move through walls.',
+      },
+      {
+        icon: 'ConfusionGasIcon.png',
+        name: 'Confusion Gas',
+        description:
+          'Moves 1 spaces randomly. Gives CONFUSION status on contact. Fades after 5 turns.',
+      },
+      {
+        icon: 'PoisonGasIcon.png',
+        name: 'Poison Gas',
+        description:
+          'Moves 1 spaces randomly. Gives POISON status on contact. Fades after 5 turns.',
+      },
+    ];
+
+    return (
+      <>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+          {enemyData.map((data) => (
+            <ShowData key={`enemydata-${data.name}`} data={data} />
           ))}
         </div>
       </>
@@ -346,7 +353,8 @@ const TutorialScreen = () => {
       { pageNumber: 2, pageTitle: 'Overview II', element: overviewPageTwo },
       { pageNumber: 3, pageTitle: 'Items', element: itemsPage },
       { pageNumber: 4, pageTitle: 'Status Effects', element: StatusEffectPage },
-      { pageNumber: 5, pageTitle: 'Enemies & Hazards', element: enemyPage },
+      { pageNumber: 5, pageTitle: 'Enemies', element: enemyPageOne },
+      { pageNumber: 6, pageTitle: 'Traps & Hazards', element: enemyPageTwo },
     ];
 
     const pageContent = pages.find((pg) => pg.pageNumber === page);
