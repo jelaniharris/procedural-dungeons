@@ -1,6 +1,7 @@
 import { Gas } from '@/components/models/Gas';
 import { Skull } from '@/components/models/Skull';
 import { Ghost } from '@/components/models/characters/CharacterGhost';
+import { Noodle } from '@/components/models/characters/CharacterNoodle';
 import { Orc } from '@/components/models/characters/CharacterOrc';
 import { Skeleton } from '@/components/models/characters/CharacterSkeleton';
 import { EnemyStatus, EnemyType } from '@/components/types/GameTypes';
@@ -68,6 +69,21 @@ export const ShowEnemies = () => {
           case EnemyType.ENEMY_GHOST:
             enemyElement = (
               <Ghost
+                key={`${enemy.name}-${enemy.id}`}
+                position={new Vector3(enemy.position.x, 0, enemy.position.y)}
+                enemy={enemy}
+                enemyId={enemy.id}
+                ref={(el) => {
+                  if (el) {
+                    enemiesRef.current[enemy.id] = el;
+                  }
+                }}
+              />
+            );
+            break;
+          case EnemyType.ENEMY_NOODLE:
+            enemyElement = (
+              <Noodle
                 key={`${enemy.name}-${enemy.id}`}
                 position={new Vector3(enemy.position.x, 0, enemy.position.y)}
                 enemy={enemy}

@@ -684,7 +684,12 @@ const DungeonScene = () => {
       subscribe(PLAYER_TOUCHED_ENEMY, ({ enemy }) => {
         console.log('Touched by enemy: ', enemy.name);
 
-        if (enemy.touchType === EnemyTouchType.TOUCHTYPE_DAMAGE) {
+        if (
+          [
+            EnemyTouchType.TOUCHTYPE_DAMAGE,
+            EnemyTouchType.TOUCHTYPE_BOTH,
+          ].includes(enemy.touchType)
+        ) {
           playAudio('hurt_04.ogg');
           if (adjustHealth(-1).isDead) {
             // Then the player died
@@ -697,7 +702,14 @@ const DungeonScene = () => {
               });
             }*/
           }
-        } else {
+        }
+        if (
+          [
+            EnemyTouchType.TOUCHTYPE_STATUS,
+            EnemyTouchType.TOUCHTYPE_BOTH,
+          ].includes(enemy.touchType) &&
+          enemy.touchStatusEffect != StatusEffectType.NONE
+        ) {
           // Touch type is status
           playAudio('cough_03.ogg');
           addStatusEffect({

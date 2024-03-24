@@ -27,7 +27,11 @@ export default function DirectionArrow(props: DirectionArrowType) {
   );
 
   const spriteSheet = useMemo(() => {
-    if (props.touchType === EnemyTouchType.TOUCHTYPE_DAMAGE) {
+    if (
+      [EnemyTouchType.TOUCHTYPE_DAMAGE, EnemyTouchType.TOUCHTYPE_BOTH].includes(
+        props.touchType
+      )
+    ) {
       return damageSpriteSheet.clone();
     }
     return statusSpriteSheet.clone();

@@ -97,9 +97,8 @@ export const createEnemySlice: StateCreator<
     if (currentLevel > 3) {
       enemyTypeGenerator.add(EnemyType.ENEMY_GHOST, 25);
     }
-    if (currentLevel > 5) {
-      enemyTypeGenerator.add(EnemyType.ENEMY_GAS_CONFUSION, 10);
-      enemyTypeGenerator.add(EnemyType.ENEMY_GAS_POISON, 10);
+    if (currentLevel > 4) {
+      enemyTypeGenerator.add(EnemyType.ENEMY_NOODLE, 25);
     }
 
     while (emptySpots.length != 0 && numberEnemies > 0) {
@@ -177,6 +176,17 @@ export const createEnemySlice: StateCreator<
           movementVariance: 2,
           name: 'Ghost',
           traits: UnitTraits.NOCLIP,
+        };
+        break;
+      case EnemyType.ENEMY_NOODLE:
+        newEnemy = {
+          ...newEnemy,
+          movementRange: 1,
+          movementVariance: 3,
+          name: 'Noodle',
+          touchType: EnemyTouchType.TOUCHTYPE_BOTH,
+          touchStatusEffect: StatusEffectType.POISON,
+          traits: UnitTraits.NONE,
         };
         break;
       case EnemyType.ENEMY_GAS_POISON:

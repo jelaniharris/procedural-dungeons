@@ -62,6 +62,7 @@ export enum EnemyType {
   ENEMY_ORC,
   ENEMY_SKELETON,
   ENEMY_GHOST,
+  ENEMY_NOODLE,
   ENEMY_GAS_POISON,
   ENEMY_GAS_CONFUSION,
 }
@@ -141,6 +142,7 @@ export enum DoorStatus {
 export enum EnemyTouchType {
   TOUCHTYPE_DAMAGE,
   TOUCHTYPE_STATUS,
+  TOUCHTYPE_BOTH,
 }
 
 export type Enemy = {

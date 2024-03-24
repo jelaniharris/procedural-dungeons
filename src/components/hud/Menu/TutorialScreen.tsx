@@ -279,6 +279,12 @@ const TutorialScreen = () => {
         description: 'Moves 0-3 spaces randomly. Can move through walls.',
       },
       {
+        icon: 'NoodleIcon.png',
+        name: 'Noodle',
+        description:
+          'Moves 0-3 spaces randomly. Deals 1 damage and adds POISON status.',
+      },
+      {
         icon: 'ConfusionGasIcon.png',
         name: 'Confusion Gas',
         description:
