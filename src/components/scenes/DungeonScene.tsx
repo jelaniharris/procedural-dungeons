@@ -11,6 +11,7 @@ import { ShowItems } from '@/app/ShowItems';
 import { ShowOverlayEvents } from '@/app/ShowOverlayEvents';
 import { ShowProjectiles } from '@/app/ShowProjectiles';
 import { ShowSummoningIndicators } from '@/app/ShowSummoningIndicators';
+import { ShowViewOverlay } from '@/app/ShowViewOverlay';
 import { GameState, useStore } from '@/stores/useStore';
 import { Point2D } from '@/utils/Point2D';
 import { Environment, Stats } from '@react-three/drei';
@@ -82,6 +83,8 @@ function Effects() {
     }
     return false;
   }, [hasStatusEffect, statusEffects]);
+
+  return;
 
   if (!isTired) {
     return;
@@ -811,6 +814,7 @@ const DungeonScene = () => {
     <>
       <directionalLight color={mapTone} />
       <Environment preset="warehouse" />
+      <ShowViewOverlay />
       <Stats />
       <Suspense fallback={null}>
         <AmbientSound url={'./sounds/dungeon_ambient_1.ogg'} />
