@@ -259,6 +259,17 @@ export type ItemContainer = {
   status?: ItemContainerStatus;
 };
 
+export type ItemDataInfo = {
+  name: string;
+  numberValue?: number;
+  scoreValue?: number;
+  statusTurnsValue?: number;
+  itemType: ItemType;
+  description: string;
+  grouping: string;
+  icon: string;
+};
+
 export type Item = {
   id: number;
   type: ItemType;

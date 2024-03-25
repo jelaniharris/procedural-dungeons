@@ -9,12 +9,9 @@ import { clamp } from '@/utils/numberUtils';
 import Image from 'next/image';
 import { useState } from 'react';
 import useMainMenuContext from '../useMainMenuContext';
-
-type IconsDataType = {
-  icon: string;
-  name: string;
-  description: string;
-};
+import { ShowDataCard } from './Tutorial/ShowDataCard';
+import { ShowIconData } from './Tutorial/ShowIconData';
+import { TutorialHeader } from './Tutorial/TutorialHeader';
 
 type EnemyDataType = {
   icon: string;
@@ -43,30 +40,15 @@ const TutorialScreen = () => {
     setCurrentPage(prevPage);
   };
 
-  const ShowData = ({ data }: { data: IconsDataType }) => {
-    return (
-      <div className="flex flex-row gap-3 bg-slate-500 rounded-sm p-3 text-white">
-        <Image
-          src={`/images/icons/${data.icon}`}
-          className="border border-slate-400"
-          width={100}
-          height={100}
-          alt={data.name}
-        />
-        <div className="flex flex-col gap-1">
-          <strong>{data.name}</strong>
-          {data.description}
-        </div>
-      </div>
-    );
-  };
-
   const overviewPage = () => {
     return (
       <div className="text-white text-md md:text-lg">
-        <h2 className="text-lg md:text-xl font-bold pb-2">
-          Controls and Movement
-        </h2>
+        <TutorialHeader title="Objective" />
+        <p>
+          Leave the dungeon with all of your treasures without losing your life
+          in the tower.
+        </p>
+        <TutorialHeader title="Controls and Movement" />
         <p>MOVE with WASD, WAIT a turn with SPACEBAR</p>
         <p>
           If on mobile, you can use the thimble at the bottom of the screen to
@@ -77,14 +59,14 @@ const TutorialScreen = () => {
           Moving one space consumes 1 Energy. When your energy runs out, enemies
           move twice as fast.
         </p>
-        <h2 className="text-xl font-bold py-2">Enemy Movement</h2>
+        <TutorialHeader title="Enemy Movement" />
         <p>
           When you move, enemies move. Every turn enemies will display their
           intended movement plan on the ground. If you&apos;re standing in one
           of the spaces when they&apos;re attempting to move you&apos;ll take
           damage.
         </p>
-        <h2 className="text-xl font-bold py-2">Damage</h2>
+        <TutorialHeader title="Damage" />
         <p>
           You start off the game with 2 health. Being touched by enemies, or
           standing on an activated trap will cause damage. Once you run out of
@@ -93,20 +75,28 @@ const TutorialScreen = () => {
         <p>
           If you have any weapons, you can walk into an enemy to attack them.
         </p>
-        <h2 className="text-xl font-bold py-2">Opening Chests</h2>
+        <TutorialHeader title="Opening Chests" />
         <div className="flex flex-row gap-2">
-          <Image
-            src="/tutorial/ChestExample.png"
-            width={200}
-            height={200}
-            alt={'Player next to chest'}
-          />
-          <p>
-            If you are next to a treasure chest and you have a key, if you use
-            the WAIT action you will unlock the closest chest to you. If you are
-            surrounded by more than one chest, you attempt to open them one at a
-            time starting NORTH and in a clockwise direction.
-          </p>
+          <div className="relative w-[200px] h-[200px] basis-1/3">
+            <Image
+              src="/tutorial/ChestExample.png"
+              className="rounded-md shadow-lg shrink-0 "
+              layout="fill"
+              objectFit="cover"
+              objectPosition="center"
+              alt={'Player next to chest'}
+            />
+          </div>
+          <div className="basis-2/3">
+            <p>
+              When you are next to a treasure chest and you have a key, you can
+              use the WAIT action to unlock the closest chest to you.
+            </p>
+            <p>
+              If you are surrounded by more than one chest, you attempt to open
+              them one at a time starting NORTH and in a clockwise direction.
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -115,10 +105,10 @@ const TutorialScreen = () => {
   const overviewPageTwo = () => {
     return (
       <div className="text-white text-md md:text-lg">
-        <h2 className="text-xl font-bold pb-2">Exiting and Scoring</h2>
+        <TutorialHeader title="Exiting and Scoring" />
         <p>
-          Each dungeon floor has exit stairs. Reach the stairs and decide if you
-          want to continue or leave.
+          Each dungeon floor has exit stairs leading to the next floor. Reach
+          the stairs and decide if you want to continue to climb or leave.
         </p>
         <p>
           <strong className="text-red-400">GREED: </strong>Continue further up
@@ -136,66 +126,25 @@ const TutorialScreen = () => {
           amount of weapons for that run. Or you can sell your diamonds for more
           score.
         </p>
-        <p>If you die, your score will not save</p>
-        <h2 className="text-xl font-bold py-2">Floor Timer</h2>
+        <TutorialHeader title="Floor Timer" />
         <p>
           Some floors have a round timer that will tick down for every step you
           take. Take too long on a floor, and enemies will start spawning on the
           map every couple of steps.
         </p>
+        <TutorialHeader title="Death" />
+        <p>If you die, your score will not save to the leaderboards.</p>
       </div>
     );
   };
 
   const itemsPage = () => {
-    const itemData: IconsDataType[] = [
-      { icon: 'CoinIcon.png', name: 'Coin', description: 'Worth 10 Gold' },
-      {
-        icon: 'ChaliceIcon.png',
-        name: 'Chalice',
-        description: 'Worth 25 Gold',
-      },
-      { icon: 'CrownIcon.png', name: 'Crown', description: 'Worth 75 Gold' },
-      {
-        icon: 'GoldStackIcon.png',
-        name: 'Ignot Stack',
-        description: 'Worth 200 Gold',
-      },
-      {
-        icon: 'KeyIcon.png',
-        name: 'Key',
-        description: 'Worth 5 Gold. Allows you to open chests.',
-      },
-      { icon: 'DaggerIcon.png', name: 'Dagger', description: 'Gives 1 Weapon' },
-      {
-        icon: 'PotionIcon.png',
-        name: 'Potion',
-        description: 'Recovers 1 missing health',
-      },
-      {
-        icon: 'ChickenIcon.png',
-        name: 'Floor Chicken',
-        description: 'Gives 35 Energy',
-      },
-      {
-        icon: 'AppleIcon.png',
-        name: 'Dungeon Fruit',
-        description: 'Gives 15 Energy. Also gives HASTE for 10 turns.',
-      },
-      {
-        icon: 'DiamondIcon.png',
-        name: 'Diamond',
-        description: 'Worth 1 Currency',
-      },
-    ];
-
     return (
       <>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {itemData.map((data) => (
-            <ShowData key={`itemdata-${data.name}`} data={data} />
-          ))}
-        </div>
+        <ShowIconData grouping="treasure" title="Treasures" />
+        <ShowIconData grouping="tool" title="Tools" />
+        <ShowIconData grouping="potion" title="Potions" />
+        <ShowIconData grouping="food" title="Foodstuffs" />
       </>
     );
   };
@@ -248,12 +197,22 @@ const TutorialScreen = () => {
       <>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
           {hazardData.map((data) => (
-            <ShowData key={`hazarddata-${data.name}`} data={data} />
+            <ShowDataCard
+              key={`hazarddata-${data.name}`}
+              iconPath={`/images/icons/${data.icon}`}
+              name={data.name}
+              description={data.description}
+            />
           ))}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
           {trapData.map((data) => (
-            <ShowData key={`trapData-${data.name}`} data={data} />
+            <ShowDataCard
+              key={`trapData-${data.name}`}
+              iconPath={`/images/icons/${data.icon}`}
+              name={data.name}
+              description={data.description}
+            />
           ))}
         </div>
       </>
@@ -302,7 +261,12 @@ const TutorialScreen = () => {
       <>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
           {enemyData.map((data) => (
-            <ShowData key={`enemydata-${data.name}`} data={data} />
+            <ShowDataCard
+              key={`enemydata-${data.name}`}
+              iconPath={`/images/icons/${data.icon}`}
+              name={data.name}
+              description={data.description}
+            />
           ))}
         </div>
       </>
@@ -373,26 +337,36 @@ const TutorialScreen = () => {
         <h2 className="text-slate-200 text-xl font-bold text-center pb-2">
           {pageContent.pageTitle} {`(${page}/${maxPage})`}
         </h2>
-        {pageContent.element()}
+        <div className=" overflow-y-scroll pr-2 md:pr-4">
+          {pageContent.element()}
+        </div>
       </>
     );
   };
+
+  const buttonClassStyle = 'text-sm p-2 sm:text-base sm:p-4';
 
   return (
     <div className="h-full w-full md:w-2/3 flex flex-col">
       <h1 className="text-white text-2xl font-bold text-center">Tutorial</h1>
       <DisplayPage page={currentPage} />
       <div className="flex-auto"></div>
-      <div className="flex flex-row justify-between gap-7">
+      <div className="flex flex-row justify-between gap-7 mt-3 md:mt-5">
         <Button
           variant="secondary"
           type="submit"
           disabled={currentPage === 1}
           onClick={() => decreasePage()}
+          className={buttonClassStyle}
         >
           &larr; Prev
         </Button>
-        <Button variant="danger" type="submit" onClick={() => popScreen()}>
+        <Button
+          variant="danger"
+          type="submit"
+          onClick={() => popScreen()}
+          className={buttonClassStyle}
+        >
           Back to Menu
         </Button>
         <Button
@@ -400,6 +374,7 @@ const TutorialScreen = () => {
           disabled={currentPage === maxPage}
           type="submit"
           onClick={() => advancePage()}
+          className={buttonClassStyle}
         >
           Next &rarr;
         </Button>

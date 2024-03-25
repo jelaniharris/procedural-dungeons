@@ -1,4 +1,6 @@
 import {
+  ItemDataInfo,
+  ItemType,
   PlayerUpgradeDataInfo,
   PlayerUpgradeType,
   Provision,
@@ -73,6 +75,93 @@ export const StatusEffectData: StatusEffectDataInfo[] = [
     name: 'Flying',
     cssStyles: 'text-purple-400',
     description: 'Ignore effects from liquids and spike traps',
+  },
+];
+
+export const ItemData: ItemDataInfo[] = [
+  {
+    name: 'Coin',
+    scoreValue: 10,
+    itemType: ItemType.ITEM_COIN,
+    description: 'Worth %SCORE% gold',
+    grouping: 'treasure',
+    icon: 'CoinIcon.png',
+  },
+  {
+    name: 'Chalice',
+    scoreValue: 25,
+    itemType: ItemType.ITEM_CHALICE,
+    description: 'Worth %SCORE% gold',
+    grouping: 'treasure',
+    icon: 'ChaliceIcon.png',
+  },
+  {
+    name: 'Crown',
+    scoreValue: 75,
+    itemType: ItemType.ITEM_CROWN,
+    description: 'Worth %SCORE% gold',
+    grouping: 'treasure',
+    icon: 'CrownIcon.png',
+  },
+  {
+    name: 'Ignots',
+    scoreValue: 200,
+    itemType: ItemType.ITEM_INGOT_STACK,
+    description: 'Worth %SCORE% gold',
+    grouping: 'treasure',
+    icon: 'GoldStackIcon.png',
+  },
+  {
+    name: 'Key',
+    scoreValue: 5,
+    itemType: ItemType.ITEM_KEY,
+    description: 'Worth %SCORE% gold. Allows you to unlock nearby chests.',
+    grouping: 'tool',
+    icon: 'KeyIcon.png',
+  },
+  {
+    name: 'Dagger',
+    itemType: ItemType.ITEM_WEAPON,
+    numberValue: 1,
+    description:
+      'Gives %AMOUNT% weapon. Allows you to attack adjacent enemies.',
+    grouping: 'tool',
+    icon: 'DaggerIcon.png',
+  },
+  {
+    name: 'Diamond',
+    itemType: ItemType.ITEM_DIAMOND,
+    numberValue: 1,
+    description:
+      'Worth %AMOUNT% currency. Spendable at the shop between floors.',
+    grouping: 'tool',
+    icon: 'DiamondIcon.png',
+  },
+  {
+    name: 'Health Potion',
+    itemType: ItemType.ITEM_HEALTH_POTION,
+    numberValue: 1,
+    description: 'Recovers %AMOUNT% missing health',
+    grouping: 'potion',
+    icon: 'HealthPotionIcon.png',
+  },
+  {
+    name: 'Floor Chicken',
+    itemType: ItemType.ITEM_CHICKEN,
+    numberValue: 35,
+    description: 'Restores %AMOUNT% energy',
+    grouping: 'food',
+    icon: 'ChickenIcon.png',
+  },
+  {
+    name: 'Dungeon Fruit',
+    itemType: ItemType.ITEM_APPLE,
+    numberValue: 15,
+    statusTurnsValue: 10,
+    description:
+      'Restores %AMOUNT% energy. Gives haste for %STATUSAMOUNT% turns',
+    grouping: 'food',
+    icon: 'AppleIcon.png',
   },
 ];
 
