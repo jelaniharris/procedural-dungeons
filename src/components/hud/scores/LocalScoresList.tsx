@@ -43,15 +43,17 @@ export const LocalScoresList = ({
     );
   };
 
+  const rowHeaderStyles = 'px-2 md:px-6 py-2 md:py-3';
+
   return (
-    <table className="w-full table-auto overflow-y-scroll rounded-lg bg-slate-200 bg-opacity-30 p-3 text-white">
+    <table className="w-full table-auto overflow-y-scroll rounded-lg bg-slate-200 bg-opacity-30 p-2 text-white">
       <thead className="rounded-lg bg-slate-400">
-        <tr>
-          <th className="px-6 py-3">Game</th>
-          <th className="px-6 py-3">Score</th>
-          <th className="px-6 py-3">Floor</th>
-          <th className="px-6 py-3">Result</th>
-          <th className="px-6 py-3">Date</th>
+        <tr className="">
+          <th className={rowHeaderStyles}>Game</th>
+          <th className={rowHeaderStyles}>Score</th>
+          <th className={rowHeaderStyles}>Floor</th>
+          <th className={rowHeaderStyles}>Result</th>
+          <th className={rowHeaderStyles}>Date</th>
         </tr>
       </thead>
       <tbody className="">

@@ -76,7 +76,7 @@ export const EndScreen = () => {
       <span className="text-2xl md:text-4xl font-bold text-white">
         Final Score: {score}
       </span>
-      <div className="overflow-y-scroll" style={{ height: '50vh' }}>
+      <div className="overflow-y-scroll" style={{ height: '65vh' }}>
         <LocalScoresList showAllAttempts={false} />
       </div>
       <div className="flex-auto"></div>
