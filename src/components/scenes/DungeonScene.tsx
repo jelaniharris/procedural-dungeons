@@ -55,6 +55,7 @@ import {
   TRIGGER_SUMMONING,
   TriggerSummoningEvent,
 } from '../types/EventTypes';
+import { ItemData } from '../types/GameData';
 import {
   DIRECTIONS,
   DestructableType,
@@ -63,6 +64,7 @@ import {
   EnemyTouchType,
   GameStatus,
   ItemContainerStatus,
+  ItemDataInfo,
   ItemType,
   LocationActionType,
   OverLayTextType,
@@ -268,15 +270,26 @@ const DungeonScene = () => {
             playerPerformAttack(enemy);
           }
         });*/
+        let itemData: ItemDataInfo | undefined;
 
         if (
           (locationAction.result & LocationActionType.COLLECTED_ITEM) ===
           LocationActionType.COLLECTED_ITEM
         ) {
+          itemData = ItemData.find(
+            (data) => data.itemType === locationAction.item?.type
+          );
+          if (!itemData) {
+            console.error(`Unknown data type: ${locationAction.item?.type}`);
+          }
+
           switch (locationAction.item?.type) {
             case ItemType.ITEM_COIN:
               playAudio('coin.ogg');
-              const coinScore = addScore(10, SourceType.TREASURE);
+              const coinScore = addScore(
+                itemData?.scoreValue ?? 0,
+                SourceType.TREASURE
+              );
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_SCORE,
                 amount: coinScore,
@@ -285,7 +298,10 @@ const DungeonScene = () => {
               break;
             case ItemType.ITEM_CHALICE:
               playAudio('coin.ogg');
-              const chaliceScore = addScore(25, SourceType.TREASURE);
+              const chaliceScore = addScore(
+                itemData?.scoreValue ?? 0,
+                SourceType.TREASURE
+              );
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_SCORE,
                 amount: chaliceScore,
@@ -294,8 +310,8 @@ const DungeonScene = () => {
               break;
             case ItemType.ITEM_DIAMOND:
               playAudio('gem.ogg');
-              addScore(100, SourceType.TREASURE);
-              adjustCurrency(1);
+              addScore(itemData?.scoreValue ?? 0, SourceType.TREASURE);
+              adjustCurrency(itemData?.numberValue ?? 1);
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_CURRENCY,
                 amount: 1,
@@ -304,8 +320,8 @@ const DungeonScene = () => {
               break;
             case ItemType.ITEM_KEY:
               playAudio('key.ogg');
-              addScore(5, SourceType.TREASURE);
-              adjustKeys(1);
+              addScore(itemData?.scoreValue ?? 0, SourceType.TREASURE);
+              adjustKeys(itemData?.numberValue ?? 1);
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_KEY,
                 amount: 1,
@@ -314,7 +330,10 @@ const DungeonScene = () => {
               break;
             case ItemType.ITEM_CROWN:
               playAudio('coin.ogg');
-              const crownscore = addScore(75, SourceType.TREASURE);
+              const crownscore = addScore(
+                itemData?.scoreValue ?? 0,
+                SourceType.TREASURE
+              );
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_SCORE,
                 amount: crownscore,
@@ -323,7 +342,10 @@ const DungeonScene = () => {
               break;
             case ItemType.ITEM_INGOT_STACK:
               playAudio('coin.ogg');
-              const ingotscore = addScore(200, SourceType.TREASURE);
+              const ingotscore = addScore(
+                itemData?.scoreValue ?? 0,
+                SourceType.TREASURE
+              );
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_SCORE,
                 amount: ingotscore,
@@ -334,14 +356,17 @@ const DungeonScene = () => {
               playAudio('bottle.ogg', 0.5);
               addStatusEffect({
                 statusEffectType: StatusEffectType.FLYING,
-                duration: 10,
+                duration: itemData?.statusTurnsValue ?? 10,
                 canExpire: true,
                 canStack: true,
               });
               break;
             case ItemType.ITEM_HEALTH_POTION:
               playAudio('bottle.ogg', 0.5);
-              const healthResults = adjustHealth(1, SourceType.POTION);
+              const healthResults = adjustHealth(
+                itemData?.numberValue ?? 0,
+                SourceType.POTION
+              );
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_HEALTH,
                 amount: healthResults.amountAdjusted,
@@ -350,20 +375,18 @@ const DungeonScene = () => {
               break;
             case ItemType.ITEM_WEAPON:
               playAudio('sword-unsheathe.ogg', 0.5);
-              adjustAttacks(1);
+              adjustAttacks(itemData?.numberValue ?? 0);
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_WEAPON,
                 amount: 1,
                 mapPosition: locationAction.position,
               });
               break;
-            case ItemType.ITEM_CHEST:
-              playAudio('coin.ogg');
-              addScore(10);
-              break;
             case ItemType.ITEM_CHICKEN:
               playAudio('eat_01.ogg');
-              const chickenAmount = determineEnergyBonus(35);
+              const chickenAmount = determineEnergyBonus(
+                itemData?.numberValue ?? 0
+              );
               modifyEnergy(chickenAmount);
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_ENERGY,
@@ -373,7 +396,9 @@ const DungeonScene = () => {
               break;
             case ItemType.ITEM_APPLE:
               playAudio('eat_01.ogg');
-              const appleAmount = determineEnergyBonus(15);
+              const appleAmount = determineEnergyBonus(
+                itemData?.numberValue ?? 0
+              );
               modifyEnergy(appleAmount);
               publish<OverlayTextEvent>(OVERLAY_TEXT, {
                 type: OverLayTextType.OVERLAY_ENERGY,
@@ -382,7 +407,7 @@ const DungeonScene = () => {
               });
               addStatusEffect({
                 statusEffectType: StatusEffectType.HASTE,
-                duration: 10,
+                duration: itemData?.statusTurnsValue ?? 0,
                 canExpire: true,
                 canStack: true,
               });

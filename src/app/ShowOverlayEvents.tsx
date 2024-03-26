@@ -114,6 +114,7 @@ export const ShowOverlayEvents = () => {
           case OverLayTextType.OVERLAY_WEAPON:
           case OverLayTextType.OVERLAY_ENERGY:
           case OverLayTextType.OVERLAY_CURRENCY:
+          case OverLayTextType.OVERLAY_KEY:
             if (amount && mapPosition) {
               addToMessages(
                 id,
