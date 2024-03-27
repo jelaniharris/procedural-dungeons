@@ -1,5 +1,6 @@
 import { GameState, useStore } from '@/stores/useStore';
 import { cn } from '@/utils/classnames';
+import { FaHourglass } from 'react-icons/fa';
 import {
   PLAYER_ATTEMPT_MOVE,
   PlayerAttemptMoveEvent,
@@ -33,7 +34,9 @@ export const GuiButtons = () => {
           'bg-[url("/touch/transparentLight10.png")] bg-center bg-cover'
         )}
       >
-        <span className="text-2xl">⏳</span>
+        <span className="text-2xl text-slate-600">
+          <FaHourglass />
+        </span>
       </div>
     </div>
   );
