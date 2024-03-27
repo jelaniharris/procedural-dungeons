@@ -153,7 +153,7 @@ export const ItemData: ItemDataInfo[] = [
     statusTurnsValue: 15,
     description: 'Adds FLYING status for %STATUSAMOUNT% turns',
     grouping: 'potion',
-    icon: 'HealthPotionIcon.png',
+    icon: 'FlyPotionIcon.png',
   },
   {
     name: 'Floor Chicken',
