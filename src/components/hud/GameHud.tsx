@@ -85,6 +85,26 @@ export const ShowCurrentScore = () => {
   );
 };
 
+export const ShowCurrentAttacks = () => {
+  const attacks = useStore((store: GameState) => store.attacks);
+  const getMaxAttacks = useStore((store: GameState) => store.getMaxAttacks);
+  return (
+    <PanelLabel iconClass="text-slate-300 py-1" icon={<AttacksIcon />}>
+      {attacks}/{getMaxAttacks()}
+    </PanelLabel>
+  );
+};
+
+export const ShowCurrentEnergy = () => {
+  const energy = useStore((store: GameState) => store.energy);
+  const getMaxEnergy = useStore((store: GameState) => store.getMaxEnergy);
+  return (
+    <PanelLabel iconClass="text-yellow-300 py-1" icon={<EnergyIcon />}>
+      {energy}/{getMaxEnergy()}
+    </PanelLabel>
+  );
+};
+
 export const ShowCurrentHealth = ({ showPoisoning = false }) => {
   const health = useStore((store: GameState) => store.health);
   const getMaxHealth = useStore((store: GameState) => store.getMaxHealth);
@@ -183,12 +203,8 @@ export const ShowAllStatusEffects = () => {
 
 export const GameHud = () => {
   const currentLevel = useStore((store: GameState) => store.currentLevel);
-  const energy = useStore((store: GameState) => store.energy);
   const currency = useStore((store: GameState) => store.currency);
   const containerKeys = useStore((store: GameState) => store.containerKeys);
-  const attacks = useStore((store: GameState) => store.attacks);
-  const getMaxAttacks = useStore((store: GameState) => store.getMaxAttacks);
-  const getMaxEnergy = useStore((store: GameState) => store.getMaxEnergy);
   const showExitDialog = useStore((store: GameState) => store.showExitDialog);
   const showStoreDialog = useStore((store: GameState) => store.showStoreDialog);
   const setGameStatus = useStore((store: GameState) => store.setGameStatus);
@@ -291,23 +307,13 @@ export const GameHud = () => {
           </section>
           <section className="fixed w-full flex gap-8 justify-center bottom-4">
             <ContentPanel className="flex justify-center items-center flex-nowrap">
-              <PanelLabel
-                iconClass="text-yellow-300 py-1"
-                icon={<EnergyIcon />}
-              >
-                {energy}/{getMaxEnergy()}
-              </PanelLabel>
+              <ShowCurrentEnergy />
             </ContentPanel>
             <ContentPanel className="flex justify-center items-center flex-nowrap">
               <ShowCurrentHealth showPoisoning />
             </ContentPanel>
             <ContentPanel className="flex justify-center items-center flex-nowrap">
-              <PanelLabel
-                iconClass="text-slate-300 py-1"
-                icon={<AttacksIcon />}
-              >
-                {attacks}/{getMaxAttacks()}
-              </PanelLabel>
+              <ShowCurrentAttacks />
             </ContentPanel>
           </section>
         </>

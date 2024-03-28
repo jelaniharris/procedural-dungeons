@@ -15,13 +15,20 @@ import { UpgradeData } from '../types/GameData';
 import { PlayerUpgradeType } from '../types/GameTypes';
 import useGame from '../useGame';
 import CenterScreenContainer from './CenterScreen';
-import { ContentPanel, ShowCurrentCurrency } from './GameHud';
+import {
+  ContentPanel,
+  ShowCurrentAttacks,
+  ShowCurrentCurrency,
+  ShowCurrentEnergy,
+  ShowCurrentHealth,
+  ShowCurrentScore,
+} from './GameHud';
 
 const RankMeter = ({ rank, maxRank }: { rank: number; maxRank: number }) => {
   const pips = [];
   for (let i = 0; i < rank; i++) {
     pips.push(
-      <span className="text-red-500">
+      <span className="text-blue-500">
         <FaSquare />
       </span>
     );
@@ -35,13 +42,15 @@ const RankMeter = ({ rank, maxRank }: { rank: number; maxRank: number }) => {
   }
   for (let i = 0; i < 5 - maxRank; i++) {
     pips.push(
-      <span className="text-gray-700">
+      <span className="text-gray-800">
         <FaSquare />
       </span>
     );
   }
 
-  return <div className="flex flex-row flex-nowrap">{pips}</div>;
+  return (
+    <div className="flex flex-row flex-nowrap text-sm md:text-base">{pips}</div>
+  );
 };
 
 export const StoreScreen = () => {
@@ -139,7 +148,7 @@ export const StoreScreen = () => {
           {isMaxed && <div>-</div>}
         </div>
         <div className="flex flex-col text-lg  text-center items-center text-white p-2">
-          <span className="hidden md:inline-block  font-bold">Cost:</span>
+          <span className="hidden md:inline-block font-bold">Cost:</span>
           {!isMaxed && (
             <span className="flex flex-row gap-1 items-center">
               {currentCost}
@@ -153,6 +162,7 @@ export const StoreScreen = () => {
             variant="primary"
             disabled={purchaseDisabled}
             onClick={purchaseRank}
+            className="p-2 md:p-4"
           >
             {buttonText}
           </Button>
@@ -202,6 +212,7 @@ export const StoreScreen = () => {
             variant="primary"
             disabled={!hasCurrency}
             onClick={sellCurrency}
+            className="p-2 md:p-4"
           >
             {buttonText}
           </Button>
@@ -216,6 +227,7 @@ export const StoreScreen = () => {
       <ContentPanel className="bg-slate-700 bg-opacity-80">
         <ShowCurrentCurrency />
       </ContentPanel>
+
       <div className="flex-auto"></div>
       <div className="flex flex-col gap-2">
         <span className="text-xl md:text-2xl font-bold text-white">
@@ -225,19 +237,35 @@ export const StoreScreen = () => {
         <ShowUpgrade upgradeType={PlayerUpgradeType.UPGRADE_ENERGY} />
         <ShowUpgrade upgradeType={PlayerUpgradeType.UPGRADE_WEAPON} />
       </div>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2">
         <span className="text-xl md:text-2xl font-bold text-white">Sell</span>
         <ShowSell />
       </div>
       <div className="flex-auto"></div>
-      <div className="pb-3 flex items-center gap-5">
-        <Button
-          onClick={backToFloorMenu}
-          variant="danger"
-          leftIcon={<FaArrowLeft />}
-        >
-          Back to Floor
-        </Button>
+      <div className="flex flex-col gap-2 items-center">
+        <div className="flex flex-row gap-2 bg-slate-500 p-3 rounded">
+          <ContentPanel>
+            <ShowCurrentScore />
+          </ContentPanel>
+          <ContentPanel>
+            <ShowCurrentHealth showPoisoning={false} />
+          </ContentPanel>
+          <ContentPanel>
+            <ShowCurrentEnergy />
+          </ContentPanel>
+          <ContentPanel>
+            <ShowCurrentAttacks />
+          </ContentPanel>
+        </div>
+        <div className="pb-3 flex items-center gap-5">
+          <Button
+            onClick={backToFloorMenu}
+            variant="danger"
+            leftIcon={<FaArrowLeft />}
+          >
+            Back to Floor
+          </Button>
+        </div>
       </div>
     </CenterScreenContainer>
   );
