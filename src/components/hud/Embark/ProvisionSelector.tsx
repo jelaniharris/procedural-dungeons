@@ -2,6 +2,8 @@ import { ProvisionData } from '@/components/types/GameData';
 import { Provision, ProvisionType } from '@/components/types/GameTypes';
 import { GameState, useStore } from '@/stores/useStore';
 import { cn } from '@/utils/classnames';
+import { getProvisionDescription } from '@/utils/descriptionUtils';
+import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
 import useEmbark from './EmbarkScreen';
 
@@ -57,9 +59,7 @@ export const ProvisionSelector = () => {
   return (
     <section className="flex flex-col md:flex-row my-3 items-start gap-4">
       {provisions.map((prov) => {
-        const provDescription = prov.description
-          .replaceAll('%NUM%', `${prov.numberValue}`)
-          .replaceAll('%PERCENT%', `${prov.numberValue}%`);
+        const provDescription = getProvisionDescription(prov);
         return (
           <div
             key={`prov-${prov.name}`}
@@ -72,9 +72,11 @@ export const ProvisionSelector = () => {
                 : ''
             )}
           >
-            <img
-              className="w-24 md:w-auto"
+            <Image
               src="https://placehold.co/256x256"
+              width={256}
+              height={256}
+              className="w-24 md:w-auto"
               alt="provision"
             />
             <div className="flex flex-col flex-grow gap-1 md:gap-2">

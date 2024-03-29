@@ -5,6 +5,15 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 });
 
 const nextConfig = {
+  images: {
+    dangerouslyAllowSVG: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+      },
+    ],
+  },
   transpilePackages: ['three'],
   sassOptions: {
     includePaths: [path.join(__dirname, 'src/styles')],

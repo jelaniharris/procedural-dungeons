@@ -407,6 +407,7 @@ export type Provision = {
   name: string;
   description: string;
   numberValue: number;
+  icon?: string;
   provisionType: ProvisionType;
 };
 

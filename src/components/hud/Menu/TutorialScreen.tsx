@@ -1,10 +1,11 @@
 import Button from '@/components/input/Button';
-import { StatusEffectData } from '@/components/types/GameData';
+import { ProvisionData, StatusEffectData } from '@/components/types/GameData';
 import {
   StatusEffectDataInfo,
   StatusEffectType,
 } from '@/components/types/GameTypes';
 import { cn } from '@/utils/classnames';
+import { getProvisionDescription } from '@/utils/descriptionUtils';
 import { clamp } from '@/utils/numberUtils';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -28,7 +29,7 @@ type HazardDataType = {
 const TutorialScreen = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const { popScreen } = useMainMenuContext();
-  const maxPage = 6;
+  const maxPage = 7;
 
   const advancePage = () => {
     const nextPage = clamp(currentPage + 1, 1, maxPage);
@@ -273,6 +274,29 @@ const TutorialScreen = () => {
     );
   };
 
+  const ProvisionsPage = () => {
+    return (
+      <>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+          {ProvisionData.map((data) => {
+            const provDescription = getProvisionDescription(data);
+            return (
+              <ShowDataCard
+                key={`enemydata-${data.name}`}
+                iconPath=""
+                placeholder
+                width={256}
+                height={256}
+                name={data.name}
+                description={provDescription}
+              />
+            );
+          })}
+        </div>
+      </>
+    );
+  };
+
   const StatusEffectPage = () => {
     const ShowEffectDescription = ({
       data,
@@ -325,6 +349,7 @@ const TutorialScreen = () => {
       { pageNumber: 4, pageTitle: 'Status Effects', element: StatusEffectPage },
       { pageNumber: 5, pageTitle: 'Enemies', element: enemyPageOne },
       { pageNumber: 6, pageTitle: 'Traps & Hazards', element: enemyPageTwo },
+      { pageNumber: 7, pageTitle: 'Provisions', element: ProvisionsPage },
     ];
 
     const pageContent = pages.find((pg) => pg.pageNumber === page);
