@@ -8,7 +8,7 @@ interface RangeProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 const RangeValue = ({ value }: { value: string }) => {
-  return <span className="text-white font-bold text-2xl w-4">{value}</span>;
+  return <span className="text-white font-bold text-xl">{value}</span>;
 };
 
 const Range = ({ disabled, min, max, ...props }: RangeProps) => {

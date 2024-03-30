@@ -1,3 +1,4 @@
+import { ContainerHeader } from '@/components/core/ContainerHeader';
 import Button from '@/components/input/Button';
 import { getDailyUniqueSeed } from '@/utils/seed';
 import { useState } from 'react';
@@ -19,7 +20,7 @@ const ScoresScreen = () => {
             setTab('local');
           }}
         >
-          Local
+          Last Climbs
         </Button>
         <Button
           onClick={() => {
@@ -38,7 +39,7 @@ const ScoresScreen = () => {
       </div>
       {tab === 'local' && (
         <>
-          <h2 className="text-xl text-white font-bold">Last Climbs</h2>
+          <ContainerHeader title="Last Climbs" className="w-full text-center" />
           <div className="overflow-y-scroll" style={{ height: '50vh' }}>
             <LocalScoresList showAllAttempts={true} />
           </div>
@@ -46,13 +47,19 @@ const ScoresScreen = () => {
       )}
       {tab === 'daily' && (
         <>
-          <h2 className="text-xl text-white font-bold">Daily Scores</h2>
+          <ContainerHeader
+            title="Daily Scores"
+            className="w-full text-center"
+          />
           <ScoreList gameType={'daily'} seed={getDailyUniqueSeed()} />
         </>
       )}
       {tab === 'adventure' && (
         <>
-          <h2 className="text-xl text-white font-bold">Adventure Scores</h2>
+          <ContainerHeader
+            title="Adventure Scores"
+            className="w-full text-center"
+          />
           <ScoreList gameType={'adventure'} />
         </>
       )}

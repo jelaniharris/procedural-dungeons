@@ -2,6 +2,7 @@ import { GameState, useStore } from '@/stores/useStore';
 import { cn } from '@/utils/classnames';
 import { useEffect, useState } from 'react';
 import { FaArrowLeft, FaDoorOpen, FaSave } from 'react-icons/fa';
+import { ContainerHeader } from '../core/ContainerHeader';
 import Button from '../input/Button';
 import Range from '../input/Range';
 import Switch from '../input/Switch';
@@ -121,11 +122,13 @@ export const SettingsScreen = ({
   }
 
   return (
-    <CenterScreenContainer innerClassName="bg-slate-800 bg-opacity-90">
-      <div className="flex flex-col gap-4 ">
-        <span className="text-3xl uppercase text-white">Audio</span>
+    <CenterScreenContainer innerClassName="bg-slate-700 bg-opacity-90">
+      <div className="flex flex-col gap-4">
+        <h1 className="text-white text-2xl font-bold text-center">Tutorial</h1>
+        <ContainerHeader title="Audio" />
+
         <div className="flex flex-row gap-3 items-center">
-          <span className="text-xl text-white font-bold">Sound</span>
+          <span className="text-base text-white font-bold">Sound On</span>
           <Switch
             name="sound"
             checked={settings.sound}
@@ -133,7 +136,7 @@ export const SettingsScreen = ({
           />
         </div>
         <div className="flex flex-col gap-2 ">
-          <span className="text-xl text-white font-bold">Sound Volume</span>
+          <span className="text-base text-white font-bold">Sound Volume</span>
           <Range
             name="soundVolume"
             className="w-full"
@@ -145,7 +148,7 @@ export const SettingsScreen = ({
           />
         </div>
         <div className="flex flex-row gap-3 items-center">
-          <span className="text-xl text-white font-bold">Music</span>
+          <span className="text-base text-white font-bold">Music On</span>
           <Switch
             name="music"
             checked={settings.music}
@@ -153,7 +156,7 @@ export const SettingsScreen = ({
           />
         </div>
         <div className="flex flex-col gap-2 ">
-          <span className="text-xl text-white font-bold">Music Volume</span>
+          <span className="text-base text-white font-bold">Music Volume</span>
           <Range
             name="musicVolume"
             className="w-full"
@@ -165,9 +168,7 @@ export const SettingsScreen = ({
           />
         </div>
         <div className="flex flex-col gap-2 ">
-          <span className="text-3xl mt-4 uppercase text-white">
-            Screen Controls
-          </span>
+          <ContainerHeader title="Screen Controls" />
           <div className="flex flex-row gap-4">
             <Button
               name="touchControlsNone"
