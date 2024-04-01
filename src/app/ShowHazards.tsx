@@ -4,7 +4,6 @@ import { FloorGrates } from '@/components/models/FloorGrates';
 import { SpikeTrap } from '@/components/models/SpikeTrap';
 import { Direction, HazardType } from '@/components/types/GameTypes';
 import { GameState, useStore } from '@/stores/useStore';
-import { degToRad } from 'three/src/math/MathUtils';
 import { shallow } from 'zustand/shallow';
 
 export const ShowHazards = () => {
@@ -31,7 +30,7 @@ export const ShowHazards = () => {
             key={keyName}
             name={keyName}
             transform={hazard.worldPosition}
-            rotation={[0, rotation, 0]}
+            rotation={rotation}
           >
             <FloorGrates data={hazard} />
           </GameObject>
@@ -43,7 +42,7 @@ export const ShowHazards = () => {
             key={keyName}
             name={keyName}
             transform={hazard.worldPosition}
-            rotation={[0, rotation, 0]}
+            rotation={rotation}
           >
             <SpikeTrap data={hazard} />
           </GameObject>
@@ -52,16 +51,16 @@ export const ShowHazards = () => {
       case HazardType.TRAP_FLOOR_ARROW:
         switch (hazard.facingDirection) {
           case Direction.DIR_NORTH:
-            rotation = degToRad(0);
+            rotation = 0; //degToRad(0);
             break;
           case Direction.DIR_WEST:
-            rotation = degToRad(90);
+            rotation = 90; //degToRad(90);
             break;
           case Direction.DIR_SOUTH:
-            rotation = degToRad(180);
+            rotation = 180; // degToRad(180);
             break;
           case Direction.DIR_EAST:
-            rotation = degToRad(270);
+            rotation = 270; //degToRad(270);
             break;
           default:
             break;
@@ -72,7 +71,7 @@ export const ShowHazards = () => {
             key={keyName}
             name={keyName}
             transform={hazard.worldPosition}
-            rotation={[0, rotation, 0]}
+            rotation={rotation}
           >
             <ArrowTrap data={hazard} />
           </GameObject>

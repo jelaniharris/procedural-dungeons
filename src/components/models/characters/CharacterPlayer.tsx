@@ -115,9 +115,9 @@ export function CharacterPlayer(
     }
   }, [animation, animationStack]);
 
-  useGameObjectEvent<MovedEvent>('moved', ({ location, zOffset }) => {
+  useGameObjectEvent<MovedEvent>('moved', ({ location, rotation, zOffset }) => {
     //console.log('Finished moving to:', data);
-    movePlayerLocation(location, false, zOffset);
+    movePlayerLocation(location, rotation, false, zOffset);
   });
 
   useGameObjectEvent<PlayAnimationEvent>('play-animation', ({ animName }) => {

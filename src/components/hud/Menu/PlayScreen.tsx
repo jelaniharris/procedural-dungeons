@@ -33,6 +33,7 @@ const EODTimer = () => {
 
   useEffect(() => {
     if (!timerInterval.current) {
+      updateTimer();
       timerInterval.current = setInterval(updateTimer, 1000);
     }
   }, [updateTimer]);
@@ -56,7 +57,7 @@ const PlayScreen = () => {
         </Button>
         <div className="font-bold text-white bg-slate-600 p-3 text-left flex flex-col gap-2 ">
           <span>Tower changes everyday.</span>
-          <div className="flex flex-row gap-2">
+          <div className="flex flex-row gap-2 text-sm md:text-base">
             Time left:
             <EODTimer />
           </div>
@@ -64,7 +65,7 @@ const PlayScreen = () => {
         <Button onClick={() => playGame('adventure')} className="">
           Adventure
         </Button>
-        <div className="font-bold text-white bg-slate-600 p-3  text-left ">
+        <div className="font-bold text-white bg-slate-600 p-3 text-left">
           A new adventure everytime!
         </div>
       </div>

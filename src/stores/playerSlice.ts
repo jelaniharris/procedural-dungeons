@@ -18,7 +18,6 @@ import {
 } from '@/components/types/GameTypes';
 import { Point2D } from '@/utils/Point2D';
 import { isTileTypeLiquid } from '@/utils/mapUtils';
-import { MathUtils } from 'three';
 import { StateCreator } from 'zustand';
 import { AudioSlice } from './audioSlice';
 import { EnemySlice } from './enemySlice';
@@ -43,12 +42,14 @@ export interface PlayerSlice {
   getPlayerLocation: () => Point2D;
   movePlayerLocation: (
     location: Point2D,
+    rotation: number,
     noClip?: boolean,
     zOffset?: number
   ) => boolean;
   adjustPlayer: (
     xOffset: number,
     yOffset: number,
+    rotation: number,
     noClip?: boolean,
     zOffset?: number
   ) => boolean;
@@ -190,15 +191,21 @@ export const createPlayerSlice: StateCreator<
   getPlayerZOffset: () => {
     return get().playerZOffset;
   },
-  movePlayerLocation(location: Point2D, noClip = false, zOffset?: number) {
+  movePlayerLocation(
+    location: Point2D,
+    rotation = 0,
+    noClip = false,
+    zOffset?: number
+  ) {
     const playerPosition = get().playerPosition;
     const xOffset = location.x - playerPosition.x;
     const yOffset = location.y - playerPosition.y;
-    return get().adjustPlayer(xOffset, yOffset, noClip, zOffset);
+    return get().adjustPlayer(xOffset, yOffset, rotation, noClip, zOffset);
   },
   adjustPlayer(
     xOffset: number,
     yOffset: number,
+    rotation: number,
     noClip = false,
     zOffset?: number
   ) {
@@ -207,7 +214,7 @@ export const createPlayerSlice: StateCreator<
     const oldPlayerData = get().playerPosition;
     //const playerData = get().playerPosition;
     const playerData = { x: oldPlayerData.x, y: oldPlayerData.y };
-    let currentPlayerRotation = get().playerRotation;
+    //let currentPlayerRotation = get().playerRotation;
 
     if (
       !noClip &&
@@ -221,21 +228,9 @@ export const createPlayerSlice: StateCreator<
     playerData.x = playerData.x + xOffset;
     playerData.y = playerData.y + yOffset;
 
-    if (xOffset < 0) {
-      currentPlayerRotation = MathUtils.degToRad(270);
-    } else if (xOffset > 0) {
-      currentPlayerRotation = MathUtils.degToRad(90);
-    }
-
-    if (yOffset < 0) {
-      currentPlayerRotation = MathUtils.degToRad(180);
-    } else if (yOffset > 0) {
-      currentPlayerRotation = MathUtils.degToRad(0);
-    }
-
     set(() => ({
       playerPosition: playerData,
-      playerRotation: currentPlayerRotation,
+      playerRotation: rotation,
       playerZOffset: zOffset ? zOffset : 0,
     }));
     return true;

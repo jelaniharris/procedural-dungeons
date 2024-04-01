@@ -3,7 +3,6 @@ import { MoveableObject } from '@/components/entities/MoveableObject';
 import { Arrow } from '@/components/models/Arrow';
 import { Direction, ProjectileType } from '@/components/types/GameTypes';
 import { GameState, useStore } from '@/stores/useStore';
-import { degToRad } from 'three/src/math/MathUtils';
 import { shallow } from 'zustand/shallow';
 
 export const ArrowProjectile = () => {};
@@ -27,16 +26,16 @@ export const ShowProjectiles = () => {
     const keyName = `projectile-${projectile.id}`;
     switch (projectile.travelDirection) {
       case Direction.DIR_NORTH:
-        rotation = degToRad(0);
+        rotation = 0;
         break;
       case Direction.DIR_WEST:
-        rotation = degToRad(90);
+        rotation = 90;
         break;
       case Direction.DIR_SOUTH:
-        rotation = degToRad(180);
+        rotation = 180;
         break;
       case Direction.DIR_EAST:
-        rotation = degToRad(270);
+        rotation = 270;
         break;
       default:
         break;
@@ -48,9 +47,9 @@ export const ShowProjectiles = () => {
             key={keyName}
             name={keyName}
             transform={projectile.worldPosition}
-            rotation={[0, rotation, 0]}
+            rotation={rotation}
           >
-            <MoveableObject movementDuration={350} />
+            <MoveableObject movementDuration={350} rotationOffset={180} />
             <Arrow data={projectile} />
           </GameObject>
         );

@@ -1,4 +1,4 @@
-import { useStore } from '@/stores/useStore';
+import { GameState, useStore } from '@/stores/useStore';
 //import * as THREE from 'three';
 import { CharacterController } from '../CharacterController';
 import { CharacterPlayer } from '../models/characters/CharacterPlayer';
@@ -7,11 +7,11 @@ import GameObject from './GameObject';
 import { MoveableObject } from './MoveableObject';
 
 const Player = () => {
-  const playerPosition = useStore((state) => state.playerPosition);
-  const playerZOffset = useStore((state) => state.playerZOffset);
-  const playerRotation = useStore((state) => state.playerRotation);
+  const playerPosition = useStore((state: GameState) => state.playerPosition);
+  const playerZOffset = useStore((state: GameState) => state.playerZOffset);
+  const playerRotation = useStore((state: GameState) => state.playerRotation);
 
-  console.log('[Player] Rerendered player');
+  console.log('[Player] Rerendered player: ', playerRotation);
 
   return (
     <>
@@ -19,7 +19,7 @@ const Player = () => {
         name="player"
         transform={playerPosition}
         zOffset={playerZOffset}
-        rotation={[0, playerRotation, 0]}
+        rotation={playerRotation}
       >
         <MoveableObject />
         <CharacterController />

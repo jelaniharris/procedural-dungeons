@@ -1,5 +1,4 @@
 import { Point2D } from '@/utils/Point2D';
-import { Euler } from '@react-three/fiber';
 import React, {
   Dispatch,
   RefObject,
@@ -11,6 +10,7 @@ import React, {
   useState,
 } from 'react';
 import * as THREE from 'three';
+import { degToRad } from 'three/src/math/MathUtils';
 import createPubSub, { PubSub } from '../../utils/pubSub';
 import useGame from '../useGame';
 import { ComponentRegistryUtils } from './useComponentRegistry';
@@ -20,7 +20,7 @@ export interface GameObjectProps {
   displayName?: string;
   disabled?: boolean;
   transform: Point2D;
-  rotation?: Euler;
+  rotation?: number;
   children?: React.ReactNode;
   zOffset?: number;
 }
@@ -30,6 +30,7 @@ export interface GameObjectContextValue extends ComponentRegistryUtils, PubSub {
   name: Readonly<string | undefined>;
   nodeRef: RefObject<THREE.Group>;
   transform: Point2D;
+  rotation?: number;
   zOffset?: number;
   getRef: () => GameObjectRef;
 }
@@ -91,9 +92,10 @@ const GameObject = ({
       subscribe: pubSub.subscribe,
       publish: pubSub.publish,
       transform,
+      rotation,
       getComponent: registryUtils.getComponent,
     }),
-    [disabled, name, transform, pubSub, registryUtils]
+    [disabled, rotation, name, transform, pubSub, registryUtils]
   );
 
   const getRef = useCallback(() => gameObjectRef, [gameObjectRef]);
@@ -111,6 +113,7 @@ const GameObject = ({
     nodeRef: node,
     getRef,
     transform,
+    rotation,
     zOffset,
     ...registryUtils,
   };
@@ -120,7 +123,7 @@ const GameObject = ({
       <group
         ref={node}
         position={[transform.x, zOffset ? zOffset : 0, transform.y]}
-        rotation={rotation}
+        rotation={[0, degToRad(rotation ?? 0), 0]}
       >
         {!disabled && children}
       </group>
