@@ -1,3 +1,5 @@
+import { cn } from '@/utils/classnames';
+import { useMemo } from 'react';
 import { FaArrowLeft, FaCartPlus } from 'react-icons/fa';
 import { FaStairs } from 'react-icons/fa6';
 import { GiExitDoor } from 'react-icons/gi';
@@ -13,6 +15,58 @@ import { ContentPanel, ShowCurrentCurrency, ShowCurrentScore } from './GameHud';
 
 export const ExitOption = () => {
   const { publish } = useGame();
+  const enum ExitOptionsEnum {
+    NEED,
+    GREED,
+    STORE,
+    RETURN,
+  }
+  const exitOptions = useMemo(
+    () => [
+      {
+        exitType: ExitOptionsEnum.NEED,
+        colorStyles: 'bg-red-800 hover:bg-red-600',
+        description: 'You have what you need. Your adventure ends.',
+        subDescription: 'Exit the run. Record your gold.',
+        buttonLabel: 'NEED',
+        buttonLeftIcon: <GiExitDoor />,
+        onClick: () => publish(EXIT_NEED),
+      },
+      {
+        exitType: ExitOptionsEnum.GREED,
+        colorStyles: 'bg-green-800 hover:bg-green-600',
+        description: 'You could always go a little higher.',
+        subDescription: 'Go to the next floor.',
+        buttonLabel: 'GREED',
+        buttonLeftIcon: <FaStairs />,
+        onClick: () => publish(EXIT_GREED),
+      },
+      {
+        exitType: ExitOptionsEnum.STORE,
+        colorStyles: 'bg-slate-400 hover:bg-slate-500',
+        description: 'Spend your gems and upgrade your character',
+        subDescription: 'Upgrades only work for this run',
+        buttonLabel: 'STORE',
+        buttonLeftIcon: <FaCartPlus />,
+        onClick: () => publish(SHOW_STORE),
+      },
+      {
+        exitType: ExitOptionsEnum.RETURN,
+        styles: 'bg-purple-500 hover:bg-purple-600',
+        subDescription: 'Continue to explore this floor',
+        buttonLabel: 'RETURN',
+        buttonLeftIcon: <FaArrowLeft />,
+        onClick: () => publish(EXIT_EXIT),
+      },
+    ],
+    [
+      ExitOptionsEnum.GREED,
+      ExitOptionsEnum.NEED,
+      ExitOptionsEnum.RETURN,
+      ExitOptionsEnum.STORE,
+      publish,
+    ]
+  );
 
   return (
     <section className="fixed top-0 w-full items-stretch h-screen">
@@ -31,61 +85,38 @@ export const ExitOption = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full md:w-3/4">
-          <div className="flex flex-col col-span-1 gap-3 items-center">
-            <Button
-              className="bg-red-800 hover:bg-red-600 w-full p-4 text-2xl"
-              onClick={() => publish(EXIT_NEED)}
-              leftIcon={<GiExitDoor />}
-            >
-              NEED
-            </Button>
-            <span className="text-xl font-bold text-white">
-              You have what you need. Your adventure ends.
-            </span>
-            <span className="text-md text-white">
-              (Exit the run. Record your gold.)
-            </span>
-          </div>
-          <div className="flex flex-col gap-3 items-center col-span-1 ">
-            <Button
-              className="bg-green-800 hover:bg-green-600 w-full p-4 text-2xl"
-              onClick={() => publish(EXIT_GREED)}
-              leftIcon={<FaStairs />}
-            >
-              GREED
-            </Button>
-            <span className="text-xl font-bold text-white">
-              You could always go a little higher.
-            </span>
-            <span className="text-md text-white">(Go to the next floor)</span>
-          </div>
-          <div className="flex flex-col gap-3 items-center py-0 md:py-10 col-span-1 md:col-span-2">
-            <Button
-              className="bg-slate-400 hover:bg-slate-500 w-full p-4 text-2xl"
-              leftIcon={<FaCartPlus />}
-              onClick={() => publish(SHOW_STORE)}
-            >
-              STORE
-            </Button>
-            <div className="flex flex-row items-center gap-1">
-              <span className="text-xl font-bold text-white">
-                Spend your gems and upgrade your character.{' '}
-              </span>
-            </div>
-            <span className="text-md text-white">
-              (Only lasts for this run.)
-            </span>
-          </div>
-          <div className="flex flex-col gap-3 items-center py-0 md:py-10 col-span-1 md:col-span-2">
-            <Button
-              className="bg-purple-500 hover:bg-purple-600 w-full p-4 text-xl"
-              leftIcon={<FaArrowLeft />}
-              onClick={() => publish(EXIT_EXIT)}
-            >
-              Return To Game
-            </Button>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 w-full md:w-3/4">
+          {exitOptions.map((exitOption) => {
+            return (
+              <div
+                key={`exit-option-${exitOption.buttonLabel}`}
+                className="flex flex-col col-span-1 gap-1 items-center bg-slate-950 bg-opacity-40 p-2 rounded-md"
+              >
+                <Button
+                  className={cn(
+                    exitOption.colorStyles,
+                    'w-full p-4 text-xl text-2xl'
+                  )}
+                  onClick={exitOption.onClick}
+                >
+                  <div className="flex flex-row md:flex-col items-center gap-2">
+                    <span className="text-xl md:text-6xl">
+                      {exitOption.buttonLeftIcon}
+                    </span>
+                    {exitOption.buttonLabel}
+                  </div>
+                </Button>
+                <div className="flex flex-col gap-1 text-white">
+                  <span className="text-lg font-bold text-center">
+                    {exitOption.description}
+                  </span>
+                  <span className="text-md text-center">
+                    ({exitOption.subDescription ?? ''})
+                  </span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
     </section>
