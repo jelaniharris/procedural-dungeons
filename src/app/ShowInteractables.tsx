@@ -30,7 +30,7 @@ export const ShowInteractables = () => {
         key={keyName}
         name={keyName}
         transform={door.position}
-        rotation={[0, rotation, 0]}
+        rotation={rotation}
       >
         <Door key={keyName} />
       </GameObject>
