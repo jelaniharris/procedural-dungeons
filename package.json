@@ -16,6 +16,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.436.0",
     "@aws-sdk/lib-dynamodb": "^3.436.0",
+    "@next/third-parties": "^14.2.3",
     "@react-spring/three": "^9.7.3",
     "@react-three/drei": "^9.78.2",
     "@react-three/fiber": "^8.13.6",
