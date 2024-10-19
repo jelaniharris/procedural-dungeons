@@ -38,6 +38,7 @@
     "eslint": "8.45.0",
     "eslint-config-next": "13.4.10",
     "lodash": "^4.17.21",
+    "mongoose": "^8.8.2",
     "next": "^13.4.10",
     "next-transpile-modules": "^10.0.1",
     "nipplejs": "^0.10.1",
