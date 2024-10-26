@@ -21,7 +21,6 @@ async function connectMongo() {
     const opts = {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      useCreateIndex: true,
       bufferCommands: false,
     };
 
