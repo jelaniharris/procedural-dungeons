@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { ScoreModel, getScores, saveScore } from './models/score';
-import { UserModel, upsertUser } from './models/user';
+import { upsertUser } from './models/user';
 import { publicProcedure, router } from './trpc';
 
 interface AddUserInputType {
@@ -30,9 +30,7 @@ export const appRouter = router({
     )
     .mutation(async ({ input }: { input: AddUserInputType }) => {
       try {
-        const user = await upsertUser(
-          new UserModel(input.name, input.discriminator, input.country)
-        );
+        const user = await upsertUser(input);
         console.log(user);
         return user;
       } catch (error) {

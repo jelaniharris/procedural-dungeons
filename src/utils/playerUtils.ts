@@ -14,5 +14,5 @@ export const savePlayerLocalData = (data: PlayerLocalData) => {
 };
 
 export const displayPlayerName = (data: PlayerLocalData) => {
-  return `${data.name}#${data.discriminator.toString().padStart(3, '0')}`;
+  return `${data.name}#${String(data.discriminator).padStart(3, '0')}`;
 };

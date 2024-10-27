@@ -47,9 +47,9 @@ export const NameChangeForm = () => {
 
     if (savedData) {
       savePlayerLocalData({
-        name: savedData.Name,
-        discriminator: savedData.Discriminator,
-        country: savedData.Country ?? '',
+        name: savedData.name,
+        discriminator: savedData.discriminator,
+        country: savedData.country ?? '',
       });
 
       wait(1000);
