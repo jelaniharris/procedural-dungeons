@@ -27,18 +27,25 @@ export type PerformTurnProps = {
 };
 
 export interface StageSlice {
-  currentLevel: number;
-  gameType: string;
-  showExitDialog: boolean;
-  showSettingsDialog: boolean;
-  showStoreDialog: boolean;
+  // Statuses
   gameStatus: GameStatus;
-  settings: GameSettings;
   isPaused: boolean;
   setGameStatus: (newStatus: GameStatus) => void;
+
+  // Stages
   advanceStage: () => void;
   newStageTriggers: () => void;
+
+  // Turns
   performTurn: (props: PerformTurnProps) => void;
+
+  // Game Types
+  gameType: string;
+  getGameType: () => string;
+
+  // Levels
+  currentLevel: number;
+  getCurrentLevel: () => number;
 
   // Danger Zones
   dangerZones: DangerType[];
@@ -47,20 +54,28 @@ export interface StageSlice {
     locations: Point2D[],
     dangerIndicator?: DangerIndicator
   ) => void;
+
   // Dialogs
+  showExitDialog: boolean;
+  showSettingsDialog: boolean;
+  showStoreDialog: boolean;
   setShowExitDialog: (showDialog: boolean) => void;
   setShowSettingsDialog: (showDialog: boolean) => void;
   setShowStoreDialog: (showStoreDialog: boolean) => void;
   setPaused: (newPauseStatus: boolean) => void;
+
   // Floor Steps
   floorSteps: number;
   modifyFloorSteps: (amount: number) => void;
   resetFloorSteps: (amount: number) => void;
+
   // Attempts
   getAttemptData: () => RunData;
   recordLocalAttempt: () => void;
   getLocalAttempts: (showAllAttempts: boolean) => RunData[];
+
   // Settings
+  settings: GameSettings;
   getSettings: () => GameSettings;
   saveSettings: (settings: GameSettings) => void;
   getLocalSettings: () => GameSettings;
@@ -72,15 +87,15 @@ const DefaultGameSettings: GameSettings = {
   musicVolume: 50,
   soundVolume: 50,
   touchControlType: TouchControls.CONTROL_DPAD,
-  provisionUnlocks: new Array(ProvisionType.__LAST)
+  provisionUnlocks: new Array(Object.keys(ProvisionType).length)
     .fill(false)
-    .map((val, index) => {
+    .map((val) => {
       if (
         [
           ProvisionType.BONE_NECKLACE,
           ProvisionType.COIN_PURSE,
           ProvisionType.SPICES,
-        ].includes(index)
+        ].includes(val)
       ) {
         return true;
       }
@@ -304,5 +319,11 @@ export const createStageSlice: StateCreator<
   saveSettings(settings: GameSettings) {
     set({ settings: settings });
     localStorage.setItem('settings', JSON.stringify(settings));
+  },
+  getCurrentLevel() {
+    return get().currentLevel;
+  },
+  getGameType() {
+    return get().gameType;
   },
 });
