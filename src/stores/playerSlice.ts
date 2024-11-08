@@ -110,6 +110,7 @@ export interface PlayerSlice {
   hasProvision: (provisionType: ProvisionType) => Provision | undefined;
   resetProvisions: () => void;
   triggeredProvision: (provision: Provision) => void;
+  getProvisions: () => Provision[];
 
   // Upgrades
   upgrades: PlayerUpgrades;
@@ -574,6 +575,9 @@ export const createPlayerSlice: StateCreator<
   },
   triggeredProvision: (provision: Provision) => {
     console.log(provision);
+  },
+  getProvisions: () => {
+    return get().provisions;
   },
   addStatusEffect: (statusEffect: StatusEffect): boolean => {
     const statusEffects = get().statusEffects;
