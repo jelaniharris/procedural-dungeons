@@ -12,8 +12,10 @@ import { ShowOverlayEvents } from '@/app/ShowOverlayEvents';
 import { ShowProjectiles } from '@/app/ShowProjectiles';
 import { ShowSummoningIndicators } from '@/app/ShowSummoningIndicators';
 import { ShowViewOverlay } from '@/app/ShowViewOverlay';
+import { trpc } from '@/app/_trpc/client';
 import { GameState, useStore } from '@/stores/useStore';
 import { Point2D } from '@/utils/Point2D';
+import { getPlayerLocalData } from '@/utils/playerUtils';
 import { Environment, Stats } from '@react-three/drei';
 import { EffectComposer, Vignette } from '@react-three/postprocessing';
 import React, { Suspense, useCallback, useMemo, useState } from 'react';
@@ -189,6 +191,11 @@ const DungeonScene = () => {
   );
   const openContainer = useStore((state: GameState) => state.openContainer);
   const addStatusEffect = useStore((state: GameState) => state.addStatusEffect);
+  const getAttemptData = useStore((stage: GameState) => stage.getAttemptData);
+  const getProvisions = useStore((stage: GameState) => stage.getProvisions);
+
+  // Api calls
+  const saveScore = trpc.saveScore.useMutation();
 
   const {
     subscribe,
@@ -202,6 +209,27 @@ const DungeonScene = () => {
   const [mapTone, setMapTone] = useState<string>('#FFFFFF');
 
   console.log('Rendering Scene');
+
+  const saveAttempt = useCallback(() => {
+    console.log('Saving game');
+    const player = getPlayerLocalData();
+
+    if (player) {
+      const attemptInfo = getAttemptData();
+      const provisions = getProvisions();
+      console.log('Got player, saving score');
+      saveScore.mutate({
+        score: attemptInfo.score,
+        gameType: attemptInfo.type,
+        seed: attemptInfo.seed,
+        level: attemptInfo.level,
+        provisions: provisions.map((p) => p.provisionType),
+        name: player.name,
+        discriminator: player.discriminator,
+        country: player.country.length > 0 ? player.country : undefined,
+      });
+    }
+  }, []);
 
   const aiTurn = useCallback(() => {
     const enemyLocationResult = (
@@ -683,6 +711,7 @@ const DungeonScene = () => {
       subscribe(EXIT_NEED, () => {
         setShowExitDialog(false);
         setPaused(true);
+        saveAttempt();
         recordLocalAttempt();
         setGameStatus(GameStatus.GAME_ENDED);
       });
@@ -705,6 +734,7 @@ const DungeonScene = () => {
         playAudio('game_over_bad_chest.ogg');
         setDead();
         recordLocalAttempt();
+        saveAttempt();
         setGameStatus(GameStatus.GAME_ENDED);
         setPaused(true);
       });

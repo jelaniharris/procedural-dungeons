@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { ScoreModel, getScores, saveScore } from './models/score';
+import { getScores } from './models/dynamo/score';
+import { saveScore } from './models/score';
 import { upsertUser } from './models/user';
 import { publicProcedure, router } from './trpc';
 
@@ -10,13 +11,14 @@ interface AddUserInputType {
 }
 
 interface SaveScoreInputType {
-  name: string;
-  discriminator: number;
   gameType: string;
   seed: number;
   score: number;
   level: number;
-  country: string;
+  provisions?: string[];
+  name: string;
+  discriminator: number;
+  country?: string;
 }
 
 export const appRouter = router({
@@ -41,28 +43,30 @@ export const appRouter = router({
   saveScore: publicProcedure
     .input(
       z.object({
-        name: z.string(),
-        discriminator: z.number(),
-        country: z.string(),
         gameType: z.string(),
         seed: z.number(),
         score: z.number(),
         level: z.number(),
+        provisions: z.array(z.string()).optional(),
+        name: z.string(),
+        discriminator: z.number(),
+        country: z.string().optional(),
       })
     )
     .mutation(async ({ input }: { input: SaveScoreInputType }) => {
       try {
-        const score = await saveScore(
-          new ScoreModel(
-            input.name,
-            input.discriminator,
-            input.gameType,
-            input.seed,
-            input.score,
-            input.level,
-            input.country
-          )
-        );
+        console.log(input);
+
+        const score = await saveScore({
+          gameType: input.gameType,
+          seed: input.seed,
+          score: input.score,
+          level: input.level,
+          name: input.name,
+          discriminator: input.discriminator,
+          country: input.country,
+          provisions: input.provisions ?? [],
+        });
         console.log(score);
       } catch (error) {
         console.log(error);
