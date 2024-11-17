@@ -1,17 +1,18 @@
-import { model, models, Schema } from 'mongoose';
+import { Document, model, models, Schema } from 'mongoose';
 
-export interface IScore {
+export interface IScore extends Document {
   gameType: string;
   seed: number;
   score: number;
   level: number;
-  updatedAt?: Date;
-  createdAt?: Date;
+  updatedAt?: Date | undefined;
+  createdAt?: Date | undefined;
   provisions: string[];
-  expiresAfter?: Date;
+  expiresAfter?: Date | undefined;
   name: string;
   discriminator: number;
-  country?: string;
+  country?: string | undefined;
+  attempts?: number | undefined;
 }
 
 const ScoreSchema = new Schema<IScore>(
@@ -27,6 +28,7 @@ const ScoreSchema = new Schema<IScore>(
     name: { type: String, required: true },
     discriminator: { type: Number, required: true },
     country: { type: String, required: false },
+    attempts: { type: Number, required: false, default: 1 },
   },
   {
     timestamps: true,
