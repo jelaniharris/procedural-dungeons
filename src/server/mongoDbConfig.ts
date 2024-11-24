@@ -19,8 +19,6 @@ async function connectMongo() {
 
   if (!cached.promise) {
     const opts = {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
       bufferCommands: true,
     };
 
