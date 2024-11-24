@@ -1,5 +1,5 @@
-import { trpc } from '@/app/_trpc/client';
-import { GetScoresResult } from '@/server/models/score';
+import { useGetScores } from '@/hooks/useGetScores';
+import { IScore } from '@/server/models/score.schema';
 import { v4 as uuidv4 } from 'uuid';
 
 interface ScoreListProps {
@@ -8,21 +8,9 @@ interface ScoreListProps {
 }
 
 export const ScoreList = ({ gameType, seed }: ScoreListProps) => {
-  const { isLoading, data } = trpc.getScores.useQuery<GetScoresResult[]>(
-    {
-      gameType: gameType,
-      seed: seed,
-    },
-    { initialData: [] }
-  );
+  const { isLoading, data } = useGetScores({ gameType, seed });
 
-  const ScoreRow = ({
-    score,
-    index,
-  }: {
-    score: GetScoresResult;
-    index: number;
-  }) => {
+  const ScoreRow = ({ score, index }: { score: IScore; index: number }) => {
     let countryFlagSrc: string | undefined;
     let countryAlt: string = '';
     if (score.country && score.country.length > 0) {
@@ -40,8 +28,15 @@ export const ScoreList = ({ gameType, seed }: ScoreListProps) => {
           )}
           {`${score.name}:${score.discriminator}`}
         </td>
-        <td className="px-6 py-3">{score.score}</td>
+        <td className="px-6 py-3">{`${score.score}`}</td>
         <td className="px-6 py-3">{score.level}</td>
+        {gameType === 'adventure' && (
+          <td className="px-6 py-3">
+            {score.updatedAt
+              ? new Date(score.updatedAt).toLocaleDateString()
+              : '??'}
+          </td>
+        )}
       </tr>
     );
   };
@@ -58,12 +53,13 @@ export const ScoreList = ({ gameType, seed }: ScoreListProps) => {
           <th className="px-6 py-3">Name</th>
           <th className="px-6 py-3">Score</th>
           <th className="px-6 py-3">Level</th>
+          {gameType === 'adventure' && <th className="px-6 py-3">Date</th>}
         </tr>
       </thead>
       <tbody className="">
         {data &&
-          data.map((score, index) => (
-            <ScoreRow key={`score-${uuidv4()}`} score={score} index={index} />
+          data.map((data, index) => (
+            <ScoreRow key={`score-${uuidv4()}`} score={data} index={index} />
           ))}
       </tbody>
     </table>

@@ -19,15 +19,14 @@ export const saveScore = async (score: IScore): Promise<IScore | null> => {
     const existingScore = await Score.findOne(
       {
         gameType: score.gameType,
-        seed: score.seed,
+        // If not in adventure type, then find for matching seed
+        ...(score.gameType != 'adventure' && { seed: score.seed }),
         name: score.name,
         discriminator: score.discriminator,
       },
       {},
       { sort: { score: -1 } }
     );
-
-    //console.log('Existing score', existingScore);
 
     if (existingScore) {
       console.log('Updating score', score.score, '>', existingScore.score);
@@ -38,11 +37,13 @@ export const saveScore = async (score: IScore): Promise<IScore | null> => {
         },
         {
           $max: { score: score.score },
+          $inc: { attempts: 1 },
         },
         {
           new: true,
         }
       );
+
       return updatedScore;
     } else {
       // Create a new score if it doesn't exist
@@ -51,8 +52,32 @@ export const saveScore = async (score: IScore): Promise<IScore | null> => {
         ...score,
         expiresAfter: new Date().setDate(new Date().getDate() + ttlDays),
       });
+
       return newScore;
     }
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export interface GetScoresDto {
+  gameType: string;
+  seed?: number;
+  limit?: number;
+}
+
+export const getScores = async (params: GetScoresDto): Promise<IScore[]> => {
+  const { gameType, seed, limit } = params;
+  try {
+    await connectMongo();
+    const scores = await Score.find<IScore>(
+      { gameType: gameType, ...(seed && { seed: seed }) },
+      {},
+      { limit: limit || 50 }
+    ).sort({ score: -1 });
+
+    return scores;
   } catch (error) {
     console.log(error);
     throw error;
