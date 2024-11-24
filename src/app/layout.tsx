@@ -2,18 +2,20 @@ import '@/app/global.css';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import Provider from './_trpc/Provider';
+import TrpcProvider from './_trpc/TrpcProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Tower of Greed',
   generator: 'Next.js',
+  metadataBase: new URL('https://tower-of-greed.vercel.app'),
   applicationName: 'Next.js',
   keywords: [
     'dungeon',
     'crawler',
     'game',
+    'turn-based',
     'browser',
     'next.js',
     'react',
@@ -22,7 +24,7 @@ export const metadata: Metadata = {
   ],
   creator: 'Jelani Harris',
   description:
-    'A dungeon crawler you can play in your browser. Created by Jelani Harris.',
+    'A turn-based dungeon crawler you can play in your browser. Created by Jelani Harris.',
   category: 'Games',
   openGraph: {
     type: 'website',
@@ -44,18 +46,15 @@ export const metadata: Metadata = {
   },
   robots: 'index, follow',
 };
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Provider>{children}</Provider>
+        <TrpcProvider>{children}</TrpcProvider>
       </body>
       <GoogleAnalytics gaId="G-Q65C3YRDQN" />
     </html>
   );
-}
+};
+
+export default RootLayout;
