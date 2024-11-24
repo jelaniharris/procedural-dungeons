@@ -226,10 +226,13 @@ const DungeonScene = () => {
         provisions: provisions.map((p) => p.provisionType),
         name: player.name,
         discriminator: player.discriminator,
-        country: player.country.length > 0 ? player.country : undefined,
+        country:
+          player.country && player.country.length > 0
+            ? player.country
+            : undefined,
       });
     }
-  }, []);
+  }, [getAttemptData, getProvisions, saveScore]);
 
   const aiTurn = useCallback(() => {
     const enemyLocationResult = (
