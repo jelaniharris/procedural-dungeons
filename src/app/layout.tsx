@@ -17,7 +17,8 @@ export const metadata: Metadata = {
     'game',
     'turn-based',
     'browser',
-    'next.js',
+    'nextjs',
+    'threejs',
     'react',
     'typescript',
     'javascript',
@@ -26,6 +27,7 @@ export const metadata: Metadata = {
   description:
     'A turn-based dungeon crawler you can play in your browser. Created by Jelani Harris.',
   category: 'Games',
+  manifest: '/images/favicon/site.webmanifest',
   openGraph: {
     type: 'website',
     locale: 'en_US',
