@@ -1,8 +1,8 @@
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 import { QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { docClient } from '../../dbconfig';
 import { generateGameHash, generateUserHash } from '../../utils';
-import { DynamoItem } from '../dynamoItem';
+import { docClient } from './dbconfig';
+import { DynamoItem } from './dynamoItem';
 
 export type GetScoresResult = {
   score: number;

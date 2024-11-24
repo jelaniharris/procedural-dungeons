@@ -1,7 +1,7 @@
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
-import { docClient } from '../../dbconfig';
 import { generateUserHash } from '../../utils';
-import { DynamoItem } from '../dynamoItem';
+import { docClient } from './dbconfig';
+import { DynamoItem } from './dynamoItem';
 
 export class UserModel extends DynamoItem {
   Name: string;

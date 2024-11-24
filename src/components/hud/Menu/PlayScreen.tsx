@@ -13,9 +13,9 @@ const EODTimer = () => {
 
   const updateTimer = useCallback(() => {
     const date = new Date();
-    const second = date.getSeconds();
-    const minute = date.getMinutes();
-    const hour = date.getHours();
+    const second = date.getUTCSeconds();
+    const minute = date.getUTCMinutes();
+    const hour = date.getUTCHours();
 
     const leftHour = 23 - hour;
     const leftMinute = 59 - minute;

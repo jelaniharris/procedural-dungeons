@@ -8,7 +8,10 @@ interface ScoreListProps {
 }
 
 export const ScoreList = ({ gameType, seed }: ScoreListProps) => {
-  const { isLoading, data } = useGetScores({ gameType, seed });
+  const { isLoading, data } = useGetScores({
+    gameType,
+    seed,
+  });
 
   const ScoreRow = ({ score, index }: { score: IScore; index: number }) => {
     let countryFlagSrc: string | undefined;
@@ -58,7 +61,7 @@ export const ScoreList = ({ gameType, seed }: ScoreListProps) => {
       </thead>
       <tbody className="">
         {data &&
-          data.map((data, index) => (
+          data.map((data: IScore, index: number) => (
             <ScoreRow key={`score-${uuidv4()}`} score={data} index={index} />
           ))}
       </tbody>

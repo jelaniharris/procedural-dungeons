@@ -54,6 +54,7 @@ export const scoreRouter = router({
       })
     )
     .query(async ({ input }) => {
+      console.log(input);
       const resultScores = await getScores(input);
       console.log(resultScores);
       return resultScores;

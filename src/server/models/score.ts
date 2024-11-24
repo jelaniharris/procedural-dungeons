@@ -29,22 +29,39 @@ export const saveScore = async (score: IScore): Promise<IScore | null> => {
     );
 
     if (existingScore) {
-      console.log('Updating score', score.score, '>', existingScore.score);
       // Update the score if it's higher
-      const updatedScore = await Score.findByIdAndUpdate<IScore>(
-        {
-          _id: existingScore._id,
-        },
-        {
-          $max: { score: score.score },
-          $inc: { attempts: 1 },
-        },
-        {
-          new: true,
-        }
-      );
-
-      return updatedScore;
+      if (score.score >= existingScore.score) {
+        const updatedScore = await Score.findByIdAndUpdate<IScore>(
+          {
+            _id: existingScore._id,
+          },
+          {
+            $set: {
+              score: score.score,
+              level: score.level,
+              country: score.country,
+            },
+            $inc: { attempts: 1 },
+          },
+          {
+            new: true,
+          }
+        );
+        return updatedScore;
+      } else {
+        const updatedScore = await Score.findByIdAndUpdate<IScore>(
+          {
+            _id: existingScore._id,
+          },
+          {
+            $inc: { attempts: 1 },
+          },
+          {
+            new: true,
+          }
+        );
+        return updatedScore;
+      }
     } else {
       // Create a new score if it doesn't exist
       console.log('Creating new score', score);

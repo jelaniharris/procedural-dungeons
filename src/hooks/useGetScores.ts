@@ -3,7 +3,7 @@ import { IScore } from '@/server/models/score.schema';
 
 interface UseGetScoresProps {
   gameType: string;
-  seed: number | undefined;
+  seed?: number | undefined;
 }
 
 export const useGetScores = ({ gameType, seed }: UseGetScoresProps) => {
@@ -11,7 +11,7 @@ export const useGetScores = ({ gameType, seed }: UseGetScoresProps) => {
     trpc.getScores.useQuery<IScore[]>(
       {
         gameType: gameType,
-        seed: seed,
+        ...(gameType != 'adventure' && { seed: seed }),
       },
       { initialData: [] }
     );
