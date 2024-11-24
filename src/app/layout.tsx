@@ -37,7 +37,7 @@ export const metadata: Metadata = {
       'A dungeon crawler you can play in your browser. Created by Jelani Harris.',
     images: [
       {
-        url: 'https://tower-of-greed.vercel.app/textures/Tower of Greed Logo.png',
+        url: 'https://tower-of-greed.vercel.app/images/logo/logo.png',
         width: 1200,
         height: 630,
         alt: 'Tower of Greed',
