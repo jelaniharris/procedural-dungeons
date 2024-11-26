@@ -146,6 +146,7 @@ export const ShowEnvironment = () => {
         case TileType.TILE_WALL:
         case TileType.TILE_WALL_EDGE:
           const { rotation, wallType } = determineWallType(x, y, tileType);
+          const radianDegrees = MathUtils.degToRad(rotation);
           switch (wallType) {
             case WallType.WALL_DOOR:
               // Actual door is an game object, so just fill in the floor for now
@@ -186,7 +187,7 @@ export const ShowEnvironment = () => {
               tile = [
                 <WallNarrow
                   key={`wallnarrow-${x}-${y}`}
-                  rotation={[0, rotation, 0]}
+                  rotation={[0, radianDegrees, 0]}
                   position={[tileXPos, 0, tileYPos]}
                 />,
               ];
@@ -195,7 +196,7 @@ export const ShowEnvironment = () => {
               tile = [
                 <ThreeSidedWall
                   key={`tsw-${x}-${y}`}
-                  rotation={[0, rotation, 0]}
+                  rotation={[0, radianDegrees, 0]}
                   position={[tileXPos, 0, tileYPos]}
                 />,
               ];
@@ -204,7 +205,7 @@ export const ShowEnvironment = () => {
               tile = [
                 <LShapeWall
                   key={`lsw-${x}-${y}`}
-                  rotation={[0, rotation, 0]}
+                  rotation={[0, radianDegrees, 0]}
                   position={[tileXPos, 0, tileYPos]}
                 />,
               ];
@@ -213,7 +214,7 @@ export const ShowEnvironment = () => {
               tile = [
                 <WallHalf
                   key={`partial-${x}-${y}`}
-                  rotation={[0, rotation, 0]}
+                  rotation={[0, radianDegrees, 0]}
                   position={[tileXPos, 0, tileYPos]}
                 />,
               ];

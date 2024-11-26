@@ -727,6 +727,7 @@ export const createMapSlice: StateCreator<
     if (isBlockWallOrNull(westBlock, { doorIsWall: true })) {
       bitwiseWalls = bitwiseWalls | 1; // 0001
     }
+
     switch (bitwiseWalls) {
       case 15:
         // 1 1 1 1 = 15
@@ -737,15 +738,15 @@ export const createMapSlice: StateCreator<
         // 1 0 1 0 = 10
         // 0 1 0 1 = 5
         let spinDirection = 90;
-        if (Math.random() < 0.5) {
-          spinDirection = 270;
-        }
         if (tileType === TileType.TILE_WALL_DOOR) {
           if (bitwiseWalls == 5) {
-            rotation = spinDirection;
+            rotation = 270;
           }
           wallType = WallType.WALL_DOOR;
         } else {
+          if (Math.random() < 0.5) {
+            spinDirection = 270;
+          }
           if (bitwiseWalls == 10) {
             rotation = spinDirection;
           }
@@ -810,7 +811,7 @@ export const createMapSlice: StateCreator<
     }
 
     return {
-      rotation: rotation * (Math.PI / 180),
+      rotation /*: rotation * (Math.PI / 180)*/,
       wallType,
     };
   },
