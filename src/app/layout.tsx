@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   ],
   creator: 'Jelani Harris',
   description:
-    'A turn-based dungeon crawler you can play in your browser. Created by Jelani Harris.',
+    'Escape the dangerous dungeon with as much loot as possible. A turn-based dungeon crawler you can play in your browser. Created by Jelani Harris.',
   category: 'Games',
   manifest: '/images/favicon/site.webmanifest',
   openGraph: {
