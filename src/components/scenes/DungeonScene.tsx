@@ -873,7 +873,7 @@ const DungeonScene = () => {
       <directionalLight color={mapTone} />
       <Environment preset="warehouse" />
       <ShowViewOverlay />
-      <Stats />
+      {process.env.NODE_ENV === 'development' && <Stats />}
       <Suspense fallback={null}>
         <AmbientSound url={'./sounds/dungeon_ambient_1.ogg'} />
         <Effects />
