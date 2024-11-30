@@ -334,8 +334,8 @@ export const createMapSlice: StateCreator<
     get().newStageTriggers();
   },
   resetMap: () => {
-    const mapNumRows = 15 + 3 * get().currentLevel;
-    const mapNumCols = 15 + 3 * get().currentLevel;
+    const mapNumRows = 10 + 3 * get().currentLevel;
+    const mapNumCols = 10 + 3 * get().currentLevel;
 
     const newMap: (TileType | null)[][] = [];
 
