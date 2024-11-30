@@ -61,10 +61,10 @@ export const ProvisionSelector = () => {
             key={`prov-${prov.name}`}
             onClick={() => setProvSelected(prov.provisionType)}
             className={cn(
-              'bg-slate-600 hover:bg-slate-500 p-2 md:p-5 w-full h-full md:w-1/4 rounded-lg',
+              'bg-slate-600 hover:bg-slate-500 border-slate-700 border-4 p-2 md:p-5 w-full h-full md:w-1/4 rounded-lg',
               'flex flex-row md:flex-col gap-2 md:gap-4 cursor-pointer',
               prov.provisionType === selected
-                ? 'bg-blue-600 hover:bg-blue-500'
+                ? 'bg-blue-600 hover:bg-blue-500 border-blue-800'
                 : ''
             )}
           >
