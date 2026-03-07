@@ -41,9 +41,20 @@ export const createHazardSlice: StateCreator<
     const newHazardData = new Map<string, Hazard>();
 
     const lootGen = new LootChance<HazardType>();
-    lootGen.add(HazardType.TRAP_FLOOR_SPIKES, 50);
-    lootGen.add(HazardType.TRAP_FLOOR_ARROW, 40);
-    lootGen.add(HazardType.TRAP_FLOOR_GRATES, 30);
+    if (currentLevel > 4) {
+      lootGen.add(HazardType.TRAP_FLOOR_ARROW, 35);
+      lootGen.add(HazardType.TRAP_FLOOR_SPIKES, 40);
+      lootGen.add(HazardType.TRAP_FLOOR_GRATES, 35);
+    } else if (currentLevel > 3) {
+      lootGen.add(HazardType.TRAP_FLOOR_ARROW, 25);
+      lootGen.add(HazardType.TRAP_FLOOR_SPIKES, 50);
+      lootGen.add(HazardType.TRAP_FLOOR_GRATES, 15);
+    } else if (currentLevel > 2) {
+      lootGen.add(HazardType.TRAP_FLOOR_ARROW, 30);
+      lootGen.add(HazardType.TRAP_FLOOR_SPIKES, 70);
+    } else {
+      lootGen.add(HazardType.TRAP_FLOOR_SPIKES, 100);
+    }
 
     let numberHazards = 6 + currentLevel * 4;
 

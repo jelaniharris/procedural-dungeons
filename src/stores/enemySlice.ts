@@ -85,7 +85,8 @@ export const createEnemySlice: StateCreator<
     let newEnemyIndex = enemyIndex;
     const newEnemyData: Enemy[] = [];
 
-    let numberEnemies = 2 + currentLevel * 4;
+    const enemyMultiplier = (currentLevel % 3) + 1;
+    let numberEnemies = currentLevel * (3 + enemyMultiplier);
 
     // Create a new LootChance generator
     const enemyTypeGenerator = new LootChance<EnemyType>();
