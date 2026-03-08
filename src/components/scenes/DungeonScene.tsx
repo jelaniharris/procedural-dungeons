@@ -64,6 +64,7 @@ import {
   Direction,
   Enemy,
   EnemyTouchType,
+  EnemyType,
   GameStatus,
   ItemContainerStatus,
   ItemDataInfo,
@@ -756,9 +757,14 @@ const DungeonScene = () => {
         ) {
           const locationAction = checkPlayerLocation();
           const bucklerProvision = hasProvision(ProvisionType.BUCKLER);
-          const dodged =
+          let dodged =
             bucklerProvision &&
             Math.random() < bucklerProvision.numberValue / 100;
+
+          // If the enemy type is a ghost then it's unblockable
+          if (enemy.type === EnemyType.ENEMY_GHOST) {
+            dodged = false;
+          }
 
           if (dodged) {
             playAudio('thunk.ogg');
