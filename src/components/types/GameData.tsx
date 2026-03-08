@@ -219,6 +219,6 @@ export const ProvisionData: Provision[] = [
     numberValue: 3,
     provisionType: ProvisionType.STUDDED_BRACELET,
     description:
-      'If at full health, adds %NUM% diamonds when you enter a new floor.',
+      'If at full health, adds 0-%NUM% diamonds when you enter a new floor.',
   },
 ];

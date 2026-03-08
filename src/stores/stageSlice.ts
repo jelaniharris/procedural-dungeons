@@ -142,7 +142,7 @@ export const createStageSlice: StateCreator<
       ProvisionType.STUDDED_BRACELET
     );
     if (atFullHealth() && studdedBraceletProvision) {
-      adjustCurrency(studdedBraceletProvision.numberValue);
+      adjustCurrency(Math.floor(Math.random() * (studdedBraceletProvision.numberValue + 1)));
     }
   },
   setGameStatus(newStatus: GameStatus) {
