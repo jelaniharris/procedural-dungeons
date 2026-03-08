@@ -71,6 +71,7 @@ import {
   LocationActionType,
   OverLayTextType,
   POSITION_OFFSETS,
+  ProvisionType,
   SourceType,
   SpawnWarningType,
   StatusEffectType,
@@ -115,6 +116,8 @@ const DungeonScene = () => {
   const performTurn = useStore((state: GameState) => state.performTurn);
   const modifyEnergy = useStore((state: GameState) => state.modifyEnergy);
   const adjustHealth = useStore((state: GameState) => state.adjustHealth);
+  const hasProvision = useStore((state: GameState) => state.hasProvision);
+  const playerPosition = useStore((state: GameState) => state.playerPosition);
   const adjustCurrency = useStore((state: GameState) => state.adjustCurrency);
   const adjustKeys = useStore((state: GameState) => state.adjustKeys);
   const addScore = useStore((state: GameState) => state.addScore);
@@ -751,17 +754,31 @@ const DungeonScene = () => {
             EnemyTouchType.TOUCHTYPE_BOTH,
           ].includes(enemy.touchType)
         ) {
-          playAudio('hurt_04.ogg');
-          if (adjustHealth(-1).isDead) {
-            // Then the player died
-            publish(PLAYER_DIED, {});
+          const locationAction = checkPlayerLocation();
+          const bucklerProvision = hasProvision(ProvisionType.BUCKLER);
+          const dodged =
+            bucklerProvision &&
+            Math.random() < bucklerProvision.numberValue / 100;
+
+          if (dodged) {
+            playAudio('thunk.ogg');
+            publish<OverlayTextEvent>(OVERLAY_TEXT, {
+              type: OverLayTextType.OVERLAY_BLOCKED,
+              mapPosition: locationAction.position,
+            });
           } else {
-            /*const playerGO = findGameObjectByName('player');
-            if (playerGO) {
-              playerGO.publish<PlayAnimationEvent>('play-animation', {
-                animName: 'fall',
-              });
-            }*/
+            playAudio('hurt_04.ogg');
+            if (adjustHealth(-1).isDead) {
+              // Then the player died
+              publish(PLAYER_DIED, {});
+            } else {
+              /*const playerGO = findGameObjectByName('player');
+              if (playerGO) {
+                playerGO.publish<PlayAnimationEvent>('play-animation', {
+                  animName: 'fall',
+                });
+              }*/
+            }
           }
         }
         if (

@@ -233,4 +233,11 @@ export const ProvisionData: ProvisionDefinition[] = [
       'If at full health, adds 0-%NUM% diamonds when you enter a new floor.',
     rarityValues: { COMMON: 2, RARE: 3, EPIC: 4, LEGENDARY: 6 },
   },
+  {
+    name: 'Buckler',
+    numberValue: 25,
+    provisionType: ProvisionType.BUCKLER,
+    description: 'Gives a %PERCENT% chance to avoid taking damage from enemies',
+    rarityValues: { COMMON: 30, RARE: 35, EPIC: 40, LEGENDARY: 50 },
+  },
 ];

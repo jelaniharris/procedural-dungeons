@@ -47,6 +47,9 @@ export const ShowOverlayEvents = () => {
       case OverLayTextType.OVERLAY_KEY:
         contents = { text: `+${amount}🔑`, className: 'bg-slate-800' };
         break;
+      case OverLayTextType.OVERLAY_BLOCKED:
+        contents = { text: `BLOCKED 🛡️`, className: 'bg-slate-800' };
+        break;
       case OverLayTextType.OVERLAY_NONE:
       default:
         return <></>;
@@ -121,6 +124,20 @@ export const ShowOverlayEvents = () => {
                 <OverlayMessage
                   key={`message-${id}`}
                   amount={amount}
+                  position={mapPosition}
+                  overlayType={type}
+                />
+              );
+              setTimeout(() => deleteFromMessages(id), removeDelay);
+            }
+            break;
+          case OverLayTextType.OVERLAY_BLOCKED:
+            if (mapPosition) {
+              addToMessages(
+                id,
+                <OverlayMessage
+                  key={`message-${id}`}
+                  amount={0}
                   position={mapPosition}
                   overlayType={type}
                 />
