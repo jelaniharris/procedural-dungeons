@@ -1,5 +1,9 @@
 import { ProvisionData } from '@/components/types/GameData';
-import { Provision, ProvisionRarity, ProvisionType } from '@/components/types/GameTypes';
+import {
+  Provision,
+  ProvisionRarity,
+  ProvisionType,
+} from '@/components/types/GameTypes';
 import { GameState, useStore } from '@/stores/useStore';
 import { cn } from '@/utils/classnames';
 import { getProvisionDescription } from '@/utils/descriptionUtils';
@@ -15,7 +19,10 @@ const RARITY_WEIGHTS: { rarity: ProvisionRarity; chance: number }[] = [
   { rarity: ProvisionRarity.COMMON, chance: 50 },
 ];
 
-const RARITY_STYLES: Record<ProvisionRarity, { card: string; label: string; labelText: string }> = {
+const RARITY_STYLES: Record<
+  ProvisionRarity,
+  { card: string; label: string; labelText: string }
+> = {
   [ProvisionRarity.COMMON]: {
     card: 'bg-slate-500 border-slate-600 hover:bg-slate-400',
     label: 'bg-slate-700',
@@ -142,9 +149,10 @@ export const ProvisionSelector = () => {
                   {prov.rarity.charAt(0) + prov.rarity.slice(1).toLowerCase()}
                 </span>
               )}
-              <p className="text-white text-sm md:text-lg ">
-                {provDescription}
-              </p>
+              <p
+                className="text-white text-sm md:text-lg "
+                dangerouslySetInnerHTML={{ __html: provDescription }}
+              />
             </div>
           </div>
         );
