@@ -1,6 +1,7 @@
 import Button from '@/components/input/Button';
 import { ProvisionData, StatusEffectData } from '@/components/types/GameData';
 import {
+  ProvisionRarity,
   StatusEffectDataInfo,
   StatusEffectType,
 } from '@/components/types/GameTypes';
@@ -274,22 +275,55 @@ const TutorialScreen = () => {
     );
   };
 
+  const rarityStyles: Record<ProvisionRarity, string> = {
+    [ProvisionRarity.COMMON]: 'text-slate-300',
+    [ProvisionRarity.RARE]: 'text-blue-400',
+    [ProvisionRarity.EPIC]: 'text-purple-400',
+    [ProvisionRarity.LEGENDARY]: 'text-yellow-400',
+  };
+
+  const rarityLabels: Record<ProvisionRarity, string> = {
+    [ProvisionRarity.COMMON]: 'Com',
+    [ProvisionRarity.RARE]: 'Rare',
+    [ProvisionRarity.EPIC]: 'Epic',
+    [ProvisionRarity.LEGENDARY]: 'Leg',
+  };
+
+  const isPercent = (description: string) => description.includes('%PERCENT%');
+
   const ProvisionsPage = () => {
     return (
       <>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
           {ProvisionData.map((data) => {
             const provDescription = getProvisionDescription(data);
+            const percent = isPercent(data.description);
             return (
               <ShowDataCard
-                key={`enemydata-${data.name}`}
+                key={`provdata-${data.name}`}
                 iconPath=""
                 placeholder
                 width={256}
                 height={256}
                 name={data.name}
                 description={provDescription}
-              />
+              >
+                <div className="flex flex-row gap-2 mt-1 p-1 justify-center bg-slate-600 rounded-sm w-full text-xs flex-wrap">
+                  {(Object.keys(data.rarityValues) as ProvisionRarity[]).map(
+                    (rarity) => (
+                      <span
+                        key={rarity}
+                        className={cn('font-semibold', rarityStyles[rarity])}
+                      >
+                        {rarityLabels[rarity]}:{' '}
+                        {percent
+                          ? `${data.rarityValues[rarity]}%`
+                          : data.rarityValues[rarity]}
+                      </span>
+                    )
+                  )}
+                </div>
+              </ShowDataCard>
             );
           })}
         </div>

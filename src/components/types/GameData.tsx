@@ -183,28 +183,28 @@ export const ItemData: ItemDataInfo[] = [
 export const ProvisionData: ProvisionDefinition[] = [
   {
     name: 'Spices',
-    numberValue: 25,
+    numberValue: 20,
     provisionType: ProvisionType.SPICES,
     description: 'Food gives %PERCENT% more energy',
     rarityValues: { COMMON: 20, RARE: 25, EPIC: 33, LEGENDARY: 50 },
   },
   {
     name: 'Bone Necklace',
-    numberValue: 8,
+    numberValue: 6,
     provisionType: ProvisionType.BONE_NECKLACE,
     description: 'Earn %NUM% additional score per enemy kill',
     rarityValues: { COMMON: 6, RARE: 8, EPIC: 10, LEGENDARY: 15 },
   },
   {
     name: 'Coin Purse',
-    numberValue: 10,
+    numberValue: 8,
     provisionType: ProvisionType.COIN_PURSE,
     description: 'Additional %PERCENT% score earned per treasure',
     rarityValues: { COMMON: 8, RARE: 10, EPIC: 12, LEGENDARY: 16 },
   },
   {
     name: 'Tin Flask',
-    numberValue: 25,
+    numberValue: 20,
     provisionType: ProvisionType.TIN_FLASK,
     description:
       'Potions have a %PERCENT% chance of healing an additional heart',
@@ -212,7 +212,7 @@ export const ProvisionData: ProvisionDefinition[] = [
   },
   {
     name: 'Whetstone',
-    numberValue: 40,
+    numberValue: 30,
     provisionType: ProvisionType.WHETSTONE,
     description:
       'Weapons have a %PERCENT% chance of not being consumed after attacking',
@@ -227,7 +227,7 @@ export const ProvisionData: ProvisionDefinition[] = [
   },
   {
     name: 'Studded Bracelet',
-    numberValue: 3,
+    numberValue: 2,
     provisionType: ProvisionType.STUDDED_BRACELET,
     description:
       'If at full health, adds 0-%NUM% diamonds when you enter a new floor.',
@@ -235,9 +235,10 @@ export const ProvisionData: ProvisionDefinition[] = [
   },
   {
     name: 'Buckler',
-    numberValue: 25,
+    numberValue: 30,
     provisionType: ProvisionType.BUCKLER,
-    description: 'Gives a %PERCENT% chance to avoid taking damage from enemies',
+    description:
+      'Gives a %PERCENT% chance to avoid taking damage from enemies. Does not work against ghosts.',
     rarityValues: { COMMON: 30, RARE: 35, EPIC: 40, LEGENDARY: 50 },
   },
 ];
