@@ -4,10 +4,15 @@ import {
   PlayerUpgradeDataInfo,
   PlayerUpgradeType,
   Provision,
+  ProvisionRarity,
   ProvisionType,
   StatusEffectDataInfo,
   StatusEffectType,
 } from './GameTypes';
+
+export type ProvisionDefinition = Omit<Provision, 'rarity'> & {
+  rarityValues: Record<ProvisionRarity, number>;
+};
 
 export const UpgradeData: PlayerUpgradeDataInfo[] = [
   {
@@ -175,24 +180,27 @@ export const ItemData: ItemDataInfo[] = [
   },
 ];
 
-export const ProvisionData: Provision[] = [
+export const ProvisionData: ProvisionDefinition[] = [
   {
     name: 'Spices',
     numberValue: 25,
     provisionType: ProvisionType.SPICES,
     description: 'Food gives %PERCENT% more energy',
+    rarityValues: { COMMON: 20, RARE: 25, EPIC: 33, LEGENDARY: 50 },
   },
   {
     name: 'Bone Necklace',
     numberValue: 8,
     provisionType: ProvisionType.BONE_NECKLACE,
     description: 'Earn %NUM% additional score per enemy kill',
+    rarityValues: { COMMON: 6, RARE: 8, EPIC: 10, LEGENDARY: 15 },
   },
   {
     name: 'Coin Purse',
     numberValue: 10,
     provisionType: ProvisionType.COIN_PURSE,
     description: 'Additional %PERCENT% score earned per treasure',
+    rarityValues: { COMMON: 8, RARE: 10, EPIC: 12, LEGENDARY: 16 },
   },
   {
     name: 'Tin Flask',
@@ -200,6 +208,7 @@ export const ProvisionData: Provision[] = [
     provisionType: ProvisionType.TIN_FLASK,
     description:
       'Potions have a %PERCENT% chance of healing an additional heart',
+    rarityValues: { COMMON: 20, RARE: 25, EPIC: 33, LEGENDARY: 50 },
   },
   {
     name: 'Whetstone',
@@ -207,12 +216,14 @@ export const ProvisionData: Provision[] = [
     provisionType: ProvisionType.WHETSTONE,
     description:
       'Weapons have a %PERCENT% chance of not being consumed after attacking',
+    rarityValues: { COMMON: 30, RARE: 40, EPIC: 50, LEGENDARY: 65 },
   },
   {
     name: 'Chain Mail',
     numberValue: 1,
     provisionType: ProvisionType.CHAIN_MAIL,
     description: 'Adds %NUM% more max health if not in STARVATION',
+    rarityValues: { COMMON: 1, RARE: 2, EPIC: 3, LEGENDARY: 4 },
   },
   {
     name: 'Studded Bracelet',
@@ -220,5 +231,6 @@ export const ProvisionData: Provision[] = [
     provisionType: ProvisionType.STUDDED_BRACELET,
     description:
       'If at full health, adds 0-%NUM% diamonds when you enter a new floor.',
+    rarityValues: { COMMON: 2, RARE: 3, EPIC: 4, LEGENDARY: 6 },
   },
 ];

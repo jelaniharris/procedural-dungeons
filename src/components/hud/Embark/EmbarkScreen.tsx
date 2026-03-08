@@ -1,15 +1,14 @@
 import { GameState, useStore } from '@/stores/useStore';
-import { findProvisionData } from '@/utils/ProvisionUtils';
 import React, { Dispatch, SetStateAction, useContext, useState } from 'react';
 import Button from '../../input/Button';
 import { CHANGE_SCENE } from '../../types/EventTypes';
-import { ProvisionType } from '../../types/GameTypes';
+import { Provision } from '../../types/GameTypes';
 import useGame from '../../useGame';
 import { ProvisionSelector } from './ProvisionSelector';
 
 export interface EmbarkContextValue {
-  selected: ProvisionType | null;
-  setSelected: Dispatch<SetStateAction<ProvisionType | null>>;
+  selected: Provision | null;
+  setSelected: Dispatch<SetStateAction<Provision | null>>;
 }
 
 export const EmbarkContext = React.createContext<EmbarkContextValue | null>(
@@ -25,16 +24,13 @@ export const EmbarkScreen = () => {
   const addProvision = useStore((store: GameState) => store.addProvision);
   const resetProvisions = useStore((store: GameState) => store.resetProvisions);
   const { setCurrentHud, publish } = useGame();
-  const [selected, setSelected] = useState<ProvisionType | null>(null);
+  const [selected, setSelected] = useState<Provision | null>(null);
 
   const embarkGame = () => {
     setCurrentHud('game');
     resetProvisions();
-    if (selected) {
-      const foundProvision = findProvisionData(selected);
-      if (foundProvision) {
-        addProvision(foundProvision);
-      }
+    if (selected && selected.provisionType !== 'NONE') {
+      addProvision(selected);
     }
     publish(CHANGE_SCENE, { nextScene: 'dungeon' });
   };

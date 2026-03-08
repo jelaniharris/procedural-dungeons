@@ -376,6 +376,13 @@ export enum OverLayTextType {
   OVERLAY_KEY,
 }
 
+export enum ProvisionRarity {
+  COMMON = 'COMMON',
+  RARE = 'RARE',
+  EPIC = 'EPIC',
+  LEGENDARY = 'LEGENDARY',
+}
+
 export enum ProvisionType {
   NONE = 'NONE',
   SPICES = 'SPICES',
@@ -409,6 +416,7 @@ export type Provision = {
   numberValue: number;
   icon?: string;
   provisionType: ProvisionType;
+  rarity: ProvisionRarity;
 };
 
 export enum StatusEffectType {
