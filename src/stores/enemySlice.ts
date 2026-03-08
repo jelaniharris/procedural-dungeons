@@ -25,7 +25,7 @@ export interface EnemySlice {
   generateEnemies: (seed: number) => void;
   enemyIndex: number;
   aiMove: (props: AiMoveProps) => Promise<boolean>;
-  aiCalculateNewDirection: (enemies: Enemy[]) => void;
+  aiCalculateNewDirection: (enemies: Enemy[]) => Enemy[];
   checkEnemyLocation: (
     enemyPosition: Point2D,
     enemy: Enemy
@@ -236,7 +236,7 @@ export const createEnemySlice: StateCreator<
     });
     return newEnemy;
   },
-  aiCalculateNewDirection(enemies: Enemy[]) {
+  aiCalculateNewDirection(enemies: Enemy[]): Enemy[] {
     const determineValidDirections = get().determineValidDirections;
     const hasStatusEffect = get().hasStatusEffect;
     const getTilePosition = get().getTilePosition;
@@ -248,9 +248,10 @@ export const createEnemySlice: StateCreator<
     const addLocationsToDangerZones = get().addLocationsToDangerZones;
     const newDangerSpots: Point2D[] = [];
 
-    for (const enemy of enemies) {
-      const newPositions = [];
-      //enemy.movementPoints = [];
+    const updatedEnemies = enemies.map((enemy) => {
+      const newPositions: Point2D[] = [];
+      let nextDirection = enemy.nextDirection;
+
       if (enemy.status == EnemyStatus.STATUS_ROAMING) {
         const variance = randomIntFromInterval(
           -enemy.movementVariance,
@@ -268,7 +269,7 @@ export const createEnemySlice: StateCreator<
           amountOfMoves -= 1;
         }
         let lastPosition = enemy.position;
-        // If new location is water, then we reudce our number of directions to move by one
+        // If new location is water, then we reduce our number of directions to move by one
         const tileType = getTilePosition(lastPosition.x, lastPosition.y);
         if (tileType === TileType.TILE_WATER && amountOfMoves > 1) {
           amountOfMoves--;
@@ -307,15 +308,11 @@ export const createEnemySlice: StateCreator<
           }
 
           if (!movementVector.equals(new Vector2(0, 0))) {
-            enemy.nextDirection = { x: movementVector.x, y: movementVector.y };
+            nextDirection = { x: movementVector.x, y: movementVector.y };
             const newLocation = {
               x: lastPosition.x + movementVector.x,
               y: lastPosition.y + movementVector.y,
             };
-
-            /*if (checkPointInPoints(newLocation, enemy.movementPoints)) {
-
-            }*/
 
             newPositions.push(newLocation);
             // If this position covers the exit, then add it as a danger spot
@@ -326,24 +323,24 @@ export const createEnemySlice: StateCreator<
               newDangerSpots.push(newLocation);
             }
 
-            // If new location is water, then we reudce our number of directions to move by one
-            const tileType = getTilePosition(newLocation.x, newLocation.y);
-            if (tileType === TileType.TILE_WATER) {
+            // If new location is water, then we reduce our number of directions to move by one
+            const newTileType = getTilePosition(newLocation.x, newLocation.y);
+            if (newTileType === TileType.TILE_WATER) {
               amountOfMoves--;
             }
 
-            //enemy.movementPoints.push(newLocation);
             lastPosition = newLocation;
           }
         }
       }
-      enemy.movementPoints = newPositions;
-    }
+
+      return { ...enemy, nextDirection, movementPoints: newPositions };
+    });
 
     // Add new locations to the danger zones
     addLocationsToDangerZones(newDangerSpots);
 
-    return enemies;
+    return updatedEnemies;
   },
   getEnemiesAtPlayerLocation(): Enemy[] {
     const playerPosition = get().playerPosition;
@@ -393,46 +390,48 @@ export const createEnemySlice: StateCreator<
     const checkEnemyLocation = get().checkEnemyLocation;
 
     let enemyHasMovementLeft = false;
-    currentEnemies.forEach(async (enemy, i) => {
+
+    const updatedEnemies = currentEnemies.map((enemy) => {
       // Dead enemies don't move
-      if ((enemy.status & EnemyStatus.STATUS_DEAD) == EnemyStatus.STATUS_DEAD) {
-        return;
+      if (
+        (enemy.status & EnemyStatus.STATUS_DEAD) ===
+        EnemyStatus.STATUS_DEAD
+      ) {
+        return enemy;
       }
 
-      if (enemy.movementPoints.length > 0) {
-        enemyHasMovementLeft = true;
-        const nextLocation = enemy.movementPoints.shift();
-        //const nextDirection = enemy.nextDirection;
-        if (nextLocation && currentEnemies[i]) {
-          /*currentEnemies[i].position.x += nextDirection.x;
-          currentEnemies[i].position.y += nextDirection.y;
-          */
+      if (enemy.movementPoints.length === 0) {
+        return enemy;
+      }
 
-          // Check the next location has the player
-          const locationResult = checkEnemyLocation(nextLocation, enemy);
-          if (enemyLocationResultCallback && enemy && locationResult !== 0) {
-            enemyLocationResultCallback(locationResult, nextLocation, enemy);
-            if (
-              (locationResult & LocationActionType.TOUCHED_PLAYER) ==
-              LocationActionType.TOUCHED_PLAYER
-            ) {
-              enemy.movementPoints = [];
-              enemyHasMovementLeft = false;
-            }
-          }
+      enemyHasMovementLeft = true;
+      const [nextLocation, ...remainingPoints] = enemy.movementPoints;
 
-          currentEnemies[i].position.x = nextLocation.x;
-          currentEnemies[i].position.y = nextLocation.y;
-          if (currentEnemies[i].lifetime > 0) {
-            currentEnemies[i].lifetime -= 1;
-          }
+      if (!nextLocation) return enemy;
+
+      // Check the next location has the player
+      const locationResult = checkEnemyLocation(nextLocation, enemy);
+      if (enemyLocationResultCallback && locationResult !== 0) {
+        enemyLocationResultCallback(locationResult, nextLocation, enemy);
+        if (
+          (locationResult & LocationActionType.TOUCHED_PLAYER) ===
+          LocationActionType.TOUCHED_PLAYER
+        ) {
+          enemyHasMovementLeft = false;
+          return { ...enemy, movementPoints: [] };
         }
       }
+
+      // Return the enemy with the new position and movement points
+      return {
+        ...enemy,
+        position: { x: nextLocation.x, y: nextLocation.y },
+        movementPoints: remainingPoints,
+        lifetime: enemy.lifetime > 0 ? enemy.lifetime - 1 : enemy.lifetime,
+      };
     });
 
-    //console.debug('[aiMove] Done moving AI');
-
-    set({ enemies: currentEnemies });
+    set({ enemies: updatedEnemies });
     return enemyHasMovementLeft;
   },
   flagEnemyAsDead: (enemy: Enemy) => {

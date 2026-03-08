@@ -629,7 +629,7 @@ export const createPlayerSlice: StateCreator<
 
       foundStatusEffect.duration -= amount;
       if (foundStatusEffect.duration < 0) {
-        foundStatusEffect.duration == 0;
+        foundStatusEffect.duration = 0;
       }
       statusEffects[foundStatusEffectIndex] = foundStatusEffect;
       set({
@@ -698,7 +698,7 @@ export const createPlayerSlice: StateCreator<
         effect.duration -= 1;
 
         if (effect.duration < 0) {
-          effect.duration == 0;
+          effect.duration = 0;
         }
       }
     });

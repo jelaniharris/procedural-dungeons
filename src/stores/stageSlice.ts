@@ -207,8 +207,7 @@ export const createStageSlice: StateCreator<
     }
 
     // Calculate the new direction the enemies are going
-    let currentEnemies = get().enemies;
-    aiCalculateNewDirection(currentEnemies);
+    let currentEnemies = aiCalculateNewDirection(get().enemies);
     if (flagExpiredEnemies(currentEnemies)) {
       currentEnemies = filterExpiredEnemies(currentEnemies);
     }
