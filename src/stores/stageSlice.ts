@@ -59,9 +59,11 @@ export interface StageSlice {
   showExitDialog: boolean;
   showSettingsDialog: boolean;
   showStoreDialog: boolean;
+  showFloorNotification: boolean;
   setShowExitDialog: (showDialog: boolean) => void;
   setShowSettingsDialog: (showDialog: boolean) => void;
   setShowStoreDialog: (showStoreDialog: boolean) => void;
+  setShowFloorNotification: (showNotification: boolean) => void;
   setPaused: (newPauseStatus: boolean) => void;
 
   // Floor Steps
@@ -119,6 +121,7 @@ export const createStageSlice: StateCreator<
   showExitDialog: false,
   showSettingsDialog: false,
   showStoreDialog: false,
+  showFloorNotification: false,
   isPaused: false,
   floorSteps: 0,
   gameStatus: GameStatus.GAME_NONE,
@@ -144,6 +147,9 @@ export const createStageSlice: StateCreator<
     if (atFullHealth() && studdedBraceletProvision) {
       adjustCurrency(Math.floor(Math.random() * (studdedBraceletProvision.numberValue + 1)));
     }
+
+    // Show floor notification when entering a new floor
+    set({ showFloorNotification: true });
   },
   setGameStatus(newStatus: GameStatus) {
     set({
@@ -163,6 +169,11 @@ export const createStageSlice: StateCreator<
   setShowStoreDialog(showStoreDialog: boolean) {
     set({
       showStoreDialog: showStoreDialog,
+    });
+  },
+  setShowFloorNotification(showNotification: boolean) {
+    set({
+      showFloorNotification: showNotification,
     });
   },
   resetDangerZones() {

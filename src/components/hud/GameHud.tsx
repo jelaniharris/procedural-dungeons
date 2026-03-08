@@ -19,6 +19,7 @@ import { StatusEffectData } from '../types/GameData';
 import { GameStatus, StatusEffectType } from '../types/GameTypes';
 import { EndScreen } from './EndScreen';
 import { ExitOption } from './ExitOption';
+import { FloorNotification } from './FloorNotification';
 import { SettingsScreen } from './SettingsScreen';
 import { StoreScreen } from './StoreScreen';
 
@@ -248,6 +249,7 @@ export const GameHud = () => {
 
   return (
     <>
+      <FloorNotification />
       {showExitDialog && <ExitOption />}
       {gameStatus == GameStatus.GAME_ENDED && <EndScreen />}
 
