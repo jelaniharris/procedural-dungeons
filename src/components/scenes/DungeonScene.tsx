@@ -118,11 +118,11 @@ const DungeonScene = () => {
   const modifyEnergy = useStore((state: GameState) => state.modifyEnergy);
   const adjustHealth = useStore((state: GameState) => state.adjustHealth);
   const hasProvision = useStore((state: GameState) => state.hasProvision);
-  const playerPosition = useStore((state: GameState) => state.playerPosition);
   const adjustCurrency = useStore((state: GameState) => state.adjustCurrency);
   const adjustKeys = useStore((state: GameState) => state.adjustKeys);
   const addScore = useStore((state: GameState) => state.addScore);
   const hasKeys = useStore((state: GameState) => state.hasKeys);
+
   const setDead = useStore((state: GameState) => state.setDead);
   const setGameStatus = useStore((state: GameState) => state.setGameStatus);
   const setPaused = useStore((state: GameState) => state.setPaused);

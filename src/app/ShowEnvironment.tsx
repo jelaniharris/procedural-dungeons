@@ -1,3 +1,4 @@
+import React from 'react';
 import { Column } from '@/components/models/Column';
 import Dirt from '@/components/models/Dirt';
 import Floor from '@/components/models/Floor';
@@ -16,7 +17,7 @@ import { getLiquidTypeFromTileType } from '@/utils/mapUtils';
 import { MathUtils } from 'three';
 import { shallow } from 'zustand/shallow';
 
-export const ShowEnvironment = () => {
+const ShowEnvironmentInner = () => {
   const {
     mapData,
     numCols,
@@ -246,3 +247,5 @@ export const ShowEnvironment = () => {
   // TODO: Look into InstanceMeshes for optimal usage
   return <>{worldTiles}</>;
 };
+
+export const ShowEnvironment = React.memo(ShowEnvironmentInner);
