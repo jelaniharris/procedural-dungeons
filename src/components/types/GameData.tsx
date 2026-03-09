@@ -241,4 +241,12 @@ export const ProvisionData: ProvisionDefinition[] = [
       'Gives a %PERCENT% chance to avoid taking damage from enemies. Does not work against ghosts.',
     rarityValues: { COMMON: 30, RARE: 35, EPIC: 40, LEGENDARY: 50 },
   },
+  {
+    name: 'Bandolier',
+    numberValue: 50,
+    provisionType: ProvisionType.BANDOLIER,
+    description:
+      'At the start of each floor, %PERCENT% chance to gain a weapon.',
+    rarityValues: { COMMON: 50, RARE: 65, EPIC: 80, LEGENDARY: 100 },
+  },
 ];

@@ -141,11 +141,18 @@ export const createStageSlice: StateCreator<
   newStageTriggers() {
     const atFullHealth = get().atFullHealth;
     const adjustCurrency = get().adjustCurrency;
+    const adjustAttacks = get().adjustAttacks;
     const studdedBraceletProvision = get().hasProvision(
       ProvisionType.STUDDED_BRACELET
     );
     if (atFullHealth() && studdedBraceletProvision) {
       adjustCurrency(Math.floor(Math.random() * (studdedBraceletProvision.numberValue + 1)));
+    }
+
+    const bandolierProvision = get().hasProvision(ProvisionType.BANDOLIER);
+    if (bandolierProvision && Math.random() * 100 < bandolierProvision.numberValue) {
+      adjustAttacks(1);
+      get().triggeredProvision(bandolierProvision);
     }
 
     // Show floor notification when entering a new floor
