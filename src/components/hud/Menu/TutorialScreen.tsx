@@ -227,7 +227,7 @@ const TutorialScreen = () => {
         icon: 'OrcIcon.png',
         name: 'Orcman',
         description:
-          'Always moves two spaces randomly. Can open doors to rooms.',
+          'Always moves two spaces randomly. Can open doors to rooms. Bypasses shields and blades — only evasion works against it.',
       },
       {
         icon: 'SkeletonIcon.png',

@@ -50,6 +50,9 @@ export const ShowOverlayEvents = () => {
       case OverLayTextType.OVERLAY_BLOCKED:
         contents = { text: `BLOCKED 🛡️`, className: 'bg-slate-800' };
         break;
+      case OverLayTextType.OVERLAY_DODGED:
+        contents = { text: `DODGED 💨`, className: 'bg-slate-700' };
+        break;
       case OverLayTextType.OVERLAY_NONE:
       default:
         return <></>;
@@ -132,6 +135,7 @@ export const ShowOverlayEvents = () => {
             }
             break;
           case OverLayTextType.OVERLAY_BLOCKED:
+          case OverLayTextType.OVERLAY_DODGED:
             if (mapPosition) {
               addToMessages(
                 id,

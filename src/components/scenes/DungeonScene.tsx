@@ -18,7 +18,14 @@ import { Point2D } from '@/utils/Point2D';
 import { getPlayerLocalData } from '@/utils/playerUtils';
 import { Environment, Stats } from '@react-three/drei';
 import { EffectComposer, Vignette } from '@react-three/postprocessing';
-import React, { Suspense, useCallback, useMemo, useState } from 'react';
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { ShowEnvironment } from '../../app/ShowEnvironment';
 import { AmbientSound } from '../AmbientSound';
 import { FollowCamera } from '../FollowCamera';
@@ -197,6 +204,16 @@ const DungeonScene = () => {
   const addStatusEffect = useStore((state: GameState) => state.addStatusEffect);
   const getAttemptData = useStore((stage: GameState) => stage.getAttemptData);
   const getProvisions = useStore((stage: GameState) => stage.getProvisions);
+  const getDodgeChance = useStore((state: GameState) => state.getDodgeChance);
+  const getMaxEnergy = useStore((state: GameState) => state.getMaxEnergy);
+  const triggeredProvision = useStore(
+    (state: GameState) => state.triggeredProvision
+  );
+  const attacks = useStore((state: GameState) => state.attacks);
+  const attacksRef = useRef(attacks);
+  useEffect(() => {
+    attacksRef.current = attacks;
+  }, [attacks]);
 
   // Api calls
   const saveScore = trpc.saveScore.useMutation();
@@ -756,34 +773,68 @@ const DungeonScene = () => {
           ].includes(enemy.touchType)
         ) {
           const locationAction = checkPlayerLocation();
-          const bucklerProvision = hasProvision(ProvisionType.BUCKLER);
-          let dodged =
-            bucklerProvision &&
-            Math.random() < bucklerProvision.numberValue / 100;
+          const isGhost = enemy.type === EnemyType.ENEMY_GHOST;
 
-          // If the enemy type is a ghost then it's unblockable
-          if (enemy.type === EnemyType.ENEMY_GHOST) {
-            dodged = false;
-          }
-
-          if (dodged) {
+          // Step 1: Spare Blade — physical intercept, bypassed by ghosts
+          const spareBlade = hasProvision(ProvisionType.SPARE_BLADE);
+          if (spareBlade && !isGhost && attacksRef.current > 0) {
+            adjustAttacks(-1);
+            modifyEnergy(
+              -Math.round(((spareBlade.cost ?? 0) / 100) * getMaxEnergy())
+            );
             playAudio('thunk.ogg');
             publish<OverlayTextEvent>(OVERLAY_TEXT, {
               type: OverLayTextType.OVERLAY_BLOCKED,
               mapPosition: locationAction.position,
             });
+            triggeredProvision(spareBlade);
           } else {
-            playAudio('hurt_04.ogg');
-            if (adjustHealth(-1).isDead) {
-              // Then the player died
-              publish(PLAYER_DIED, {});
-            } else {
-              /*const playerGO = findGameObjectByName('player');
-              if (playerGO) {
-                playerGO.publish<PlayAnimationEvent>('play-animation', {
-                  animName: 'fall',
+            // Step 2: Compute combined dodge pool
+            let totalDodgeChance = getDodgeChance();
+
+            const bucklerProvision = hasProvision(ProvisionType.BUCKLER);
+            if (bucklerProvision && !isGhost) {
+              totalDodgeChance += bucklerProvision.numberValue;
+            }
+
+            const cloakProvision = hasProvision(ProvisionType.CLOAK);
+            const isStarving =
+              hasStatusEffect(StatusEffectType.STARVING) !== undefined;
+            const cloakActive = !!cloakProvision && !isStarving;
+            if (cloakActive) {
+              totalDodgeChance += cloakProvision!.numberValue;
+            }
+
+            // Step 3: Roll
+            const dodged = Math.random() < totalDodgeChance / 100;
+
+            if (dodged) {
+              playAudio('swing.ogg');
+
+              // Step 4: Apply Cloak cost and choose overlay flavor
+              if (cloakActive) {
+                modifyEnergy(
+                  -Math.round(
+                    ((cloakProvision!.cost ?? 0) / 100) * getMaxEnergy()
+                  )
+                );
+                triggeredProvision(cloakProvision!);
+                publish<OverlayTextEvent>(OVERLAY_TEXT, {
+                  type: OverLayTextType.OVERLAY_DODGED,
+                  mapPosition: locationAction.position,
                 });
-              }*/
+              } else {
+                publish<OverlayTextEvent>(OVERLAY_TEXT, {
+                  type: OverLayTextType.OVERLAY_BLOCKED,
+                  mapPosition: locationAction.position,
+                });
+              }
+            } else {
+              // Step 5: Take damage
+              playAudio('hurt_04.ogg');
+              if (adjustHealth(-1).isDead) {
+                publish(PLAYER_DIED, {});
+              }
             }
           }
         }

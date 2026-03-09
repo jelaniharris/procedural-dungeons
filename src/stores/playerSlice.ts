@@ -22,6 +22,7 @@ import { StateCreator } from 'zustand';
 import { AudioSlice } from './audioSlice';
 import { EnemySlice } from './enemySlice';
 import { MapSlice } from './mapSlice';
+import { StageSlice } from './stageSlice';
 
 export interface PlayerSlice {
   playerPosition: Point2D;
@@ -118,6 +119,11 @@ export interface PlayerSlice {
   purchaseUpgrade: (upgradeType: PlayerUpgradeType) => void;
   getUpgradeValue: (upgradeType: PlayerUpgradeType) => number;
   getUpgradeRank: (upgradeType: PlayerUpgradeType) => number;
+
+  // Dodge
+  baseDodgeChance: number;
+  dodgeChanceMod: number;
+  getDodgeChance: () => number;
 }
 
 export type PlayerLocationResults = {
@@ -137,7 +143,7 @@ export type StandingEventResults = {
 };
 
 export const createPlayerSlice: StateCreator<
-  PlayerSlice & MapSlice & EnemySlice & AudioSlice,
+  PlayerSlice & MapSlice & EnemySlice & AudioSlice & StageSlice,
   [],
   [],
   PlayerSlice
@@ -163,6 +169,11 @@ export const createPlayerSlice: StateCreator<
     scoreExchanges: 0,
   },
   statusEffects: [],
+  baseDodgeChance: 0,
+  dodgeChanceMod: 0,
+  getDodgeChance() {
+    return get().baseDodgeChance + get().dodgeChanceMod;
+  },
   resetPlayer() {
     const playerPosition = get().playerPosition;
     const currentZOffset = get().getFloorZOffset(playerPosition);
@@ -334,15 +345,33 @@ export const createPlayerSlice: StateCreator<
       get().hasStatusEffect(StatusEffectType.STARVING) !== undefined;
     if (newEnergy <= 0) {
       if (!isPlayerTired) {
-        get().addStatusEffect({
-          statusEffectType: StatusEffectType.STARVING,
-          duration: 0,
-          canExpire: false,
-          canStack: false,
-        });
+        // Check Ration provision for second wind before applying STARVING
+        const rationProvision = get().hasProvision(ProvisionType.RATION);
+        const rationUsed = get().stageFlags['RATION_USED'] ?? false;
+        if (rationProvision && !rationUsed) {
+          if (Math.random() < rationProvision.numberValue / 100) {
+            const energyGain = Math.round(
+              ((rationProvision.numberValue2 ?? 0) / 100) * maxEnergy
+            );
+            newEnergy = Math.min(energyGain, maxEnergy);
+            get().setStageFlag('RATION_USED', true);
+            get().triggeredProvision(rationProvision);
+          }
+        }
+
+        if (newEnergy <= 0) {
+          get().addStatusEffect({
+            statusEffectType: StatusEffectType.STARVING,
+            duration: 0,
+            canExpire: false,
+            canStack: false,
+          });
+        }
       }
 
-      get().clampHealth();
+      if (newEnergy <= 0) {
+        get().clampHealth();
+      }
     } else {
       if (isPlayerTired) {
         get().removeStatusEffect(StatusEffectType.STARVING);

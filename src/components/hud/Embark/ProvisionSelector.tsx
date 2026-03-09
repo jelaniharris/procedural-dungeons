@@ -83,8 +83,11 @@ export const ProvisionSelector = () => {
           description: prov.description,
           icon: prov.icon,
           provisionType: prov.provisionType,
+          costType: prov.costType,
           rarity,
-          numberValue: prov.rarityValues[rarity],
+          numberValue:  prov.rarityValues[rarity],
+          numberValue2: prov.rarityValues2?.[rarity],
+          cost:         prov.costValues?.[rarity],
         };
       });
 

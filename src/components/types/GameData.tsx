@@ -1,4 +1,5 @@
 import {
+  CostType,
   ItemDataInfo,
   ItemType,
   PlayerUpgradeDataInfo,
@@ -12,6 +13,8 @@ import {
 
 export type ProvisionDefinition = Omit<Provision, 'rarity'> & {
   rarityValues: Record<ProvisionRarity, number>;
+  rarityValues2?: Record<ProvisionRarity, number>;
+  costValues?: Record<ProvisionRarity, number>;
 };
 
 export const UpgradeData: PlayerUpgradeDataInfo[] = [
@@ -248,5 +251,37 @@ export const ProvisionData: ProvisionDefinition[] = [
     description:
       'At the start of each floor, %PERCENT% chance to gain a weapon.',
     rarityValues: { COMMON: 50, RARE: 65, EPIC: 80, LEGENDARY: 100 },
+  },
+  {
+    name: 'Cloak',
+    numberValue: 25,
+    cost: 8,
+    costType: CostType.STAMINA,
+    provisionType: ProvisionType.CLOAK,
+    description:
+      'When not starving, %PERCENT% chance to dodge attacks. Each dodge costs %COST% max stamina.',
+    rarityValues: { COMMON: 35, RARE: 40, EPIC: 50, LEGENDARY: 60 },
+    costValues: { COMMON: 8, RARE: 6, EPIC: 5, LEGENDARY: 4 },
+  },
+  {
+    name: 'Ration',
+    numberValue: 40,
+    numberValue2: 20,
+    provisionType: ProvisionType.RATION,
+    description:
+      'Once per floor, %PERCENT% chance of a second wind when exhausted, gaining %PERCENT2% max stamina.',
+    rarityValues: { COMMON: 40, RARE: 55, EPIC: 65, LEGENDARY: 80 },
+    rarityValues2: { COMMON: 20, RARE: 25, EPIC: 30, LEGENDARY: 35 },
+  },
+  {
+    name: 'Spare Blade',
+    numberValue: 10,
+    cost: 10,
+    costType: CostType.STAMINA,
+    provisionType: ProvisionType.SPARE_BLADE,
+    description:
+      'When struck, consumes a weapon charge instead of taking damage. Costs %COST% max stamina. Does not work against ghosts.',
+    rarityValues: { COMMON: 10, RARE: 8, EPIC: 6, LEGENDARY: 5 },
+    costValues: { COMMON: 10, RARE: 8, EPIC: 6, LEGENDARY: 5 },
   },
 ];

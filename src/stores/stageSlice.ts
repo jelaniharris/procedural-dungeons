@@ -81,6 +81,10 @@ export interface StageSlice {
   getSettings: () => GameSettings;
   saveSettings: (settings: GameSettings) => void;
   getLocalSettings: () => GameSettings;
+
+  // Stage Flags (reset each floor)
+  stageFlags: Record<string, boolean>;
+  setStageFlag: (key: string, value: boolean) => void;
 }
 
 const DefaultGameSettings: GameSettings = {
@@ -117,6 +121,7 @@ export const createStageSlice: StateCreator<
   [],
   StageSlice
 > = (set, get) => ({
+  stageFlags: {},
   currentLevel: 0,
   showExitDialog: false,
   showSettingsDialog: false,
@@ -154,6 +159,9 @@ export const createStageSlice: StateCreator<
       adjustAttacks(1);
       get().triggeredProvision(bandolierProvision);
     }
+
+    // Reset per-floor flags
+    set({ stageFlags: {} });
 
     // Show floor notification when entering a new floor
     set({ showFloorNotification: true });
@@ -336,6 +344,9 @@ export const createStageSlice: StateCreator<
   saveSettings(settings: GameSettings) {
     set({ settings: settings });
     localStorage.setItem('settings', JSON.stringify(settings));
+  },
+  setStageFlag(key: string, value: boolean) {
+    set((state) => ({ stageFlags: { ...state.stageFlags, [key]: value } }));
   },
   getCurrentLevel() {
     return get().currentLevel;

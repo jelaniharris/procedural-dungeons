@@ -150,6 +150,7 @@ export type Enemy = {
   type: EnemyType;
   position: Point2D;
   name?: string;
+  description?: string;
   status: EnemyStatus;
   nextDirection: Point2D;
   traits: UnitTraits;
@@ -375,6 +376,7 @@ export enum OverLayTextType {
   OVERLAY_CURRENCY,
   OVERLAY_KEY,
   OVERLAY_BLOCKED,
+  OVERLAY_DODGED,
 }
 
 export enum ProvisionRarity {
@@ -395,9 +397,9 @@ export enum ProvisionType {
   STUDDED_BRACELET = 'STUDDED_BRACELET',
   BUCKLER = 'BUCKLER',
   BANDOLIER = 'BANDOLIER',
-  RESERVED_6 = 'RESERVED_6',
-  RESERVED_7 = 'RESERVED_7',
-  RESERVED_8 = 'RESERVED_8',
+  CLOAK = 'CLOAK',
+  RATION = 'RATION',
+  SPARE_BLADE = 'SPARE_BLADE',
   RESERVED_9 = 'RESERVED_9',
   RESERVED_10 = 'RESERVED_10',
   __LAST = '__LAST',
@@ -411,10 +413,19 @@ export enum SourceType {
   POTION,
 }
 
+export enum CostType {
+  NONE = 'NONE',
+  STAMINA = 'STAMINA',
+  HEALTH = 'HEALTH',
+}
+
 export type Provision = {
   name: string;
   description: string;
   numberValue: number;
+  numberValue2?: number;
+  cost?: number;
+  costType?: CostType;
   icon?: string;
   provisionType: ProvisionType;
   rarity: ProvisionRarity;
