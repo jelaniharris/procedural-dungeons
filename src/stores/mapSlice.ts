@@ -1138,7 +1138,7 @@ export const createMapSlice: StateCreator<
 
     if (
       tileType &&
-      [TileType.TILE_WATER, TileType.TILE_POISON].includes(tileType)
+      [TileType.TILE_WATER, TileType.TILE_POISON, TileType.TILE_LAVA, TileType.TILE_MUD].includes(tileType)
     ) {
       return getLiquidTypeFromTileType(tileType);
     }
