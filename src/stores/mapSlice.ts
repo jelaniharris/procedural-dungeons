@@ -1668,6 +1668,7 @@ export const createMapSlice: StateCreator<
     const foodGen = new LootChance<ItemType>();
     foodGen.add(ItemType.ITEM_CHICKEN, 70);
     if (currentLevel >= 2) {
+      foodGen.add(ItemType.ITEM_BREAD, 20);
       foodGen.add(ItemType.ITEM_APPLE, 30);
     }
 

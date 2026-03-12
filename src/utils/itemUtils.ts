@@ -32,6 +32,9 @@ export const assignItemDetails = (
         modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(15) },
       };
       break;
+    case ItemType.ITEM_BREAD:
+      newItem = { ...newItem, rotates: true, name: 'bread' };
+      break;
     case ItemType.ITEM_CHALICE:
       newItem = {
         ...newItem,

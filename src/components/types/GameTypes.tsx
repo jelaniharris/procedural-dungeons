@@ -30,6 +30,7 @@ export enum ItemType {
   ITEM_INGOT_STACK,
   ITEM_DIAMOND,
   ITEM_KEY,
+  ITEM_BREAD,
 }
 
 export enum LiquidType {
@@ -439,6 +440,7 @@ export enum StatusEffectType {
   SLOW = 1 << 3,
   HASTE = 1 << 4,
   FLYING = 1 << 5,
+  SHIELD = 1 << 6,
 }
 
 export type StatusEffect = {

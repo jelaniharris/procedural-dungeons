@@ -84,6 +84,12 @@ export const StatusEffectData: StatusEffectDataInfo[] = [
     cssStyles: 'text-purple-400',
     description: 'Ignore effects from liquids and spike traps',
   },
+  {
+    statusEffectType: StatusEffectType.SHIELD,
+    name: 'Shield',
+    cssStyles: 'text-cyan-400',
+    description: 'Absorbs the next hit of damage. Expires after a few turns.',
+  },
 ];
 
 export const ItemData: ItemDataInfo[] = [
@@ -180,6 +186,16 @@ export const ItemData: ItemDataInfo[] = [
       'Restores %AMOUNT% energy. Gives HASTE for %STATUSAMOUNT% turns',
     grouping: 'food',
     icon: 'AppleIcon.png',
+  },
+  {
+    name: 'Crusty Bread',
+    itemType: ItemType.ITEM_BREAD,
+    numberValue: 20,
+    statusTurnsValue: 10,
+    description:
+      'Restores %AMOUNT% energy. Grants SHIELD for %STATUSAMOUNT% turns.',
+    grouping: 'food',
+    icon: 'BreadIcon.png',
   },
 ];
 

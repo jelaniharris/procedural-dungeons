@@ -202,6 +202,9 @@ const DungeonScene = () => {
   );
   const openContainer = useStore((state: GameState) => state.openContainer);
   const addStatusEffect = useStore((state: GameState) => state.addStatusEffect);
+  const removeStatusEffect = useStore(
+    (state: GameState) => state.removeStatusEffect
+  );
   const getAttemptData = useStore((stage: GameState) => stage.getAttemptData);
   const getProvisions = useStore((stage: GameState) => stage.getProvisions);
   const getDodgeChance = useStore((state: GameState) => state.getDodgeChance);
@@ -464,6 +467,24 @@ const DungeonScene = () => {
                 canStack: true,
               });
               break;
+            case ItemType.ITEM_BREAD:
+              playAudio('eat_01.ogg');
+              const breadAmount = determineEnergyBonus(
+                itemData?.numberValue ?? 0
+              );
+              modifyEnergy(breadAmount);
+              publish<OverlayTextEvent>(OVERLAY_TEXT, {
+                type: OverLayTextType.OVERLAY_ENERGY,
+                amount: breadAmount,
+                mapPosition: locationAction.position,
+              });
+              addStatusEffect({
+                statusEffectType: StatusEffectType.SHIELD,
+                duration: itemData?.statusTurnsValue ?? 0,
+                canExpire: true,
+                canStack: false,
+              });
+              break;
           }
         }
 
@@ -494,10 +515,14 @@ const DungeonScene = () => {
       const standingEvent = checkPlayerStandingLocation();
       if (standingEvent.sourceType === SourceType.LAVA) {
         console.log('Burnt by lava.');
-        playAudio('hurt_04.ogg');
-        if (adjustHealth(-1).isDead) {
-          // Then the player died
-          publish(PLAYER_DIED, {});
+        if (hasStatusEffect(StatusEffectType.SHIELD)) {
+          removeStatusEffect(StatusEffectType.SHIELD);
+        } else {
+          playAudio('hurt_04.ogg');
+          if (adjustHealth(-1).isDead) {
+            // Then the player died
+            publish(PLAYER_DIED, {});
+          }
         }
       }
 
@@ -788,8 +813,16 @@ const DungeonScene = () => {
               mapPosition: locationAction.position,
             });
             triggeredProvision(spareBlade);
+          } else if (hasStatusEffect(StatusEffectType.SHIELD)) {
+            // Step 2: Shield — absorbs one hit
+            removeStatusEffect(StatusEffectType.SHIELD);
+            playAudio('thunk.ogg');
+            publish<OverlayTextEvent>(OVERLAY_TEXT, {
+              type: OverLayTextType.OVERLAY_BLOCKED,
+              mapPosition: locationAction.position,
+            });
           } else {
-            // Step 2: Compute combined dodge pool
+            // Step 3: Compute combined dodge pool
             let totalDodgeChance = getDodgeChance();
 
             const bucklerProvision = hasProvision(ProvisionType.BUCKLER);
@@ -858,8 +891,15 @@ const DungeonScene = () => {
 
       subscribe<PlayerDamagedTrapEvent>(PLAYER_DAMAGED_TRAP, ({ hazard }) => {
         console.log('Touched by hazard: ', hazard.name);
-        playAudio('hurt_04.ogg');
-        if (adjustHealth(-1).isDead) {
+        if (hasStatusEffect(StatusEffectType.SHIELD)) {
+          const locationAction = checkPlayerLocation();
+          removeStatusEffect(StatusEffectType.SHIELD);
+          playAudio('thunk.ogg');
+          publish<OverlayTextEvent>(OVERLAY_TEXT, {
+            type: OverLayTextType.OVERLAY_BLOCKED,
+            mapPosition: locationAction.position,
+          });
+        } else if (adjustHealth(-1).isDead) {
           // Then the player died
           publish(PLAYER_DIED, {});
         } else {
