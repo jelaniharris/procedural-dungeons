@@ -89,6 +89,39 @@ export const createHazardSlice: StateCreator<
         continue;
       }
 
+      // Blade traps need all 9 surrounding spots to be empty (no walls)
+      if (randomTrap === HazardType.TRAP_BLADE) {
+        const surroundingOffsets = [
+          { x: -1, y: -1 }, // NW
+          { x: 0, y: -1 }, // N
+          { x: 1, y: -1 }, // NE
+          { x: -1, y: 0 }, // W
+          { x: 1, y: 0 }, // E
+          { x: -1, y: 1 }, // SW
+          { x: 0, y: 1 }, // S
+          { x: 1, y: 1 }, // SE
+        ];
+
+        const isBlockWallOrNull = get().isBlockWallOrNull;
+        let hasWallAdjacent = false;
+
+        for (const offset of surroundingOffsets) {
+          const checkPos = {
+            x: point.x + offset.x,
+            y: point.y + offset.y,
+          };
+          const tile = currentMapData[checkPos.x]?.[checkPos.y];
+          if (isBlockWallOrNull(tile)) {
+            hasWallAdjacent = true;
+            break;
+          }
+        }
+
+        if (hasWallAdjacent) {
+          continue;
+        }
+      }
+
       let newHazard: Hazard = {
         id: uuidv4(),
         type: randomTrap === null ? HazardType.TRAP_NONE : randomTrap,

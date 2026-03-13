@@ -193,6 +193,11 @@ const TutorialScreen = () => {
         description:
           'Triggers every 6 turns. Spawns gas that gives status effects.',
       },
+      {
+        icon: 'BladeTrap.png',
+        name: 'Blade Trap',
+        description: 'Rotates 45° every turn. Deals 1 damage at blade tips.',
+      },
     ];
 
     return (
