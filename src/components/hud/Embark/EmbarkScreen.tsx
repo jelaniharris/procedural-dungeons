@@ -47,23 +47,27 @@ export const EmbarkScreen = () => {
 
   return (
     <EmbarkContext.Provider value={contextValue}>
-      <section className="fixed top-0 z-10 w-full h-full items-stretch">
-        <div className="flex flex-col items-center justify-center p-5 h-full gap-5 bg-slate-700 bg-opacity-60">
+      <section className="fixed top-0 z-10 w-full h-svh items-stretch">
+        <div className="flex flex-col items-center justify-center p-3 h-full gap-2 bg-slate-700 bg-opacity-60">
           <div className="flex-auto"></div>
-          <h1 className="text-white font-bold text-center text-2xl">
+          <h1 className="text-white font-bold text-center text-xl md:text-2xl">
             Select Provision
           </h1>
           <ProvisionSelector />
           <div className="flex-auto"></div>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-row gap-2">
             <Button
               disabled={selected === null}
               onClick={embarkGame}
-              className="text-2xl md:text-5xl"
+              className="md:text-xl text-5xl"
             >
               Embark
             </Button>
-            <Button variant="danger" onClick={backToMainMenu}>
+            <Button
+              variant="danger"
+              onClick={backToMainMenu}
+              className="md:text-xl text-5xl"
+            >
               Back to Menu
             </Button>
           </div>
