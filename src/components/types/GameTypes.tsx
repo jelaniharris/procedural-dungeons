@@ -56,6 +56,7 @@ export enum HazardType {
   TRAP_FLOOR_SPIKES,
   TRAP_FLOOR_ARROW,
   TRAP_FLOOR_GRATES,
+  TRAP_BLADE,
 }
 
 export enum EnemyType {

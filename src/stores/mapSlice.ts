@@ -1878,7 +1878,11 @@ export const createMapSlice: StateCreator<
     }
 
     const hazard = locationHasHazard(location);
-    if (hazard && hazard.type === HazardType.TRAP_FLOOR_ARROW) {
+    if (
+      hazard &&
+      (hazard.type === HazardType.TRAP_FLOOR_ARROW ||
+        hazard.type === HazardType.TRAP_BLADE)
+    ) {
       return 0.5;
     }
 

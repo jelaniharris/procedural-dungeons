@@ -42,13 +42,15 @@ export const createHazardSlice: StateCreator<
 
     const lootGen = new LootChance<HazardType>();
     if (currentLevel > 4) {
-      lootGen.add(HazardType.TRAP_FLOOR_ARROW, 35);
-      lootGen.add(HazardType.TRAP_FLOOR_SPIKES, 40);
-      lootGen.add(HazardType.TRAP_FLOOR_GRATES, 35);
+      lootGen.add(HazardType.TRAP_FLOOR_ARROW, 30);
+      lootGen.add(HazardType.TRAP_FLOOR_SPIKES, 35);
+      lootGen.add(HazardType.TRAP_FLOOR_GRATES, 25);
+      lootGen.add(HazardType.TRAP_BLADE, 25);
     } else if (currentLevel > 3) {
       lootGen.add(HazardType.TRAP_FLOOR_ARROW, 25);
-      lootGen.add(HazardType.TRAP_FLOOR_SPIKES, 50);
+      lootGen.add(HazardType.TRAP_FLOOR_SPIKES, 45);
       lootGen.add(HazardType.TRAP_FLOOR_GRATES, 15);
+      lootGen.add(HazardType.TRAP_BLADE, 15);
     } else if (currentLevel > 2) {
       lootGen.add(HazardType.TRAP_FLOOR_ARROW, 30);
       lootGen.add(HazardType.TRAP_FLOOR_SPIKES, 70);
@@ -119,6 +121,9 @@ export const createHazardSlice: StateCreator<
             emitterGas: gasType,
             name: 'Gas Trap',
           };
+          break;
+        case HazardType.TRAP_BLADE:
+          newHazard = { ...newHazard, name: 'Blade Trap' };
           break;
       }
 

@@ -1,5 +1,6 @@
 import GameObject from '@/components/entities/GameObject';
 import { ArrowTrap } from '@/components/models/ArrowTrap';
+import { BladeTrap } from '@/components/models/traps/BladeTrap';
 import { FloorGrates } from '@/components/models/FloorGrates';
 import { SpikeTrap } from '@/components/models/SpikeTrap';
 import { Direction, HazardType } from '@/components/types/GameTypes';
@@ -45,6 +46,18 @@ export const ShowHazards = () => {
             rotation={rotation}
           >
             <SpikeTrap data={hazard} />
+          </GameObject>
+        );
+        break;
+      case HazardType.TRAP_BLADE:
+        worldHazards.push(
+          <GameObject
+            key={keyName}
+            name={keyName}
+            transform={hazard.worldPosition}
+            rotation={0}
+          >
+            <BladeTrap data={hazard} />
           </GameObject>
         );
         break;
