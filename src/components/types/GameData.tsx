@@ -1,7 +1,9 @@
 import {
   CostType,
+  HazardType,
   ItemDataInfo,
   ItemType,
+  LiquidType,
   PlayerUpgradeDataInfo,
   PlayerUpgradeType,
   Provision,
@@ -15,6 +17,23 @@ export type ProvisionDefinition = Omit<Provision, 'rarity'> & {
   rarityValues: Record<ProvisionRarity, number>;
   rarityValues2?: Record<ProvisionRarity, number>;
   costValues?: Record<ProvisionRarity, number>;
+};
+
+export type HazardDataInfo = {
+  icon: string;
+  name: string;
+  description: string;
+  liquidType?: LiquidType;
+};
+
+export type TrapDataInfo = {
+  type: HazardType;
+  icon: string;
+  name: string;
+  description: string;
+  hazardType: HazardType;
+  damage?: number;
+  triggerInterval?: number;
 };
 
 export const UpgradeData: PlayerUpgradeDataInfo[] = [
@@ -301,3 +320,74 @@ export const ProvisionData: ProvisionDefinition[] = [
     costValues: { COMMON: 10, RARE: 8, EPIC: 6, LEGENDARY: 5 },
   },
 ];
+
+export const HazardData: HazardDataInfo[] = [
+  {
+    icon: 'WaterIcon.png',
+    name: 'Water',
+    description: 'Adds SLOW for as long as you are in this liquid',
+    liquidType: LiquidType.LIQUID_WATER,
+  },
+  {
+    icon: 'PoisonIcon.png',
+    name: 'Poison',
+    description: 'Adds 3 POISON stacks for each turn you are in this liquid',
+    liquidType: LiquidType.LIQUID_POISON,
+  },
+  {
+    icon: 'MudIcon.png',
+    name: 'Mud',
+    description: 'Adds 3 SLOW stacks for each turn you are in this liquid',
+    liquidType: LiquidType.LIQUID_MUD,
+  },
+  {
+    icon: 'LavaIcon.png',
+    name: 'Lava',
+    description: 'Deals 1 damage for each turn you are in this liquid',
+    liquidType: LiquidType.LIQUID_LAVA,
+  },
+];
+
+export const TrapData: TrapDataInfo[] = [
+  {
+    type: HazardType.TRAP_FLOOR_SPIKES,
+    icon: 'SpikeTrapIcon.png',
+    name: 'Spike Trap',
+    description: 'Triggers every 3 turns.',
+    hazardType: HazardType.TRAP_FLOOR_SPIKES,
+    damage: 1,
+    triggerInterval: 3,
+  },
+  {
+    type: HazardType.TRAP_FLOOR_ARROW,
+    icon: 'ArrowTrapIcon.png',
+    name: 'Arrow Trap',
+    description: 'Triggers every 5 turns.',
+    hazardType: HazardType.TRAP_FLOOR_ARROW,
+    damage: 1,
+    triggerInterval: 5,
+  },
+  {
+    type: HazardType.TRAP_FLOOR_GRATES,
+    icon: 'GasTrapIcon.png',
+    name: 'Gas Trap',
+    description:
+      'Triggers every 6 turns. Spawns gas that gives status effects.',
+    hazardType: HazardType.TRAP_FLOOR_GRATES,
+    triggerInterval: 6,
+  },
+  {
+    type: HazardType.TRAP_BLADE,
+    icon: 'BladeTrap.png',
+    name: 'Blade Trap',
+    description: 'Rotates 45° every turn.',
+    hazardType: HazardType.TRAP_BLADE,
+    damage: 2,
+  },
+];
+
+export const getTrapDataByType = (
+  type: HazardType
+): TrapDataInfo | undefined => {
+  return TrapData.find((trap) => trap.type === type);
+};

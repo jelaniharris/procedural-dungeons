@@ -8,6 +8,7 @@ export const ShowDataCard = ({
   placeholder = false,
   width = 100,
   height = 100,
+  damage,
   children,
 }: {
   iconPath: string;
@@ -16,6 +17,7 @@ export const ShowDataCard = ({
   placeholder?: boolean;
   width?: number;
   height?: number;
+  damage?: number;
   children?: ReactNode;
 }) => {
   return (
@@ -33,7 +35,14 @@ export const ShowDataCard = ({
           />
         </div>
         <div className="flex flex-col gap-1 basis-3/4">
-          <strong>{name}</strong>
+          <div className="flex flex-row items-center gap-2">
+            <strong>{name}</strong>
+            {damage !== undefined && (
+              <span className="bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded">
+                -{damage} ❤️
+              </span>
+            )}
+          </div>
           <span dangerouslySetInnerHTML={{ __html: description }} />
         </div>
       </div>
