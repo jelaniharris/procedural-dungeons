@@ -1,5 +1,10 @@
 import Button from '@/components/input/Button';
-import { ProvisionData, StatusEffectData } from '@/components/types/GameData';
+import {
+  HazardData,
+  ProvisionData,
+  StatusEffectData,
+  TrapData,
+} from '@/components/types/GameData';
 import {
   ProvisionRarity,
   StatusEffectDataInfo,
@@ -16,12 +21,6 @@ import { ShowIconData } from './Tutorial/ShowIconData';
 import { TutorialHeader } from './Tutorial/TutorialHeader';
 
 type EnemyDataType = {
-  icon: string;
-  name: string;
-  description: string;
-};
-
-type HazardDataType = {
   icon: string;
   name: string;
   description: string;
@@ -152,53 +151,10 @@ const TutorialScreen = () => {
   };
 
   const enemyPageTwo = () => {
-    const hazardData: HazardDataType[] = [
-      {
-        icon: 'WaterIcon.png',
-        name: 'Water',
-        description: 'Adds SLOW for as long as you are in this liquid',
-      },
-      {
-        icon: 'PoisonIcon.png',
-        name: 'Poison',
-        description:
-          'Adds 3 POISON stacks for each turn you are in this liquid',
-      },
-      {
-        icon: 'MudIcon.png',
-        name: 'Mud',
-        description: 'Adds 3 SLOW stacks for each turn you are in this liquid',
-      },
-      {
-        icon: 'LavaIcon.png',
-        name: 'Lava',
-        description: 'Deals 1 damage for each turn you are in this liquid',
-      },
-    ];
-
-    const trapData: HazardDataType[] = [
-      {
-        icon: 'SpikeTrapIcon.png',
-        name: 'Spike Trap',
-        description: 'Triggers every 3 turns. Deals 1 damage.',
-      },
-      {
-        icon: 'ArrowTrapIcon.png',
-        name: 'Arrow Trap',
-        description: 'Triggers every 5 turns. Deals 1 damage.',
-      },
-      {
-        icon: 'GasTrapIcon.png',
-        name: 'Gas Trap',
-        description:
-          'Triggers every 6 turns. Spawns gas that gives status effects.',
-      },
-    ];
-
     return (
       <>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-          {hazardData.map((data) => (
+          {HazardData.map((data) => (
             <ShowDataCard
               key={`hazarddata-${data.name}`}
               iconPath={`/images/icons/${data.icon}`}
@@ -208,12 +164,13 @@ const TutorialScreen = () => {
           ))}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-          {trapData.map((data) => (
+          {TrapData.map((data) => (
             <ShowDataCard
               key={`trapData-${data.name}`}
               iconPath={`/images/icons/${data.icon}`}
               name={data.name}
               description={data.description}
+              damage={data.damage}
             />
           ))}
         </div>

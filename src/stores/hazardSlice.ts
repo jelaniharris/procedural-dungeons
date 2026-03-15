@@ -42,13 +42,15 @@ export const createHazardSlice: StateCreator<
 
     const lootGen = new LootChance<HazardType>();
     if (currentLevel > 4) {
-      lootGen.add(HazardType.TRAP_FLOOR_ARROW, 35);
-      lootGen.add(HazardType.TRAP_FLOOR_SPIKES, 40);
-      lootGen.add(HazardType.TRAP_FLOOR_GRATES, 35);
+      lootGen.add(HazardType.TRAP_FLOOR_ARROW, 30);
+      lootGen.add(HazardType.TRAP_FLOOR_SPIKES, 35);
+      lootGen.add(HazardType.TRAP_FLOOR_GRATES, 25);
+      lootGen.add(HazardType.TRAP_BLADE, 25);
     } else if (currentLevel > 3) {
       lootGen.add(HazardType.TRAP_FLOOR_ARROW, 25);
-      lootGen.add(HazardType.TRAP_FLOOR_SPIKES, 50);
+      lootGen.add(HazardType.TRAP_FLOOR_SPIKES, 45);
       lootGen.add(HazardType.TRAP_FLOOR_GRATES, 15);
+      lootGen.add(HazardType.TRAP_BLADE, 15);
     } else if (currentLevel > 2) {
       lootGen.add(HazardType.TRAP_FLOOR_ARROW, 30);
       lootGen.add(HazardType.TRAP_FLOOR_SPIKES, 70);
@@ -87,6 +89,39 @@ export const createHazardSlice: StateCreator<
         continue;
       }
 
+      // Blade traps need all 9 surrounding spots to be empty (no walls)
+      if (randomTrap === HazardType.TRAP_BLADE) {
+        const surroundingOffsets = [
+          { x: -1, y: -1 }, // NW
+          { x: 0, y: -1 }, // N
+          { x: 1, y: -1 }, // NE
+          { x: -1, y: 0 }, // W
+          { x: 1, y: 0 }, // E
+          { x: -1, y: 1 }, // SW
+          { x: 0, y: 1 }, // S
+          { x: 1, y: 1 }, // SE
+        ];
+
+        const isBlockWallOrNull = get().isBlockWallOrNull;
+        let hasWallAdjacent = false;
+
+        for (const offset of surroundingOffsets) {
+          const checkPos = {
+            x: point.x + offset.x,
+            y: point.y + offset.y,
+          };
+          const tile = currentMapData[checkPos.x]?.[checkPos.y];
+          if (isBlockWallOrNull(tile)) {
+            hasWallAdjacent = true;
+            break;
+          }
+        }
+
+        if (hasWallAdjacent) {
+          continue;
+        }
+      }
+
       let newHazard: Hazard = {
         id: uuidv4(),
         type: randomTrap === null ? HazardType.TRAP_NONE : randomTrap,
@@ -119,6 +154,9 @@ export const createHazardSlice: StateCreator<
             emitterGas: gasType,
             name: 'Gas Trap',
           };
+          break;
+        case HazardType.TRAP_BLADE:
+          newHazard = { ...newHazard, name: 'Blade Trap' };
           break;
       }
 

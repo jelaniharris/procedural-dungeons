@@ -64,7 +64,7 @@ import {
   TRIGGER_SUMMONING,
   TriggerSummoningEvent,
 } from '../types/EventTypes';
-import { ItemData } from '../types/GameData';
+import { ItemData, getTrapDataByType } from '../types/GameData';
 import {
   DIRECTIONS,
   DestructableType,
@@ -891,6 +891,9 @@ const DungeonScene = () => {
 
       subscribe<PlayerDamagedTrapEvent>(PLAYER_DAMAGED_TRAP, ({ hazard }) => {
         console.log('Touched by hazard: ', hazard.name);
+        const trapData = getTrapDataByType(hazard.type);
+        const damage = trapData?.damage ?? 1;
+
         if (hasStatusEffect(StatusEffectType.SHIELD)) {
           const locationAction = checkPlayerLocation();
           removeStatusEffect(StatusEffectType.SHIELD);
@@ -899,7 +902,7 @@ const DungeonScene = () => {
             type: OverLayTextType.OVERLAY_BLOCKED,
             mapPosition: locationAction.position,
           });
-        } else if (adjustHealth(-1).isDead) {
+        } else if (adjustHealth(-damage).isDead) {
           // Then the player died
           publish(PLAYER_DIED, {});
         } else {

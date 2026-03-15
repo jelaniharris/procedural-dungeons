@@ -85,9 +85,9 @@ export const ProvisionSelector = () => {
           provisionType: prov.provisionType,
           costType: prov.costType,
           rarity,
-          numberValue:  prov.rarityValues[rarity],
+          numberValue: prov.rarityValues[rarity],
           numberValue2: prov.rarityValues2?.[rarity],
-          cost:         prov.costValues?.[rarity],
+          cost: prov.costValues?.[rarity],
         };
       });
 
@@ -114,7 +114,7 @@ export const ProvisionSelector = () => {
   console.log('[EmbarkScreen] Rendering embark screen');
 
   return (
-    <section className="flex flex-col md:flex-row my-3 items-start gap-4">
+    <section className="flex flex-col md:flex-row my-2 items-start gap-2 md:gap-4">
       {provisions.map((prov) => {
         const provDescription = getProvisionDescription(prov);
         const rarityStyle = RARITY_STYLES[prov.rarity];
@@ -132,13 +132,13 @@ export const ProvisionSelector = () => {
           >
             <Image
               src="https://placehold.co/256x256"
-              width={256}
-              height={256}
-              className="w-24 md:w-auto"
+              width={128}
+              height={128}
+              className="w-16 md:w-auto"
               alt="provision"
             />
             <div className="flex flex-col flex-grow gap-1 md:gap-2">
-              <span className="text-white md:text-center text-xl font-bold bg-slate-800 bg-opacity-50 rounded-md p-1">
+              <span className="text-white md:text-center text-sm md:text-base font-bold bg-slate-800 bg-opacity-50 rounded-md p-1">
                 {prov.name}
               </span>
               {prov.provisionType !== ProvisionType.NONE && (
@@ -153,7 +153,7 @@ export const ProvisionSelector = () => {
                 </span>
               )}
               <p
-                className="text-white text-sm md:text-lg "
+                className="text-white text-xs md:text-sm"
                 dangerouslySetInnerHTML={{ __html: provDescription }}
               />
             </div>

@@ -1138,7 +1138,7 @@ export const createMapSlice: StateCreator<
 
     if (
       tileType &&
-      [TileType.TILE_WATER, TileType.TILE_POISON].includes(tileType)
+      [TileType.TILE_WATER, TileType.TILE_POISON, TileType.TILE_LAVA, TileType.TILE_MUD].includes(tileType)
     ) {
       return getLiquidTypeFromTileType(tileType);
     }
@@ -1878,7 +1878,11 @@ export const createMapSlice: StateCreator<
     }
 
     const hazard = locationHasHazard(location);
-    if (hazard && hazard.type === HazardType.TRAP_FLOOR_ARROW) {
+    if (
+      hazard &&
+      (hazard.type === HazardType.TRAP_FLOOR_ARROW ||
+        hazard.type === HazardType.TRAP_BLADE)
+    ) {
       return 0.5;
     }
 
