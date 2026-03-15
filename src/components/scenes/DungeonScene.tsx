@@ -128,6 +128,7 @@ const DungeonScene = () => {
   const adjustCurrency = useStore((state: GameState) => state.adjustCurrency);
   const adjustKeys = useStore((state: GameState) => state.adjustKeys);
   const addScore = useStore((state: GameState) => state.addScore);
+  const adjustGoldMultiplier = useStore((state: GameState) => state.adjustGoldMultiplier);
   const hasKeys = useStore((state: GameState) => state.hasKeys);
 
   const setDead = useStore((state: GameState) => state.setDead);
@@ -485,6 +486,19 @@ const DungeonScene = () => {
                 canStack: false,
               });
               break;
+            case ItemType.ITEM_MISER_PENDANT:
+              playAudio('coin.ogg');
+              adjustGoldMultiplier(0.05);
+              const pendantScore = addScore(
+                itemData?.scoreValue ?? 0,
+                SourceType.TREASURE
+              );
+              publish<OverlayTextEvent>(OVERLAY_TEXT, {
+                type: OverLayTextType.OVERLAY_SCORE,
+                amount: pendantScore,
+                mapPosition: locationAction.position,
+              });
+              break;
           }
         }
 
@@ -531,6 +545,7 @@ const DungeonScene = () => {
     [
       addScore,
       adjustAttacks,
+      adjustGoldMultiplier,
       adjustHealth,
       aiTurn,
       canPlayerAttackEnemy,

@@ -120,6 +120,11 @@ export interface PlayerSlice {
   getUpgradeValue: (upgradeType: PlayerUpgradeType) => number;
   getUpgradeRank: (upgradeType: PlayerUpgradeType) => number;
 
+  // Gold multiplier
+  modifiedGoldMultiplier: number;
+  adjustGoldMultiplier: (amount: number) => void;
+  getEffectiveGoldMultiplier: () => number;
+
   // Dodge
   baseDodgeChance: number;
   dodgeChanceMod: number;
@@ -169,6 +174,7 @@ export const createPlayerSlice: StateCreator<
     scoreExchanges: 0,
   },
   statusEffects: [],
+  modifiedGoldMultiplier: 0,
   baseDodgeChance: 0,
   dodgeChanceMod: 0,
   getDodgeChance() {
@@ -188,6 +194,7 @@ export const createPlayerSlice: StateCreator<
       health: 2,
       maxHealth: 2,
       statusEffects: [],
+      modifiedGoldMultiplier: 0,
       currentZOffset: currentZOffset,
     };
     set(resetSet);
@@ -247,14 +254,27 @@ export const createPlayerSlice: StateCreator<
     }));
     return true;
   },
+  getEffectiveGoldMultiplier() {
+    const coinPurse = get().hasProvision(ProvisionType.COIN_PURSE);
+    const base = coinPurse ? coinPurse.numberValue / 100 : 0;
+    const total = 1 + base + get().modifiedGoldMultiplier;
+    return Math.min(total, 3.0);
+  },
+  adjustGoldMultiplier(amount: number) {
+    const coinPurse = get().hasProvision(ProvisionType.COIN_PURSE);
+    const base = coinPurse ? coinPurse.numberValue / 100 : 0;
+    const current = get().modifiedGoldMultiplier;
+    const maxModified = 3.0 - 1 - base;
+    set({ modifiedGoldMultiplier: Math.min(current + amount, Math.max(maxModified, 0)) });
+  },
   addScore(amount: number, source = SourceType.NONE) {
     let newAmount = amount;
     if (source === SourceType.TREASURE) {
       const coinPurseProvision = get().hasProvision(ProvisionType.COIN_PURSE);
       if (coinPurseProvision) {
-        newAmount = newAmount + newAmount * 0.05;
         get().triggeredProvision(coinPurseProvision);
       }
+      newAmount = newAmount * get().getEffectiveGoldMultiplier();
     }
     newAmount = Math.round(newAmount);
 

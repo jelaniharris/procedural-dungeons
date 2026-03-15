@@ -216,6 +216,16 @@ export const ItemData: ItemDataInfo[] = [
     grouping: 'food',
     icon: 'BreadIcon.png',
   },
+  {
+    name: "Miser's Pendant",
+    scoreValue: 40,
+    numberValue: 5,
+    itemType: ItemType.ITEM_MISER_PENDANT,
+    description:
+      'Increases gold gained from treasure by %AMOUNT%%. Stacks up to 300%. Worth %SCORE% gold.',
+    grouping: 'treasure',
+    icon: 'MisersPendantIcon.png',
+  },
 ];
 
 export const ProvisionData: ProvisionDefinition[] = [
