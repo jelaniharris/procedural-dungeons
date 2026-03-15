@@ -101,6 +101,9 @@ export const createEnemySlice: StateCreator<
     if (currentLevel > 4) {
       enemyTypeGenerator.add(EnemyType.ENEMY_NOODLE, 25);
     }
+    if (currentLevel > 5) {
+      enemyTypeGenerator.add(EnemyType.ENEMY_JUMPER, 20);
+    }
 
     while (emptySpots.length != 0 && numberEnemies > 0) {
       const point = emptySpots.shift();
@@ -190,6 +193,15 @@ export const createEnemySlice: StateCreator<
           traits: UnitTraits.NONE,
         };
         break;
+      case EnemyType.ENEMY_JUMPER:
+        newEnemy = {
+          ...newEnemy,
+          movementRange: 3,
+          name: 'Jumper',
+          traits: UnitTraits.JUMPER,
+          touchType: EnemyTouchType.TOUCHTYPE_DAMAGE,
+        };
+        break;
       case EnemyType.ENEMY_GAS_POISON:
       case EnemyType.ENEMY_GAS_CONFUSION:
         const statusType = getStatusTypeFromEnemyType(newEnemy.type);
@@ -275,6 +287,43 @@ export const createEnemySlice: StateCreator<
           amountOfMoves--;
         }
 
+        // Jumpers pick a single landing tile N tiles away, skipping intermediates
+        if (
+          (enemy.traits & UnitTraits.JUMPER) === UnitTraits.JUMPER &&
+          amountOfMoves > 0
+        ) {
+          const jumpRange = amountOfMoves; //enemy.movementRange;
+          const jumpVectors = [
+            { x: 0, y: -jumpRange },
+            { x: jumpRange, y: 0 },
+            { x: 0, y: jumpRange },
+            { x: -jumpRange, y: 0 },
+          ].sort(() => Math.random() - 0.5);
+
+          for (const dir of jumpVectors) {
+            const landing = {
+              x: enemy.position.x + dir.x,
+              y: enemy.position.y + dir.y,
+            };
+            const landingTile = getTilePosition(landing.x, landing.y);
+            if (
+              landingTile === TileType.TILE_FLOOR ||
+              landingTile === TileType.TILE_WATER ||
+              landingTile === TileType.TILE_MUD ||
+              landingTile === TileType.TILE_FLOOR_ROOM ||
+              landingTile === TileType.TILE_DIRT
+            ) {
+              nextDirection = {
+                x: Math.sign(dir.x),
+                y: Math.sign(dir.y),
+              };
+              newPositions.push(landing);
+              break;
+            }
+          }
+          return { ...enemy, nextDirection, movementPoints: newPositions };
+        }
+
         while (amountOfMoves > 0) {
           amountOfMoves--;
 
@@ -323,9 +372,12 @@ export const createEnemySlice: StateCreator<
               newDangerSpots.push(newLocation);
             }
 
-            // If new location is water, then we reduce our number of directions to move by one
+            // If new location is water or mud, then we reduce our number of directions to move by one
             const newTileType = getTilePosition(newLocation.x, newLocation.y);
-            if (newTileType === TileType.TILE_WATER) {
+            if (
+              newTileType === TileType.TILE_WATER ||
+              newTileType === TileType.TILE_MUD
+            ) {
               amountOfMoves--;
             }
 

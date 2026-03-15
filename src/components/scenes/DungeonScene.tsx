@@ -31,6 +31,7 @@ import { AmbientSound } from '../AmbientSound';
 import { FollowCamera } from '../FollowCamera';
 import { MoveableObjectRef } from '../entities/MoveableObject';
 import Player from '../entities/Player';
+import JumpArcArrow from '../models/JumpArcArrow';
 import {
   CONTAINER_OPEN,
   DOOR_OPEN,
@@ -128,7 +129,9 @@ const DungeonScene = () => {
   const adjustCurrency = useStore((state: GameState) => state.adjustCurrency);
   const adjustKeys = useStore((state: GameState) => state.adjustKeys);
   const addScore = useStore((state: GameState) => state.addScore);
-  const adjustGoldMultiplier = useStore((state: GameState) => state.adjustGoldMultiplier);
+  const adjustGoldMultiplier = useStore(
+    (state: GameState) => state.adjustGoldMultiplier
+  );
   const hasKeys = useStore((state: GameState) => state.hasKeys);
 
   const setDead = useStore((state: GameState) => state.setDead);
@@ -1023,6 +1026,12 @@ const DungeonScene = () => {
         <ShowOverlayEvents />
         <ShowProjectiles />
         <ShowContainers />
+        <JumpArcArrow
+          start={{ x: 5, y: 5 }}
+          end={{ x: 5, y: 8 }}
+          touchType={EnemyTouchType.TOUCHTYPE_DAMAGE}
+          arcHeight={1}
+        />
       </Suspense>
     </>
   );

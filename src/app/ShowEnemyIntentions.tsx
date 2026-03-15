@@ -1,4 +1,6 @@
 import DirectionArrow from '@/components/models/DirectionArrow';
+import JumpArcArrow from '@/components/models/JumpArcArrow';
+import { UnitTraits } from '@/components/types/GameTypes';
 import { GameState, useStore } from '@/stores/useStore';
 import { PathChain, generatePathChain } from '@/utils/gridUtils';
 import { MathUtils } from 'three';
@@ -24,6 +26,22 @@ export const ShowEnemyIntention = () => {
     if (enemy.movementPoints.length == 0) {
       return;
     }
+    const isJumper = (enemy.traits & UnitTraits.JUMPER) === UnitTraits.JUMPER;
+
+    if (isJumper) {
+      const destination = enemy.movementPoints[enemy.movementPoints.length - 1];
+      intentions.push(
+        <JumpArcArrow
+          key={`jump-intention-${enemy.name}-${enemy.id}`}
+          start={enemy.position}
+          end={destination}
+          touchType={enemy.touchType}
+          arcHeight={2.0}
+        />
+      );
+      return;
+    }
+
     const paths = [enemy.position, ...enemy.movementPoints];
     const pathChain = generatePathChain(paths);
 
