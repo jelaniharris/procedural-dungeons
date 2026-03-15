@@ -31,6 +31,7 @@ export enum ItemType {
   ITEM_DIAMOND,
   ITEM_KEY,
   ITEM_BREAD,
+  ITEM_MISER_PENDANT,
 }
 
 export enum LiquidType {

@@ -101,6 +101,9 @@ export const assignItemDetails = (
         modelRotation: { x: 0, y: 0, z: MathUtils.degToRad(15) },
       };
       break;
+    case ItemType.ITEM_MISER_PENDANT:
+      newItem = { ...newItem, rotates: true, name: 'pendant' };
+      break;
     case null:
     default:
       break;

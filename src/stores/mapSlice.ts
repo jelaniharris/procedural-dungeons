@@ -975,6 +975,7 @@ export const createMapSlice: StateCreator<
     lootGen.add(ItemType.ITEM_CROWN, 25);
     lootGen.add(ItemType.ITEM_DIAMOND, 35);
     lootGen.add(ItemType.ITEM_INGOT_STACK, 10);
+    lootGen.add(ItemType.ITEM_MISER_PENDANT, 15);
 
     const newContainerList: ItemContainer[] = itemContainers ?? [];
     let containerIndex = itemContainerIndex;
@@ -1138,7 +1139,12 @@ export const createMapSlice: StateCreator<
 
     if (
       tileType &&
-      [TileType.TILE_WATER, TileType.TILE_POISON, TileType.TILE_LAVA, TileType.TILE_MUD].includes(tileType)
+      [
+        TileType.TILE_WATER,
+        TileType.TILE_POISON,
+        TileType.TILE_LAVA,
+        TileType.TILE_MUD,
+      ].includes(tileType)
     ) {
       return getLiquidTypeFromTileType(tileType);
     }
@@ -1677,7 +1683,8 @@ export const createMapSlice: StateCreator<
     itemGen.add(ItemType.ITEM_DIAMOND, 25, 5);
     itemGen.add(ItemType.ITEM_WEAPON, 20);
     itemGen.add(ItemType.ITEM_HEALTH_POTION, 10, 3);
-    itemGen.add(ItemType.ITEM_FLY_POTION, 1, 3);
+    itemGen.add(ItemType.ITEM_FLY_POTION, 5, 3);
+    itemGen.add(ItemType.ITEM_MISER_PENDANT, 5, 2);
 
     const lootGen = new LootChance<ItemType>();
     lootGen.add(treasureGen, 45);
