@@ -36,7 +36,7 @@ export const ShowEnemyIntention = () => {
           start={enemy.position}
           end={destination}
           touchType={enemy.touchType}
-          arcHeight={2.0}
+          arcHeight={1.0}
         />
       );
       return;

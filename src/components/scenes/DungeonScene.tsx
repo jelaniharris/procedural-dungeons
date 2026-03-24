@@ -31,7 +31,6 @@ import { AmbientSound } from '../AmbientSound';
 import { FollowCamera } from '../FollowCamera';
 import { MoveableObjectRef } from '../entities/MoveableObject';
 import Player from '../entities/Player';
-import JumpArcArrow from '../models/JumpArcArrow';
 import {
   CONTAINER_OPEN,
   DOOR_OPEN,
@@ -1026,12 +1025,6 @@ const DungeonScene = () => {
         <ShowOverlayEvents />
         <ShowProjectiles />
         <ShowContainers />
-        <JumpArcArrow
-          start={{ x: 5, y: 5 }}
-          end={{ x: 5, y: 8 }}
-          touchType={EnemyTouchType.TOUCHTYPE_DAMAGE}
-          arcHeight={1}
-        />
       </Suspense>
     </>
   );
