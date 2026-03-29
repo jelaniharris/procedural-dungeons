@@ -1,13 +1,20 @@
 import DirectionArrow from '@/components/models/DirectionArrow';
 import { GameState, useStore } from '@/stores/useStore';
 import { PathChain, generatePathChain } from '@/utils/gridUtils';
+import { VISIBLE, tileIndex } from '@/utils/visibilityUtils';
 import { MathUtils } from 'three';
+import { shallow } from 'zustand/shallow';
 
 export const ShowEnemyIntention = () => {
-  const enemies = useStore((store: GameState) => store.enemies);
-  const { isDead } = useStore((store: GameState) => ({
-    isDead: store.isDead,
-  }));
+  const { enemies, isDead, visibilityMap, numRows } = useStore(
+    (store: GameState) => ({
+      enemies: store.enemies,
+      isDead: store.isDead,
+      visibilityMap: store.visibilityMap,
+      numRows: store.numRows,
+    }),
+    shallow
+  );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   //const enemiesRef = useRef<any[]>([]);
@@ -24,6 +31,12 @@ export const ShowEnemyIntention = () => {
     if (enemy.movementPoints.length == 0) {
       return;
     }
+
+    // Don't reveal movement plans for enemies the player can't currently see
+    if (visibilityMap[tileIndex(enemy.position.x, enemy.position.y, numRows)] !== VISIBLE) {
+      return;
+    }
+
     const paths = [enemy.position, ...enemy.movementPoints];
     const pathChain = generatePathChain(paths);
 

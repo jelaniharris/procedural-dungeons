@@ -109,6 +109,12 @@ export const StatusEffectData: StatusEffectDataInfo[] = [
     cssStyles: 'text-cyan-400',
     description: 'Absorbs the next hit of damage. Expires after a few turns.',
   },
+  {
+    statusEffectType: StatusEffectType.BLINDNESS,
+    name: 'Blind',
+    cssStyles: 'text-gray-400',
+    description: 'Drastically reduces vision radius.',
+  },
 ];
 
 export const ItemData: ItemDataInfo[] = [

@@ -1,27 +1,29 @@
 import * as THREE from 'three';
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { GLTF } from 'three-stdlib';
 
 type GLTFResult = GLTF & {
-  nodes: {
-    ['wall-half_1']: THREE.Mesh;
-  };
-  materials: {
-    colormap: THREE.MeshStandardMaterial;
-  };
+  nodes: { ['wall-half_1']: THREE.Mesh };
+  materials: { colormap: THREE.MeshStandardMaterial };
 };
 
-export default function WallHalf(props: JSX.IntrinsicElements['group']) {
-  const { nodes, materials } = useGLTF(
-    '/models/environment/wall-half.glb'
-  ) as GLTFResult;
+interface WallHalfProps {
+  tint?: number;
+}
+
+export default function WallHalf({ tint, ...props }: JSX.IntrinsicElements['group'] & WallHalfProps) {
+  const { nodes, materials } = useGLTF('/models/environment/wall-half.glb') as GLTFResult;
+
+  const material = useMemo(() => materials.colormap.clone(), [materials.colormap]);
+
+  useEffect(() => {
+    material.color.setScalar(tint ?? 1.0);
+  }, [material, tint]);
+
   return (
     <group {...props} dispose={null}>
-      <mesh
-        geometry={nodes['wall-half_1'].geometry}
-        material={materials.colormap}
-      />
+      <mesh geometry={nodes['wall-half_1'].geometry} material={material} />
     </group>
   );
 }

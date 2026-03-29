@@ -207,6 +207,7 @@ export const GameHud = () => {
   const currency = useStore((store: GameState) => store.currency);
   const containerKeys = useStore((store: GameState) => store.containerKeys);
   const showExitDialog = useStore((store: GameState) => store.showExitDialog);
+  const addStatusEffect = useStore((store: GameState) => store.addStatusEffect);
   const showStoreDialog = useStore((store: GameState) => store.showStoreDialog);
   const setGameStatus = useStore((store: GameState) => store.setGameStatus);
   const showSettingsDialog = useStore(
@@ -279,7 +280,20 @@ export const GameHud = () => {
                 <ShowCurrentScore />
               </ContentPanel>
             </div>
-            <div className="mr-5">
+            <div className="mr-5 flex gap-2">
+              <Button
+                className="bg-gray-700 hover:bg-gray-500 text-sm px-2"
+                onClick={() =>
+                  addStatusEffect({
+                    statusEffectType: StatusEffectType.BLINDNESS,
+                    duration: 10,
+                    canExpire: true,
+                    canStack: false,
+                  })
+                }
+              >
+                Blind
+              </Button>
               <Button
                 className="bg-slate-800 hover:bg-slate-600"
                 onClick={showSettings}

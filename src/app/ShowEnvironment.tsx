@@ -1,27 +1,58 @@
-import React from 'react';
-import { Column } from '@/components/models/Column';
-import Dirt from '@/components/models/Dirt';
-import Floor from '@/components/models/Floor';
-import FloorDetail from '@/components/models/Floor-detail';
-import { LShapeWall } from '@/components/models/LShape-Wall';
-import { LiquidWallAll } from '@/components/models/LiquidWall-All';
-import Stairs from '@/components/models/Stairs';
-import { ThreeSidedWall } from '@/components/models/Three-Sided-Wall';
-import Wall from '@/components/models/Wall';
-import WallHalf from '@/components/models/WallHalf';
-import WallNarrow from '@/components/models/WallNarrow';
-import Water from '@/components/models/Water';
+import { EnvironmentTile, TileConfig } from '@/app/EnvironmentTile';
 import { LiquidType, TileType, WallType } from '@/components/types/GameTypes';
 import { useStore } from '@/stores/useStore';
 import { getLiquidTypeFromTileType } from '@/utils/mapUtils';
+import { HIDDEN, tileIndex } from '@/utils/visibilityUtils';
+import React, { useMemo } from 'react';
 import { MathUtils } from 'three';
 import { shallow } from 'zustand/shallow';
 
+// ---------------------------------------------------------------------------
+// Deterministic per-tile pseudo-random value.
+// Replaces Math.random() so tile variants are stable across re-renders.
+// ---------------------------------------------------------------------------
+function tileRandom(x: number, y: number): number {
+  const h = Math.sin(x * 127.1 + y * 311.7) * 43758.5453123;
+  return h - Math.floor(h);
+}
+
+// ---------------------------------------------------------------------------
+// Determine which floor variant to use under a column tile by checking
+// which surrounding floor type is more common.
+// ---------------------------------------------------------------------------
+function computeColumnFloorVariant(
+  x: number,
+  y: number,
+  getTilePosition: (x: number, y: number) => TileType | null
+): number {
+  const surrounding = [
+    { x, y: y - 1 },
+    { x: x + 1, y },
+    { x, y: y + 1 },
+    { x: x - 1, y },
+  ];
+  const counts = new Map<TileType, number>();
+  for (const coord of surrounding) {
+    const tile = getTilePosition(coord.x, coord.y);
+    if (tile === TileType.TILE_FLOOR || tile === TileType.TILE_FLOOR_ROOM) {
+      counts.set(tile, (counts.get(tile) ?? 0) + 1);
+    }
+  }
+  return (counts.get(TileType.TILE_FLOOR_ROOM) ?? 0) >=
+    (counts.get(TileType.TILE_FLOOR) ?? 0)
+    ? 1
+    : 0;
+}
+
+// ---------------------------------------------------------------------------
+// ShowEnvironment
+// ---------------------------------------------------------------------------
 const ShowEnvironmentInner = () => {
   const {
     mapData,
     numCols,
     numRows,
+    visibilityMap,
     determineWallType,
     determineLiquidWallType,
     getTilePosition,
@@ -30,6 +61,7 @@ const ShowEnvironmentInner = () => {
       mapData: state.mapData,
       numCols: state.numCols,
       numRows: state.numRows,
+      visibilityMap: state.visibilityMap,
       determineWallType: state.determineWallType,
       determineLiquidWallType: state.determineLiquidWallType,
       getTilePosition: state.getTilePosition,
@@ -37,215 +69,119 @@ const ShowEnvironmentInner = () => {
     shallow
   );
 
-  const worldTiles: React.JSX.Element[] = [];
+  // Build the full TileConfig array once per floor (mapData change).
+  // visibilityMap changes do NOT trigger this — only the per-tile visibility
+  // number passed to EnvironmentTile changes, and React.memo skips unchanged tiles.
+  const tileConfigs = useMemo((): TileConfig[] => {
+    if (!mapData || mapData.length === 0) return [];
 
-  const determineDynamicFlooring = (xPos: number, yPos: number) => {
-    const tileXPos = xPos * TILE_W;
-    const tileYPos = yPos * TILE_W;
+    const configs: TileConfig[] = [];
 
-    const surroundingCoordinates = [
-      { x: xPos, y: yPos - 1 },
-      { x: xPos + 1, y: yPos },
-      { x: xPos, y: yPos + 1 },
-      { x: xPos - 1, y: yPos },
-    ];
+    for (let y = 0; y < numRows; y++) {
+      for (let x = 0; x < numCols; x++) {
+        const tileType: TileType = mapData[x][y] ?? TileType.TILE_NONE;
+        const idx = tileIndex(x, y, numRows);
+        const base = { idx, tileXPos: x, tileYPos: y };
 
-    const floorTypeAmount = new Map<TileType, number>();
+        switch (tileType) {
+          case TileType.TILE_TEST:
+            configs.push({ ...base, kind: 'water_test' });
+            break;
 
-    for (const coord of surroundingCoordinates) {
-      const tile = getTilePosition(coord.x, coord.y);
+          case TileType.TILE_FLOOR:
+          case TileType.TILE_FLOOR_ROOM: {
+            const detail = tileRandom(x, y) >= 0.8;
+            const variant = tileType === TileType.TILE_FLOOR_ROOM ? 1 : 0;
+            configs.push({ ...base, kind: 'floor', variant, detail });
+            break;
+          }
 
-      if (tile !== null) {
-        if (tile === TileType.TILE_FLOOR || tile === TileType.TILE_FLOOR_ROOM) {
-          const amount = floorTypeAmount.get(tile) || 0;
-          floorTypeAmount.set(tile, amount + 1);
+          case TileType.TILE_WATER:
+          case TileType.TILE_POISON:
+          case TileType.TILE_MUD:
+          case TileType.TILE_LAVA: {
+            const liquidType = getLiquidTypeFromTileType(tileType);
+            if (liquidType === LiquidType.LIQUID_NONE) break;
+            const { liquidWallType, rotation } = determineLiquidWallType(x, y);
+            configs.push({
+              ...base,
+              kind: 'liquid',
+              liquidType,
+              liquidWallType,
+              liquidRotation: rotation,
+            });
+            break;
+          }
+
+          case TileType.TILE_WALL_DOOR:
+          case TileType.TILE_WALL:
+          case TileType.TILE_WALL_EDGE: {
+            const { rotation, wallType } = determineWallType(x, y, tileType);
+            const radians = MathUtils.degToRad(rotation);
+            switch (wallType) {
+              case WallType.WALL_DOOR:
+                configs.push({ ...base, kind: 'floor', variant: 1, detail: false });
+                break;
+              case WallType.WALL_ENCASED:
+                configs.push({ ...base, kind: 'dirt' });
+                break;
+              case WallType.WALL_OPEN:
+                if (tileRandom(x, y) < 0.25) {
+                  configs.push({
+                    ...base,
+                    kind: 'column',
+                    floorVariant: computeColumnFloorVariant(x, y, getTilePosition),
+                  });
+                } else {
+                  configs.push({ ...base, kind: 'wall' });
+                }
+                break;
+              case WallType.WALL_TWO_SIDED:
+                configs.push({ ...base, kind: 'wall_narrow', rotation: radians });
+                break;
+              case WallType.WALL_TRI_SIDED:
+                configs.push({ ...base, kind: 'wall_tri', rotation: radians });
+                break;
+              case WallType.WALL_L_SHAPE:
+                configs.push({ ...base, kind: 'wall_l', rotation: radians });
+                break;
+              case WallType.WALL_PARTIAL:
+                configs.push({ ...base, kind: 'wall_half', rotation: radians });
+                break;
+            }
+            break;
+          }
+
+          case TileType.TILE_EXIT:
+            configs.push({ ...base, kind: 'stairs' });
+            break;
+
+          case TileType.TILE_NONE:
+          default:
+            break;
         }
       }
     }
 
-    let variant = 0;
-    if (
-      (floorTypeAmount.get(TileType.TILE_FLOOR_ROOM) || 0) >=
-      (floorTypeAmount.get(TileType.TILE_FLOOR) || 0)
-    ) {
-      variant = 1;
-    }
+    return configs;
+  }, [mapData, numCols, numRows, determineWallType, determineLiquidWallType, getTilePosition]);
 
-    return (
-      <Floor
-        key={`columnfloor-${xPos}-${yPos}`}
-        position={[tileXPos, 0, tileYPos]}
-        variant={variant}
-      />
-    );
-  };
-
-  if (!mapData || mapData.length == 0) {
+  if (!mapData || mapData.length === 0) {
     return <></>;
   }
 
-  console.debug('[ShowEnvironment] RENDERING ENVIRONMENT');
-
-  const TILE_W = 1;
-
-  for (let y = 0; y < numRows; y++) {
-    for (let x = 0; x < numCols; x++) {
-      const tileType: TileType = mapData[x][y] || TileType.TILE_NONE;
-
-      const tileXPos = x * TILE_W;
-      const tileYPos = y * TILE_W;
-
-      let tile: React.JSX.Element[] | null = null;
-      switch (tileType) {
-        case TileType.TILE_TEST:
-          tile = [
-            <Water key={`tile-${x}-${y}`} position={[tileXPos, 0, tileYPos]} />,
-          ];
-          break;
-        case TileType.TILE_FLOOR:
-        case TileType.TILE_FLOOR_ROOM:
-          const randomFloor = Math.random();
-          if (randomFloor < 0.8) {
-            tile = [
-              <Floor
-                key={`tile-${x}-${y}`}
-                position={[tileXPos, 0, tileYPos]}
-                variant={tileType === TileType.TILE_FLOOR_ROOM ? 1 : 0}
-              />,
-            ];
-          } else {
-            tile = [
-              <FloorDetail
-                key={`tiledetail-${x}-${y}`}
-                position={[tileXPos, 0, tileYPos]}
-                variant={tileType === TileType.TILE_FLOOR_ROOM ? 1 : 0}
-              />,
-            ];
-          }
-          break;
-        case TileType.TILE_WATER:
-        case TileType.TILE_POISON:
-        case TileType.TILE_MUD:
-        case TileType.TILE_LAVA:
-          const liquidType = getLiquidTypeFromTileType(tileType);
-          if (liquidType === LiquidType.LIQUID_NONE) {
-            continue;
-          }
-          const liquidWallResults = determineLiquidWallType(x, y);
-
-          tile = [
-            <LiquidWallAll
-              liquidType={liquidType}
-              wallType={liquidWallResults.liquidWallType}
-              rotation={[0, liquidWallResults.rotation, 0]}
-              key={`liquidtile-${x}-${y}`}
-              position={[tileXPos, 0, tileYPos]}
-            />,
-          ];
-          break;
-        case TileType.TILE_WALL_DOOR:
-        case TileType.TILE_WALL:
-        case TileType.TILE_WALL_EDGE:
-          const { rotation, wallType } = determineWallType(x, y, tileType);
-          const radianDegrees = MathUtils.degToRad(rotation);
-          switch (wallType) {
-            case WallType.WALL_DOOR:
-              // Actual door is an game object, so just fill in the floor for now
-              tile = [
-                <Floor
-                  key={`doorfloor-${x}-${y}`}
-                  position={[tileXPos, 0, tileYPos]}
-                  variant={1}
-                />,
-              ];
-              break;
-            case WallType.WALL_ENCASED:
-              // Fully encased, then convert to DIRT
-              tile = [
-                <Dirt
-                  key={`dirt-${x}-${y}`}
-                  position={[tileXPos, 0, tileYPos]}
-                />,
-              ];
-              break;
-            case WallType.WALL_OPEN:
-              const randomWall = Math.random();
-              if (randomWall < 0.25) {
-                tile = [
-                  <Column
-                    key={`column-${x}-${y}`}
-                    position={[tileXPos, 0, tileYPos]}
-                  />,
-                  determineDynamicFlooring(tileXPos, tileYPos),
-                ];
-              } else {
-                tile = [
-                  <Wall key={`${x}-${y}`} position={[tileXPos, 0, tileYPos]} />,
-                ];
-              }
-              break;
-            case WallType.WALL_TWO_SIDED:
-              tile = [
-                <WallNarrow
-                  key={`wallnarrow-${x}-${y}`}
-                  rotation={[0, radianDegrees, 0]}
-                  position={[tileXPos, 0, tileYPos]}
-                />,
-              ];
-              break;
-            case WallType.WALL_TRI_SIDED:
-              tile = [
-                <ThreeSidedWall
-                  key={`tsw-${x}-${y}`}
-                  rotation={[0, radianDegrees, 0]}
-                  position={[tileXPos, 0, tileYPos]}
-                />,
-              ];
-              break;
-            case WallType.WALL_L_SHAPE:
-              tile = [
-                <LShapeWall
-                  key={`lsw-${x}-${y}`}
-                  rotation={[0, radianDegrees, 0]}
-                  position={[tileXPos, 0, tileYPos]}
-                />,
-              ];
-              break;
-            case WallType.WALL_PARTIAL:
-              tile = [
-                <WallHalf
-                  key={`partial-${x}-${y}`}
-                  rotation={[0, radianDegrees, 0]}
-                  position={[tileXPos, 0, tileYPos]}
-                />,
-              ];
-              break;
-          }
-          break;
-        case TileType.TILE_EXIT:
-          tile = [
-            <Stairs
-              key={`stairs-${x}-${y}`}
-              rotation={[0, MathUtils.degToRad(0), 0]}
-              position={[tileXPos, 0, tileYPos]}
-            />,
-          ];
-          break;
-        case TileType.TILE_NONE:
-        default:
-          break;
-      }
-
-      if (tile) {
-        for (const placeTile of tile) {
-          worldTiles.push(placeTile);
-        }
-      }
-    }
-  }
-
-  // TODO: Look into InstanceMeshes for optimal usage
-  return <>{worldTiles}</>;
+  return (
+    <>
+      {tileConfigs.map((config) => (
+        <EnvironmentTile
+          key={config.idx}
+          config={config}
+          visibility={visibilityMap[config.idx] ?? HIDDEN}
+        />
+      ))}
+    </>
+  );
 };
 
+// TODO: Look into InstancedMesh for further optimisation
 export const ShowEnvironment = React.memo(ShowEnvironmentInner);

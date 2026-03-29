@@ -1,3 +1,4 @@
+import { VisibleObject } from '@/app/VisibleObject';
 import { Gas } from '@/components/models/Gas';
 import { Skull } from '@/components/models/Skull';
 import { Ghost } from '@/components/models/characters/CharacterGhost';
@@ -7,12 +8,15 @@ import { Skeleton } from '@/components/models/characters/CharacterSkeleton';
 import { EnemyStatus, EnemyType } from '@/components/types/GameTypes';
 import { GameState, useStore } from '@/stores/useStore';
 import { getGasFromEnemyType } from '@/utils/hazardUtils';
+import { tileIndex } from '@/utils/visibilityUtils';
 import { useRef } from 'react';
 import { Vector3 } from 'three';
 
 export const ShowEnemies = () => {
-  const { enemies } = useStore((store: GameState) => ({
+  const { enemies, visibilityMap, numRows } = useStore((store: GameState) => ({
     enemies: store.enemies,
+    visibilityMap: store.visibilityMap,
+    numRows: store.numRows,
   }));
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -25,6 +29,11 @@ export const ShowEnemies = () => {
 
   enemies.forEach((enemy) => {
     if (enemy && enemy.id >= 0) {
+      const idx = tileIndex(enemy.position.x, enemy.position.y, numRows);
+      const visibility = visibilityMap[idx];
+
+      const isDead = enemy.status === EnemyStatus.STATUS_DEAD;
+
       let enemyElement;
 
       if (enemy.status == EnemyStatus.STATUS_DEAD && enemy.leavesCorpse) {
@@ -120,7 +129,11 @@ export const ShowEnemies = () => {
         }
       }
 
-      worldEnemies.push(enemyElement);
+      worldEnemies.push(
+        <VisibleObject key={`enemy-vis-${enemy.id}`} visibility={visibility} visibleExplored={isDead && enemy.leavesCorpse}>
+          {enemyElement}
+        </VisibleObject>
+      );
     }
   });
   return <>{worldEnemies}</>;

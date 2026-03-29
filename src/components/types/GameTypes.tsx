@@ -443,6 +443,12 @@ export enum StatusEffectType {
   HASTE = 1 << 4,
   FLYING = 1 << 5,
   SHIELD = 1 << 6,
+  BLINDNESS = 1 << 7,
+}
+
+export enum FloorModifierType {
+  DARKNESS,
+  ROOM_DARK,
 }
 
 export type StatusEffect = {

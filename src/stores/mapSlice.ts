@@ -6,6 +6,7 @@ import {
   Direction,
   DoorLocation,
   EnemyType,
+  FloorModifierType,
   GameStatus,
   HazardType,
   Item,
@@ -43,6 +44,7 @@ import {
   randomizeFloorOrWall,
 } from '@/utils/randomGenerator';
 import { getSetIntersection, popRandomItemFromSet } from '@/utils/setUtils';
+import { computeVisibility as computeVisibilityUtil } from '@/utils/visibilityUtils';
 import { createRef } from 'react';
 import { StateCreator } from 'zustand';
 import { AudioSlice } from './audioSlice';
@@ -54,6 +56,10 @@ import { StageSlice } from './stageSlice';
 
 export interface MapSlice {
   mapData: (TileType | null)[][];
+  rooms: Room[];
+  visibilityMap: Uint8Array;
+  floorModifiers: FloorModifierType[];
+  computeVisibility: () => void;
   numRows: number;
   numCols: number;
   resetStage: (hard: boolean) => void;
@@ -219,6 +225,9 @@ export const createMapSlice: StateCreator<
   MapSlice
 > = (set, get) => ({
   mapData: [],
+  rooms: [],
+  visibilityMap: new Uint8Array(0),
+  floorModifiers: [],
   numRows: 5,
   numCols: 5,
   items: [],
@@ -322,6 +331,7 @@ export const createMapSlice: StateCreator<
 
     set({
       mapData: currentMapData,
+      rooms,
       gameStatus: GameStatus.GAME_STARTED,
       isPaused: false,
     });
@@ -331,6 +341,7 @@ export const createMapSlice: StateCreator<
     generateEnemies(generatorSeeds['enemies']);
     generateHazards(generatorSeeds['hazards']);
 
+    get().computeVisibility();
     get().newStageTriggers();
   },
   resetMap: () => {
@@ -350,12 +361,32 @@ export const createMapSlice: StateCreator<
 
     set({
       mapData: newMap,
+      rooms: [],
+      visibilityMap: new Uint8Array(mapNumRows * mapNumCols),
+      floorModifiers: [],
       numRows: mapNumRows,
       numCols: mapNumCols,
       doors: [],
       itemContainers: [],
       destructables: new Map<string, Destructable>(),
     });
+  },
+  computeVisibility: () => {
+    const { mapData, rooms, numRows, numCols, visibilityMap, floorModifiers } = get();
+    const { playerPosition, statusEffects } = get();
+
+    const updated = computeVisibilityUtil({
+      playerPosition,
+      mapData,
+      rooms,
+      numRows,
+      numCols,
+      statusEffects,
+      floorModifiers,
+      current: visibilityMap,
+    });
+
+    set({ visibilityMap: updated });
   },
   getTilePosition: (x: number, y: number) => {
     const mapNumRows = get().numRows;
