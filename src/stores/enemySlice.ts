@@ -64,6 +64,47 @@ export interface GenerateEnemyProps {
   spawnType?: EnemyType;
 }
 
+const findBouncePosition = (
+  near: Point2D,
+  getTilePosition: (x: number, y: number) => TileType | null,
+  enemies: Enemy[],
+  playerPosition: Point2D
+): Point2D | null => {
+  const offsets = [
+    { x: 0, y: -1 },
+    { x: 1, y: 0 },
+    { x: 0, y: 1 },
+    { x: -1, y: 0 },
+  ].sort(() => Math.random() - 0.5);
+
+  const isPassable = (tile: TileType | null) =>
+    tile === TileType.TILE_FLOOR ||
+    tile === TileType.TILE_WATER ||
+    tile === TileType.TILE_MUD ||
+    tile === TileType.TILE_FLOOR_ROOM ||
+    tile === TileType.TILE_DIRT;
+
+  const occupiedByEnemy = (pos: Point2D) =>
+    enemies.some(
+      (e) =>
+        (e.status & EnemyStatus.STATUS_DEAD) !== EnemyStatus.STATUS_DEAD &&
+        e.position.x === pos.x &&
+        e.position.y === pos.y
+    );
+
+  for (const off of offsets) {
+    const candidate = { x: near.x + off.x, y: near.y + off.y };
+    if (
+      isPassable(getTilePosition(candidate.x, candidate.y)) &&
+      !occupiedByEnemy(candidate) &&
+      !(candidate.x === playerPosition.x && candidate.y === playerPosition.y)
+    ) {
+      return candidate;
+    }
+  }
+  return null;
+};
+
 export const createEnemySlice: StateCreator<
   EnemySlice & MapSlice & StageSlice & PlayerSlice & GeneratorSlice,
   [],
@@ -93,13 +134,17 @@ export const createEnemySlice: StateCreator<
 
     enemyTypeGenerator.add(EnemyType.ENEMY_ORC, 60);
     if (currentLevel > 2) {
-      enemyTypeGenerator.add(EnemyType.ENEMY_SKELETON, 35);
+      enemyTypeGenerator.add(EnemyType.ENEMY_JUMPER, 10);
+      enemyTypeGenerator.add(EnemyType.ENEMY_SKELETON, 30);
     }
-    if (currentLevel > 3) {
-      enemyTypeGenerator.add(EnemyType.ENEMY_GHOST, 25);
+    if (currentLevel >= 3) {
+      enemyTypeGenerator.set(EnemyType.ENEMY_JUMPER, 25);
     }
     if (currentLevel > 4) {
       enemyTypeGenerator.add(EnemyType.ENEMY_NOODLE, 25);
+    }
+    if (currentLevel > 5) {
+      enemyTypeGenerator.add(EnemyType.ENEMY_GHOST, 25);
     }
 
     while (emptySpots.length != 0 && numberEnemies > 0) {
@@ -190,6 +235,15 @@ export const createEnemySlice: StateCreator<
           traits: UnitTraits.NONE,
         };
         break;
+      case EnemyType.ENEMY_JUMPER:
+        newEnemy = {
+          ...newEnemy,
+          movementRange: 3,
+          name: 'Jumper',
+          traits: UnitTraits.JUMPER,
+          touchType: EnemyTouchType.TOUCHTYPE_DAMAGE,
+        };
+        break;
       case EnemyType.ENEMY_GAS_POISON:
       case EnemyType.ENEMY_GAS_CONFUSION:
         const statusType = getStatusTypeFromEnemyType(newEnemy.type);
@@ -275,6 +329,56 @@ export const createEnemySlice: StateCreator<
           amountOfMoves--;
         }
 
+        // Jumpers pick a single landing tile N tiles away, skipping intermediates
+        if (
+          (enemy.traits & UnitTraits.JUMPER) === UnitTraits.JUMPER &&
+          amountOfMoves > 0
+        ) {
+          const jumpRange = Math.floor(Math.random() * (amountOfMoves + 1));
+          const jumpVectors = [
+            { x: 0, y: -jumpRange },
+            { x: jumpRange, y: 0 },
+            { x: 0, y: jumpRange },
+            { x: -jumpRange, y: 0 },
+          ].sort(() => Math.random() - 0.5);
+
+          const isPassable = (tile: TileType | null) =>
+            tile === TileType.TILE_FLOOR ||
+            tile === TileType.TILE_WATER ||
+            tile === TileType.TILE_MUD ||
+            tile === TileType.TILE_FLOOR_ROOM ||
+            tile === TileType.TILE_DIRT;
+
+          for (const dir of jumpVectors) {
+            const dx = Math.sign(dir.x);
+            const dy = Math.sign(dir.y);
+
+            // Scan tiles 1..jumpRange and stop at the first blocker
+            let maxJump = 0;
+            for (let dist = 1; dist <= jumpRange; dist++) {
+              const tile = getTilePosition(
+                enemy.position.x + dx * dist,
+                enemy.position.y + dy * dist
+              );
+              if (isPassable(tile)) {
+                maxJump = dist;
+              } else {
+                break;
+              }
+            }
+
+            if (maxJump >= 1) {
+              nextDirection = { x: dx, y: dy };
+              newPositions.push({
+                x: enemy.position.x + dx * maxJump,
+                y: enemy.position.y + dy * maxJump,
+              });
+              break;
+            }
+          }
+          return { ...enemy, nextDirection, movementPoints: newPositions };
+        }
+
         while (amountOfMoves > 0) {
           amountOfMoves--;
 
@@ -323,9 +427,12 @@ export const createEnemySlice: StateCreator<
               newDangerSpots.push(newLocation);
             }
 
-            // If new location is water, then we reduce our number of directions to move by one
+            // If new location is water or mud, then we reduce our number of directions to move by one
             const newTileType = getTilePosition(newLocation.x, newLocation.y);
-            if (newTileType === TileType.TILE_WATER) {
+            if (
+              newTileType === TileType.TILE_WATER ||
+              newTileType === TileType.TILE_MUD
+            ) {
               amountOfMoves--;
             }
 
@@ -417,6 +524,21 @@ export const createEnemySlice: StateCreator<
           (locationResult & LocationActionType.TOUCHED_PLAYER) ===
           LocationActionType.TOUCHED_PLAYER
         ) {
+          const isJumper =
+            (enemy.traits & UnitTraits.JUMPER) === UnitTraits.JUMPER;
+          if (isJumper) {
+            const bounceTarget = findBouncePosition(
+              nextLocation,
+              get().getTilePosition,
+              currentEnemies,
+              get().playerPosition
+            );
+            return {
+              ...enemy,
+              position: { x: nextLocation.x, y: nextLocation.y },
+              movementPoints: bounceTarget ? [bounceTarget] : [],
+            };
+          }
           enemyHasMovementLeft = false;
           return { ...enemy, movementPoints: [] };
         }

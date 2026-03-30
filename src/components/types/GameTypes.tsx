@@ -68,6 +68,7 @@ export enum EnemyType {
   ENEMY_NOODLE,
   ENEMY_GAS_POISON,
   ENEMY_GAS_CONFUSION,
+  ENEMY_JUMPER,
 }
 
 export enum EnemyStatus {
@@ -107,6 +108,7 @@ export enum PathCurves {
   PATH_STRAIGHT,
   PATH_CURVE,
   PATH_DESTINATION,
+  PATH_JUMP,
 }
 
 export const POSITION_OFFSETS = [
@@ -135,6 +137,7 @@ export enum UnitTraits {
   PERMEABLE = 1 << 2,
   EXPIRES = 1 << 3,
   NON_ATTACKABLE = 1 << 4,
+  JUMPER = 1 << 5,
 }
 
 export enum DoorStatus {

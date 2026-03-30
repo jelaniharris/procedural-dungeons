@@ -203,6 +203,12 @@ const TutorialScreen = () => {
           'Moves 0-3 spaces randomly. Deals 1 damage and adds POISON status.',
       },
       {
+        icon: 'SlimeIcon.png',
+        name: 'Slime',
+        description:
+          'Jumps 0–3 spaces in a straight line. Cannot jump through walls — it can only reach as far as the open space allows.',
+      },
+      {
         icon: 'ConfusionGasIcon.png',
         name: 'Confusion Gas',
         description:

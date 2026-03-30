@@ -1,4 +1,6 @@
 import DirectionArrow from '@/components/models/DirectionArrow';
+import JumpArcArrow from '@/components/models/JumpArcArrow';
+import { UnitTraits } from '@/components/types/GameTypes';
 import { GameState, useStore } from '@/stores/useStore';
 import { PathChain, generatePathChain } from '@/utils/gridUtils';
 import { VISIBLE, tileIndex } from '@/utils/visibilityUtils';
@@ -32,8 +34,28 @@ export const ShowEnemyIntention = () => {
       return;
     }
 
-    // Don't reveal movement plans for enemies the player can't currently see
-    if (visibilityMap[tileIndex(enemy.position.x, enemy.position.y, numRows)] !== VISIBLE) {
+    const isJumper = (enemy.traits & UnitTraits.JUMPER) === UnitTraits.JUMPER;
+
+    if (isJumper) {
+      const destination = enemy.movementPoints[enemy.movementPoints.length - 1];
+
+      // Check if the destination is visible before showing the jump arc, since jumpers can move through walls and other obstacles
+      if (
+        visibilityMap[tileIndex(destination.x, destination.y, numRows)] !==
+        VISIBLE
+      ) {
+        return;
+      }
+
+      intentions.push(
+        <JumpArcArrow
+          key={`jump-intention-${enemy.name}-${enemy.id}`}
+          start={enemy.position}
+          end={destination}
+          touchType={enemy.touchType}
+          arcHeight={1.0}
+        />
+      );
       return;
     }
 
@@ -41,6 +63,15 @@ export const ShowEnemyIntention = () => {
     const pathChain = generatePathChain(paths);
 
     pathChain.forEach((chain: PathChain, i) => {
+      // If this point in the chain isn't visible, skip it and all subsequent points since intentions are only shown for the visible portion of the path
+      if (
+        visibilityMap[
+          tileIndex(chain.position.x, chain.position.y, numRows)
+        ] !== VISIBLE
+      ) {
+        return;
+      }
+
       intentions.push(
         <DirectionArrow
           key={`intention-${enemy.name}-${enemy.id}-${i}`}

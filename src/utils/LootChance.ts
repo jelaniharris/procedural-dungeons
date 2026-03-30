@@ -28,6 +28,18 @@ export class LootChance<T> {
     });
   }
 
+  set(item: any, weight?: number, quantity?: number) {
+    if (!weight || weight <= 0) weight = 1;
+    if (!quantity || quantity <= 0) quantity = Number.POSITIVE_INFINITY;
+    const existing = this.table.find((entry) => entry.item === item);
+    if (existing) {
+      existing.weight = weight;
+      existing.quantity = quantity;
+    } else {
+      this.table.push({ item, weight, quantity });
+    }
+  }
+
   choose(randomFunction: (() => number) | undefined): T | null {
     if (this.table.length === 0) return null;
 
