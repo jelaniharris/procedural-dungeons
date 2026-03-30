@@ -128,7 +128,9 @@ const DungeonScene = () => {
   const adjustCurrency = useStore((state: GameState) => state.adjustCurrency);
   const adjustKeys = useStore((state: GameState) => state.adjustKeys);
   const addScore = useStore((state: GameState) => state.addScore);
-  const adjustGoldMultiplier = useStore((state: GameState) => state.adjustGoldMultiplier);
+  const adjustGoldMultiplier = useStore(
+    (state: GameState) => state.adjustGoldMultiplier
+  );
   const hasKeys = useStore((state: GameState) => state.hasKeys);
 
   const setDead = useStore((state: GameState) => state.setDead);
