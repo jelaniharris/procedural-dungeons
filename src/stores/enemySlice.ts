@@ -134,16 +134,17 @@ export const createEnemySlice: StateCreator<
 
     enemyTypeGenerator.add(EnemyType.ENEMY_ORC, 60);
     if (currentLevel > 2) {
-      enemyTypeGenerator.add(EnemyType.ENEMY_SKELETON, 35);
+      enemyTypeGenerator.add(EnemyType.ENEMY_JUMPER, 10);
+      enemyTypeGenerator.add(EnemyType.ENEMY_SKELETON, 30);
     }
     if (currentLevel >= 3) {
-      enemyTypeGenerator.add(EnemyType.ENEMY_JUMPER, 20);
+      enemyTypeGenerator.set(EnemyType.ENEMY_JUMPER, 25);
     }
     if (currentLevel > 4) {
-      enemyTypeGenerator.add(EnemyType.ENEMY_GHOST, 25);
+      enemyTypeGenerator.add(EnemyType.ENEMY_NOODLE, 25);
     }
     if (currentLevel > 5) {
-      enemyTypeGenerator.add(EnemyType.ENEMY_NOODLE, 25);
+      enemyTypeGenerator.add(EnemyType.ENEMY_GHOST, 25);
     }
 
     while (emptySpots.length != 0 && numberEnemies > 0) {
