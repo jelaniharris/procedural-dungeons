@@ -1,6 +1,7 @@
+import { EntityShadow } from '@/components/entities/EntityShadow';
 import { Enemy } from '@/components/types/GameTypes';
 import { useAnimations, useGLTF } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
+import { useEnemyMovement } from '@/hooks/useEnemyMovement';
 import {
   forwardRef,
   useEffect,
@@ -32,6 +33,7 @@ type ActionName = 'Idle' | 'Snake-Idle' | 'Static' | 'Walk';
 interface NoodleProps {
   enemy: Enemy;
   enemyId: number;
+  yOffset?: number;
 }
 
 export const Noodle = forwardRef(function Noodle(
@@ -59,32 +61,20 @@ export const Noodle = forwardRef(function Noodle(
     }
   }, [actions, animation]);
 
-  useFrame(() => {
-    if (!Noodle || !Noodle.current || !props.position) {
-      return;
-    }
-    const propsPosition = props.position as THREE.Vector3;
-    if (Noodle.current?.position.distanceTo(propsPosition) > 0.2) {
-      const direction = Noodle.current.position
-        .clone()
-        .sub(propsPosition)
-        .normalize()
-        .multiplyScalar(MovementSpeed);
-      //Noodle.current?.position.lerp(props.position as THREE.Vector3, 0.2);
-      Noodle.current.position.sub(direction);
-      Noodle.current.lookAt(propsPosition);
-      setAnimation('Walk');
-    } else {
-      if (props.enemy.movementPoints.length > 0) {
-        setAnimation('Walk');
-      } else {
-        setAnimation('Idle');
-      }
-    }
-  });
+  useEnemyMovement(
+    Noodle,
+    props.position as THREE.Vector3,
+    props.yOffset ?? 0,
+    props.enemy.movementPoints,
+    setAnimation,
+    'Walk',
+    'Idle',
+    MovementSpeed
+  );
 
   return (
     <group ref={Noodle} {...props} position={position} dispose={null}>
+      <EntityShadow />
       <group name="Snake">
         <group name="Armature" scale={0.225}>
           <primitive object={nodes.Root} />

@@ -1,6 +1,7 @@
+import { EntityShadow } from '@/components/entities/EntityShadow';
 import { Enemy } from '@/components/types/GameTypes';
+import { useEnemyMovement } from '@/hooks/useEnemyMovement';
 import { useAnimations, useGLTF } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
 import {
   forwardRef,
   useEffect,
@@ -61,6 +62,7 @@ type ActionName =
 interface OrcProps {
   enemy: Enemy;
   enemyId: number;
+  yOffset?: number;
 }
 
 export const Orc = forwardRef(function Orc(
@@ -88,32 +90,20 @@ export const Orc = forwardRef(function Orc(
     }
   }, [actions, animation]);
 
-  useFrame(() => {
-    if (!orc || !orc.current || !props.position) {
-      return;
-    }
-    const propsPosition = props.position as THREE.Vector3;
-    if (orc.current?.position.distanceTo(propsPosition) > 0.2) {
-      const direction = orc.current.position
-        .clone()
-        .sub(propsPosition)
-        .normalize()
-        .multiplyScalar(MovementSpeed);
-      //orc.current?.position.lerp(props.position as THREE.Vector3, 0.2);
-      orc.current.position.sub(direction);
-      orc.current.lookAt(propsPosition);
-      setAnimation('walk');
-    } else {
-      if (props.enemy.movementPoints.length > 0) {
-        setAnimation('walk');
-      } else {
-        setAnimation('idle');
-      }
-    }
-  });
+  useEnemyMovement(
+    orc,
+    props.position as THREE.Vector3,
+    props.yOffset ?? 0,
+    props.enemy.movementPoints,
+    setAnimation,
+    'walk',
+    'idle',
+    MovementSpeed
+  );
 
   return (
     <group ref={orc} {...props} position={position} dispose={null}>
+      <EntityShadow />
       <group name="character-orc">
         <group name="character-orc_1">
           <group name="root">
