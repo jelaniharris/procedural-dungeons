@@ -44,7 +44,7 @@ export default function SceneManager({
             console.log('Setting blank');
             setCurrentScene('');
             console.log('Waiting ...');
-            wait(300);
+            await wait(300);
           }
           console.log('Setting scene');
           setCurrentScene(targetScene);
