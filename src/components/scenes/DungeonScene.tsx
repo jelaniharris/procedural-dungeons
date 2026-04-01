@@ -221,6 +221,17 @@ const DungeonScene = () => {
     attacksRef.current = attacks;
   }, [attacks]);
 
+  // This is used to log memory usage for debugging purposes
+  /*const { gl } = useThree();
+  useEffect(() => {
+    if (process.env.NODE_ENV !== 'development') return;
+    const id = setInterval(() => {
+      // eslint-disable-next-line no-console
+      console.log(new Date().toLocaleTimeString(), gl.info.memory);
+    }, 2000);
+    return () => clearInterval(id);
+  }, [gl]);*/
+
   // Api calls
   const saveScore = trpc.saveScore.useMutation();
 
@@ -751,6 +762,7 @@ const DungeonScene = () => {
 
       subscribe(EXIT_GREED, () => {
         setShowExitDialog(false);
+        setShowStoreDialog(false);
         advanceStage();
       });
 

@@ -4,7 +4,7 @@ Command: npx gltfjsx@6.2.14 .\public\models\environment\Door.glb -t
 */
 
 import { useAnimations, useGLTF } from '@react-three/drei';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { GLTF } from 'three-stdlib';
 import useGameObjectEvent from '../entities/useGameObjectEvent';
@@ -35,11 +35,25 @@ type GLTFResult = GLTF & {
 //type ContextType = Record<string, React.ForwardRefExoticComponent<JSX.IntrinsicElements['mesh']>>
 type ActionName = 'Close' | 'Closed-Idle' | 'Open';
 
-export default function Door(props: JSX.IntrinsicElements['group']) {
+interface DoorProps {
+  tint?: number;
+}
+
+export default function Door({ tint, ...props }: JSX.IntrinsicElements['group'] & DoorProps) {
   const groupRef = useRef<THREE.Group>(null);
   const { nodes, materials, animations } = useGLTF(
     '/models/environment/Door.glb'
   ) as GLTFResult;
+
+  const material = useMemo(() => materials.colormap.clone(), [materials.colormap]);
+
+  useEffect(() => {
+    material.color.setScalar(tint ?? 1.0);
+  }, [material, tint]);
+
+  useEffect(() => {
+    return () => { material.dispose(); };
+  }, [material]);
   const [animation, setAnimation] = useState<ActionName>('Closed-Idle');
   const { actions, mixer } = useAnimations(animations, groupRef);
   const doorStatus = useRef<DoorStatus>(DoorStatus.CLOSED);
@@ -97,14 +111,14 @@ export default function Door(props: JSX.IntrinsicElements['group']) {
           <mesh
             name="WoodenDoor"
             geometry={nodes.WoodenDoor.geometry}
-            material={materials.colormap}
+            material={material}
             position={[0, 0, 0.5]}
             rotation={[0, 1.396, 0]}
           />
           <mesh
             name="DoorFrame"
             geometry={nodes.DoorFrame.geometry}
-            material={materials.colormap}
+            material={material}
           />
         </group>
       </group>

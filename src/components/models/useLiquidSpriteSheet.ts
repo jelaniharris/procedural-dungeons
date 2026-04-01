@@ -8,9 +8,17 @@ export const useLiquidSpriteSheet = (liquidType: LiquidType) => {
   const cols = 2;
   const lspriteSheet = useLoader(TextureLoader, '/textures/liquids.png');
   const spriteSheet = useMemo(() => lspriteSheet.clone(), [lspriteSheet]);
-  spriteSheet.minFilter = LinearFilter;
-  spriteSheet.repeat.x = 1 / cols;
-  spriteSheet.repeat.y = 1 / rows;
+
+  useEffect(() => {
+    spriteSheet.minFilter = LinearFilter;
+    spriteSheet.repeat.x = 1 / cols;
+    spriteSheet.repeat.y = 1 / rows;
+    spriteSheet.needsUpdate = true;
+  }, [spriteSheet]);
+
+  useEffect(() => {
+    return () => { spriteSheet.dispose(); };
+  }, [spriteSheet]);
 
   useEffect(() => {
     let col = 0;

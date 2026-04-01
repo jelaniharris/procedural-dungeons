@@ -33,6 +33,7 @@ export const CharacterSlime = forwardRef(function CharacterSlime(
   props: JSX.IntrinsicElements['group'] & CharacterSlimeProps,
   forwardedRef
 ) {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const initialPosition = useMemo(() => props.position, []);
 
   const slimeRef = useRef<THREE.Group>(null);
@@ -57,6 +58,17 @@ export const CharacterSlime = forwardRef(function CharacterSlime(
     actions[animation]?.reset().fadeIn(0.2).play();
     return () => actions[animation]?.fadeOut(0.2);
   }, [actions, animation]);
+
+  useEffect(() => {
+    return () => {
+      clonedScene.traverse((obj) => {
+        const mesh = obj as THREE.SkinnedMesh;
+        if (mesh.isSkinnedMesh) {
+          mesh.skeleton.dispose();
+        }
+      });
+    };
+  }, [clonedScene]);
 
   useFrame(() => {
     if (!slimeRef.current || !props.position) return;

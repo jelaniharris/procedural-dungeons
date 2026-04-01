@@ -69,6 +69,7 @@ export enum EnemyType {
   ENEMY_GAS_POISON,
   ENEMY_GAS_CONFUSION,
   ENEMY_JUMPER,
+  ENEMY_GAS_BLINDNESS,
 }
 
 export enum EnemyStatus {
@@ -193,6 +194,7 @@ export enum Gases {
   GAS_NONE,
   GAS_POISON,
   GAS_CONFUSION,
+  GAS_BLINDNESS,
 }
 
 export enum TouchControls {
@@ -446,6 +448,12 @@ export enum StatusEffectType {
   HASTE = 1 << 4,
   FLYING = 1 << 5,
   SHIELD = 1 << 6,
+  BLINDNESS = 1 << 7,
+}
+
+export enum FloorModifierType {
+  DARKNESS,
+  ROOM_DARK,
 }
 
 export type StatusEffect = {

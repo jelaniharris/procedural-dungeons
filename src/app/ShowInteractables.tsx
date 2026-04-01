@@ -1,21 +1,25 @@
+import { VisibleObject } from '@/app/VisibleObject';
 import GameObject from '@/components/entities/GameObject';
 import Door from '@/components/models/Door';
 import { DoorLocation, TileType } from '@/components/types/GameTypes';
 import { useStore } from '@/stores/useStore';
+import { EXPLORED_TINT } from '@/app/EnvironmentTile';
+import { EXPLORED, tileIndex } from '@/utils/visibilityUtils';
 import { shallow } from 'zustand/shallow';
 
 export const ShowInteractables = () => {
-  const { doors, determineWallType } = useStore(
+  const { doors, determineWallType, visibilityMap, numRows, currentLevel } = useStore(
     (state) => ({
       doors: state.doors,
       determineWallType: state.determineWallType,
+      visibilityMap: state.visibilityMap,
+      numRows: state.numRows,
+      currentLevel: state.currentLevel,
     }),
     shallow
   );
 
   const worldDoors: React.JSX.Element[] = [];
-
-  console.log('[ShowInteractables] Rendering');
 
   doors.forEach((door: DoorLocation) => {
     const { rotation } = determineWallType(
@@ -24,16 +28,23 @@ export const ShowInteractables = () => {
       TileType.TILE_WALL_DOOR
     );
 
-    const keyName = `door:${door.position.x},${door.position.y}`;
+    const visibility =
+      visibilityMap[tileIndex(door.position.x, door.position.y, numRows)];
+    const keyName = `door:${currentLevel}:${door.position.x},${door.position.y}`;
     worldDoors.push(
-      <GameObject
+      <VisibleObject
         key={keyName}
-        name={keyName}
-        transform={door.position}
-        rotation={rotation}
+        visibility={visibility}
+        visibleExplored={true}
       >
-        <Door key={keyName} />
-      </GameObject>
+        <GameObject
+          name={keyName}
+          transform={door.position}
+          rotation={rotation}
+        >
+          <Door tint={visibility === EXPLORED ? EXPLORED_TINT : undefined} />
+        </GameObject>
+      </VisibleObject>
     );
   });
 

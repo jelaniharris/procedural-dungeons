@@ -13,6 +13,7 @@ import {
   FaSkull as SkullIcon,
 } from 'react-icons/fa';
 import { GiPlainDagger as AttacksIcon } from 'react-icons/gi';
+import { IoIosStats as StatsIcon } from 'react-icons/io';
 import { shallow } from 'zustand/shallow';
 import Button from '../input/Button';
 import { StatusEffectData } from '../types/GameData';
@@ -223,6 +224,8 @@ export const GameHud = () => {
     setGameStatus(GameStatus.GAME_MENU);
   }, [setGameStatus, setShowSettingsDialog]);
 
+  const showStats = useCallback(() => {}, []);
+
   const backToGame = useCallback(() => {
     setShowSettingsDialog(false);
     setGameStatus(GameStatus.GAME_STARTED);
@@ -279,7 +282,13 @@ export const GameHud = () => {
                 <ShowCurrentScore />
               </ContentPanel>
             </div>
-            <div className="mr-5">
+            <div className="mr-5 flex gap-2">
+              <Button
+                className="bg-gray-800 hover:bg-gray-600"
+                onClick={showStats}
+              >
+                <StatsIcon />
+              </Button>
               <Button
                 className="bg-slate-800 hover:bg-slate-600"
                 onClick={showSettings}

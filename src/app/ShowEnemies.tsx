@@ -1,3 +1,4 @@
+import { VisibleObject } from '@/app/VisibleObject';
 import { Gas } from '@/components/models/Gas';
 import { Skull } from '@/components/models/Skull';
 import { Ghost } from '@/components/models/characters/CharacterGhost';
@@ -9,14 +10,19 @@ import { EnemyStatus, EnemyType } from '@/components/types/GameTypes';
 import { GameState, useStore } from '@/stores/useStore';
 import { getGasFromEnemyType } from '@/utils/hazardUtils';
 import { isTileTypeLiquid } from '@/utils/mapUtils';
+import { tileIndex } from '@/utils/visibilityUtils';
 import { useRef } from 'react';
 import { Vector3 } from 'three';
 
 export const ShowEnemies = () => {
-  const { enemies, getTilePosition } = useStore((store: GameState) => ({
-    enemies: store.enemies,
-    getTilePosition: store.getTilePosition,
-  }));
+  const { enemies, visibilityMap, numRows, getTilePosition } = useStore(
+    (store: GameState) => ({
+      enemies: store.enemies,
+      visibilityMap: store.visibilityMap,
+      numRows: store.numRows,
+      getTilePosition: store.getTilePosition,
+    })
+  );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const enemiesRef = useRef<any[]>([]);
@@ -28,6 +34,11 @@ export const ShowEnemies = () => {
 
   enemies.forEach((enemy) => {
     if (enemy && enemy.id >= 0) {
+      const idx = tileIndex(enemy.position.x, enemy.position.y, numRows);
+      const visibility = visibilityMap[idx];
+
+      const isDead = enemy.status === EnemyStatus.STATUS_DEAD;
+
       let enemyElement;
       // Enemies that are in liquid tiles should be rendered slightly lower so they appear to be "in" the liquid rather than floating above it. This is a simple visual adjustment and doesn't affect actual enemy position or hitbox.
       const tileType = getTilePosition(enemy.position.x, enemy.position.y);
@@ -123,6 +134,7 @@ export const ShowEnemies = () => {
             break;
           case EnemyType.ENEMY_GAS_CONFUSION:
           case EnemyType.ENEMY_GAS_POISON:
+          case EnemyType.ENEMY_GAS_BLINDNESS:
             const gasType = getGasFromEnemyType(enemy.type);
 
             enemyElement = (
@@ -145,7 +157,15 @@ export const ShowEnemies = () => {
         }
       }
 
-      worldEnemies.push(enemyElement);
+      worldEnemies.push(
+        <VisibleObject
+          key={`enemy-vis-${enemy.id}`}
+          visibility={visibility}
+          visibleExplored={isDead && enemy.leavesCorpse}
+        >
+          {enemyElement}
+        </VisibleObject>
+      );
     }
   });
   return <>{worldEnemies}</>;

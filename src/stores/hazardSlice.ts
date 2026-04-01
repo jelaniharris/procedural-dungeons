@@ -147,8 +147,13 @@ export const createHazardSlice: StateCreator<
           };
           break;
         case HazardType.TRAP_FLOOR_GRATES:
+          const gasRoll = randomGen();
           const gasType =
-            randomGen() < 0.5 ? Gases.GAS_CONFUSION : Gases.GAS_POISON;
+            gasRoll < 0.33
+              ? Gases.GAS_CONFUSION
+              : gasRoll < 0.66
+                ? Gases.GAS_POISON
+                : Gases.GAS_BLINDNESS;
           newHazard = {
             ...newHazard,
             emitterGas: gasType,

@@ -5,7 +5,7 @@ Command: npx gltfjsx@6.2.14 .\public\models\traps\Gas.glb -t
 
 import { useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 import { Color, DoubleSide, MeshStandardMaterial, Vector3 } from 'three';
 import { GLTF } from 'three-stdlib';
 import { Enemy, Gases } from '../types/GameTypes';
@@ -66,9 +66,17 @@ export const Gas = forwardRef(function Gas(
         material.color = new Color(0xcccc00);
         material.emissive = new Color(0xcccc00);
         break;
+      case Gases.GAS_BLINDNESS:
+        material.color = new Color(0xbbbbbb);
+        material.emissive = new Color(0xffffff);
+        break;
     }
     return material;
   }, [materials.Smoke, props.gasType]);
+
+  useEffect(() => {
+    return () => { smokeMaterial.dispose(); };
+  }, [smokeMaterial]);
 
   useFrame(() => {
     if (myRef && myRef.current && myRef.current.rotation) {

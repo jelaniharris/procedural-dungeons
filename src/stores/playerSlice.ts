@@ -252,6 +252,9 @@ export const createPlayerSlice: StateCreator<
       playerRotation: rotation,
       playerZOffset: zOffset ? zOffset : 0,
     }));
+
+    get().computeVisibility();
+
     return true;
   },
   getEffectiveGoldMultiplier() {
