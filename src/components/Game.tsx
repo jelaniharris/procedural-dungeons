@@ -146,6 +146,14 @@ export default function Game({ children }: GameProps) {
     }
   }, [currentHud, active]);
 
+  useEffect(() => {
+    if (currentHud !== 'loading') return;
+    const timeoutId = setTimeout(() => {
+      setCurrentHud((current) => (current === 'loading' ? 'mainmenu' : current));
+    }, 8000);
+    return () => clearTimeout(timeoutId);
+  }, [currentHud]);
+
   return (
     <KeyboardControls map={map}>
       <GameContext.Provider value={contextValue}>
