@@ -57,6 +57,9 @@ const nextConfig = {
       use: ['raw-loader', 'glslify-loader'],
     });
 
+    // Give the browser more time to wait for chunks on slow first-time compilations
+    config.output.chunkLoadTimeout = 600000; // 10 minutes
+
     return config;
   },
 };
