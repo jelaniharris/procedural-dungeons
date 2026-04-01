@@ -1,3 +1,4 @@
+import { EntityShadow } from '@/components/entities/EntityShadow';
 import { Enemy } from '@/components/types/GameTypes';
 import { useAnimations, useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
@@ -21,6 +22,7 @@ type ActionName =
 interface CharacterSlimeProps {
   enemy: Enemy;
   enemyId: number;
+  yOffset?: number;
 }
 
 const JUMP_ARC_HEIGHT = 1;
@@ -88,6 +90,11 @@ export const CharacterSlime = forwardRef(function CharacterSlime(
           currentAnimPhase.current = 'Slime_Idle';
           setAnimation('Slime_Idle');
         }
+        slimeRef.current.position.y = THREE.MathUtils.lerp(
+          slimeRef.current.position.y,
+          props.yOffset ?? 0,
+          0.15
+        );
       }
       return;
     }
@@ -132,7 +139,7 @@ export const CharacterSlime = forwardRef(function CharacterSlime(
       }
 
       if (t >= 1) {
-        slimeRef.current.position.y = 0;
+        slimeRef.current.position.y = props.yOffset ?? 0;
         currentAnimPhase.current = 'Slime_Idle';
         setAnimation('Slime_Idle');
       }
@@ -141,6 +148,7 @@ export const CharacterSlime = forwardRef(function CharacterSlime(
 
   return (
     <group ref={slimeRef} {...props} position={initialPosition} dispose={null}>
+      <EntityShadow />
       <primitive object={clonedScene} />
     </group>
   );

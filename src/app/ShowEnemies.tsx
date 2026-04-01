@@ -9,16 +9,20 @@ import { CharacterSlime } from '@/components/models/characters/CharacterSlime';
 import { EnemyStatus, EnemyType } from '@/components/types/GameTypes';
 import { GameState, useStore } from '@/stores/useStore';
 import { getGasFromEnemyType } from '@/utils/hazardUtils';
+import { isTileTypeLiquid } from '@/utils/mapUtils';
 import { tileIndex } from '@/utils/visibilityUtils';
 import { useRef } from 'react';
 import { Vector3 } from 'three';
 
 export const ShowEnemies = () => {
-  const { enemies, visibilityMap, numRows } = useStore((store: GameState) => ({
-    enemies: store.enemies,
-    visibilityMap: store.visibilityMap,
-    numRows: store.numRows,
-  }));
+  const { enemies, visibilityMap, numRows, getTilePosition } = useStore(
+    (store: GameState) => ({
+      enemies: store.enemies,
+      visibilityMap: store.visibilityMap,
+      numRows: store.numRows,
+      getTilePosition: store.getTilePosition,
+    })
+  );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const enemiesRef = useRef<any[]>([]);
@@ -36,6 +40,9 @@ export const ShowEnemies = () => {
       const isDead = enemy.status === EnemyStatus.STATUS_DEAD;
 
       let enemyElement;
+      // Enemies that are in liquid tiles should be rendered slightly lower so they appear to be "in" the liquid rather than floating above it. This is a simple visual adjustment and doesn't affect actual enemy position or hitbox.
+      const tileType = getTilePosition(enemy.position.x, enemy.position.y);
+      const yOffset = tileType && isTileTypeLiquid(tileType) ? -0.5 : 0;
 
       if (enemy.status == EnemyStatus.STATUS_DEAD && enemy.leavesCorpse) {
         enemyElement = (
@@ -53,6 +60,7 @@ export const ShowEnemies = () => {
                 position={new Vector3(enemy.position.x, 0, enemy.position.y)}
                 enemy={enemy}
                 enemyId={enemy.id}
+                yOffset={yOffset}
                 ref={(el) => {
                   if (el) {
                     enemiesRef.current[enemy.id] = el;
@@ -68,6 +76,7 @@ export const ShowEnemies = () => {
                 position={new Vector3(enemy.position.x, 0, enemy.position.y)}
                 enemy={enemy}
                 enemyId={enemy.id}
+                yOffset={yOffset}
                 ref={(el) => {
                   if (el) {
                     enemiesRef.current[enemy.id] = el;
@@ -98,6 +107,7 @@ export const ShowEnemies = () => {
                 position={new Vector3(enemy.position.x, 0, enemy.position.y)}
                 enemy={enemy}
                 enemyId={enemy.id}
+                yOffset={yOffset}
                 ref={(el) => {
                   if (el) {
                     enemiesRef.current[enemy.id] = el;
@@ -113,6 +123,7 @@ export const ShowEnemies = () => {
                 position={new Vector3(enemy.position.x, 0, enemy.position.y)}
                 enemy={enemy}
                 enemyId={enemy.id}
+                yOffset={yOffset / 2} // Slimes need less of a y-offset adjustment when in liquid
                 ref={(el) => {
                   if (el) {
                     enemiesRef.current[enemy.id] = el;

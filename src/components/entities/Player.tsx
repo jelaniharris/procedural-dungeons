@@ -5,6 +5,7 @@ import { CharacterPlayer } from '../models/characters/CharacterPlayer';
 import GameObject from './GameObject';
 //import { useRef } from 'react';
 import { MoveableObject } from './MoveableObject';
+import { EntityShadow } from './EntityShadow';
 
 const Player = () => {
   const playerPosition = useStore((state: GameState) => state.playerPosition);
@@ -24,6 +25,7 @@ const Player = () => {
         <MoveableObject />
         <CharacterController />
         <CharacterPlayer />
+        <EntityShadow />
       </GameObject>
     </>
   );
