@@ -50,6 +50,7 @@ export function LiquidWallAll({ tint, liquidType, wallType, ...props }: LiquidPr
 
   const wallMaterial = useMemo(() => materials.colormap.clone(), [materials.colormap]);
   const spriteMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
+  const spriteGeoRef = useRef<THREE.BufferGeometry>(null);
 
   useEffect(() => {
     const scalar = tint ?? 1.0;
@@ -58,6 +59,14 @@ export function LiquidWallAll({ tint, liquidType, wallType, ...props }: LiquidPr
       spriteMaterialRef.current.color.setScalar(scalar);
     }
   }, [wallMaterial, tint]);
+
+  useEffect(() => {
+    return () => {
+      wallMaterial.dispose();
+      spriteGeoRef.current?.dispose();
+      spriteMaterialRef.current?.dispose();
+    };
+  }, [wallMaterial]);
 
   return (
     <group {...props} dispose={null}>
@@ -80,7 +89,7 @@ export function LiquidWallAll({ tint, liquidType, wallType, ...props }: LiquidPr
         rotation={[THREE.MathUtils.degToRad(270), 0, 0]}
         position={[0, -0.25, 0]}
       >
-        <planeGeometry attach="geometry" args={[1, 1]} />
+        <planeGeometry ref={spriteGeoRef} attach="geometry" args={[1, 1]} />
         <meshBasicMaterial
           ref={spriteMaterialRef}
           attach="material"

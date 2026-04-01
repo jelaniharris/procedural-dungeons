@@ -246,6 +246,7 @@ export const createEnemySlice: StateCreator<
         break;
       case EnemyType.ENEMY_GAS_POISON:
       case EnemyType.ENEMY_GAS_CONFUSION:
+      case EnemyType.ENEMY_GAS_BLINDNESS:
         const statusType = getStatusTypeFromEnemyType(newEnemy.type);
 
         newEnemy = {

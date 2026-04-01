@@ -17,6 +17,7 @@ import { GameState, useStore } from '@/stores/useStore';
 import { Point2D } from '@/utils/Point2D';
 import { getPlayerLocalData } from '@/utils/playerUtils';
 import { Environment, Stats } from '@react-three/drei';
+import { useThree } from '@react-three/fiber';
 import { EffectComposer, Vignette } from '@react-three/postprocessing';
 import React, {
   Suspense,
@@ -220,6 +221,16 @@ const DungeonScene = () => {
   useEffect(() => {
     attacksRef.current = attacks;
   }, [attacks]);
+
+  const { gl } = useThree();
+  useEffect(() => {
+    if (process.env.NODE_ENV !== 'development') return;
+    const id = setInterval(() => {
+      // eslint-disable-next-line no-console
+      console.log(new Date().toLocaleTimeString(), gl.info.memory);
+    }, 2000);
+    return () => clearInterval(id);
+  }, [gl]);
 
   // Api calls
   const saveScore = trpc.saveScore.useMutation();
@@ -751,6 +762,7 @@ const DungeonScene = () => {
 
       subscribe(EXIT_GREED, () => {
         setShowExitDialog(false);
+        setShowStoreDialog(false);
         advanceStage();
       });
 

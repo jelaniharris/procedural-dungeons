@@ -2,10 +2,10 @@ import { VisibleObject } from '@/app/VisibleObject';
 import { Gas } from '@/components/models/Gas';
 import { Skull } from '@/components/models/Skull';
 import { Ghost } from '@/components/models/characters/CharacterGhost';
-import { CharacterSlime } from '@/components/models/characters/CharacterSlime';
 import { Noodle } from '@/components/models/characters/CharacterNoodle';
 import { Orc } from '@/components/models/characters/CharacterOrc';
 import { Skeleton } from '@/components/models/characters/CharacterSkeleton';
+import { CharacterSlime } from '@/components/models/characters/CharacterSlime';
 import { EnemyStatus, EnemyType } from '@/components/types/GameTypes';
 import { GameState, useStore } from '@/stores/useStore';
 import { getGasFromEnemyType } from '@/utils/hazardUtils';
@@ -123,6 +123,7 @@ export const ShowEnemies = () => {
             break;
           case EnemyType.ENEMY_GAS_CONFUSION:
           case EnemyType.ENEMY_GAS_POISON:
+          case EnemyType.ENEMY_GAS_BLINDNESS:
             const gasType = getGasFromEnemyType(enemy.type);
 
             enemyElement = (
@@ -146,7 +147,11 @@ export const ShowEnemies = () => {
       }
 
       worldEnemies.push(
-        <VisibleObject key={`enemy-vis-${enemy.id}`} visibility={visibility} visibleExplored={isDead && enemy.leavesCorpse}>
+        <VisibleObject
+          key={`enemy-vis-${enemy.id}`}
+          visibility={visibility}
+          visibleExplored={isDead && enemy.leavesCorpse}
+        >
           {enemyElement}
         </VisibleObject>
       );

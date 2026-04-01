@@ -48,6 +48,12 @@ export default function SummoningIndicator(props: SummoningIndicatorType) {
   });
 
   useEffect(() => {
+    return () => {
+      spriteSheet.dispose();
+    };
+  }, [spriteSheet]);
+
+  useEffect(() => {
     let col = 0;
     let row = 0;
 
@@ -78,7 +84,7 @@ export default function SummoningIndicator(props: SummoningIndicatorType) {
   }, [props.spawnWarning.warningType, spriteSheet.offset]);
 
   return (
-    <group {...props} position={[0, 0.2, 0]} ref={myRef} dispose={null}>
+    <group {...props} position={[0, 0.2, 0]} ref={myRef}>
       <mesh rotation={[THREE.MathUtils.degToRad(270), 0, 0]}>
         <planeGeometry attach="geometry" args={[1, 1]} />
         <meshBasicMaterial

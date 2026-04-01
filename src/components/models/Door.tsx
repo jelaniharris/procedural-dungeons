@@ -50,6 +50,10 @@ export default function Door({ tint, ...props }: JSX.IntrinsicElements['group'] 
   useEffect(() => {
     material.color.setScalar(tint ?? 1.0);
   }, [material, tint]);
+
+  useEffect(() => {
+    return () => { material.dispose(); };
+  }, [material]);
   const [animation, setAnimation] = useState<ActionName>('Closed-Idle');
   const { actions, mixer } = useAnimations(animations, groupRef);
   const doorStatus = useRef<DoorStatus>(DoorStatus.CLOSED);

@@ -26,6 +26,10 @@ export function Column({ tint, ...props }: JSX.IntrinsicElements['group'] & Colu
     material.color.setScalar(tint ?? 1.0);
   }, [material, tint]);
 
+  useEffect(() => {
+    return () => { material.dispose(); };
+  }, [material]);
+
   return (
     <group {...props} dispose={null}>
       <mesh geometry={nodes.column_1.geometry} material={material} />

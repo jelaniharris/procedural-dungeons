@@ -26,6 +26,10 @@ export default function Stairs({ tint, ...props }: JSX.IntrinsicElements['group'
     material.color.setScalar(tint ?? 1.0);
   }, [material, tint]);
 
+  useEffect(() => {
+    return () => { material.dispose(); };
+  }, [material]);
+
   return (
     <group {...props} dispose={null}>
       <mesh geometry={nodes.stairs_1.geometry} material={material} />

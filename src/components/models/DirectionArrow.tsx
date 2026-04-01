@@ -72,8 +72,14 @@ export default function DirectionArrow(props: DirectionArrowType) {
     spriteSheet.offset.y = 1 - (1 + row) / rows;
   }, [props.curveType, spriteSheet.offset]);
 
+  useEffect(() => {
+    return () => {
+      spriteSheet.dispose();
+    };
+  }, [spriteSheet]);
+
   return (
-    <group {...props} dispose={null}>
+    <group {...props}>
       <mesh rotation={[THREE.MathUtils.degToRad(270), 0, 0]}>
         <planeGeometry attach="geometry" args={[1, 1]} />
         <meshBasicMaterial

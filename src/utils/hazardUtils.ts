@@ -13,6 +13,9 @@ export const getGasFromEnemyType = (enemyType: EnemyType) => {
     case EnemyType.ENEMY_GAS_CONFUSION:
       gasType = Gases.GAS_CONFUSION;
       break;
+    case EnemyType.ENEMY_GAS_BLINDNESS:
+      gasType = Gases.GAS_BLINDNESS;
+      break;
   }
   return gasType;
 };
@@ -26,6 +29,9 @@ export const getEnemyTypeFromGasType = (gasType: Gases) => {
     case Gases.GAS_CONFUSION:
       enemyType = EnemyType.ENEMY_GAS_CONFUSION;
       break;
+    case Gases.GAS_BLINDNESS:
+      enemyType = EnemyType.ENEMY_GAS_BLINDNESS;
+      break;
   }
   return enemyType;
 };
@@ -38,6 +44,9 @@ export const getStatusTypeFromEnemyType = (enemyType: EnemyType) => {
       break;
     case EnemyType.ENEMY_GAS_CONFUSION:
       statusType = StatusEffectType.CONFUSION;
+      break;
+    case EnemyType.ENEMY_GAS_BLINDNESS:
+      statusType = StatusEffectType.BLINDNESS;
       break;
   }
   return statusType;

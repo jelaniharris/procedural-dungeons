@@ -26,6 +26,10 @@ export default function WallNarrow({ tint, ...props }: JSX.IntrinsicElements['gr
     material.color.setScalar(tint ?? 1.0);
   }, [material, tint]);
 
+  useEffect(() => {
+    return () => { material.dispose(); };
+  }, [material]);
+
   return (
     <group {...props} dispose={null}>
       <mesh geometry={nodes['wall-narrow_1'].geometry} material={material} />

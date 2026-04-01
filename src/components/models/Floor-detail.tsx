@@ -22,11 +22,15 @@ export default function FloorDetail({ tint, ...props }: JSX.IntrinsicElements['g
   const { nodes, materials } = useGLTF('/models/environment/floor-detail.glb') as GLTFResult;
 
   const variationTexture = useTexture('/textures/variation-b.png');
-  variationTexture.flipY = false;
-  variationTexture.colorSpace = 'srgb';
-  variationTexture.name = 'colormap';
-  variationTexture.wrapS = THREE.RepeatWrapping;
-  variationTexture.wrapT = THREE.RepeatWrapping;
+
+  useEffect(() => {
+    variationTexture.flipY = false;
+    variationTexture.colorSpace = 'srgb';
+    variationTexture.name = 'colormap';
+    variationTexture.wrapS = THREE.RepeatWrapping;
+    variationTexture.wrapT = THREE.RepeatWrapping;
+    variationTexture.needsUpdate = true;
+  }, [variationTexture]);
 
   const material = useMemo(() => {
     const mat = materials.colormap.clone();
@@ -37,6 +41,12 @@ export default function FloorDetail({ tint, ...props }: JSX.IntrinsicElements['g
   useEffect(() => {
     material.color.setScalar(tint ?? 1.0);
   }, [material, tint]);
+
+  useEffect(() => {
+    return () => {
+      material.dispose();
+    };
+  }, [material]);
 
   return (
     <group {...props} dispose={null}>

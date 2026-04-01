@@ -21,7 +21,11 @@ interface FloorProps {
 export default function Floor({ tint, ...props }: JSX.IntrinsicElements['group'] & FloorProps) {
   const { nodes, materials } = useGLTF('/models/environment/floor.glb') as GLTFResult;
   const variationTexture = useTexture('/textures/variation-b.png');
-  variationTexture.flipY = false;
+
+  useEffect(() => {
+    variationTexture.flipY = false;
+    variationTexture.needsUpdate = true;
+  }, [variationTexture]);
 
   const material = useMemo(() => {
     const mat = materials.colormap.clone();
