@@ -11,6 +11,7 @@ type JumpArcArrowProps = {
   arcHeight?: number;
   halfWidth?: number;
   segments?: number;
+  visible?: boolean;
   /** When true, the texture is stretched once over the full arc.
    *  When false (default), it tiles once per jumped tile. */
   stretchTexture?: boolean;
@@ -67,6 +68,7 @@ export default function JumpArcArrow({
   arcHeight = 2.0,
   halfWidth = 0.18,
   segments = 30,
+  visible = true,
   stretchTexture = true,
 }: JumpArcArrowProps) {
   const damageSpriteSheet = useLoader(
@@ -119,7 +121,7 @@ export default function JumpArcArrow({
   }, [geometry, texture]);
 
   return (
-    <mesh geometry={geometry}>
+    <mesh geometry={geometry} visible={visible}>
       <meshBasicMaterial
         map={texture}
         transparent

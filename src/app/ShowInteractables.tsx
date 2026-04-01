@@ -8,12 +8,13 @@ import { EXPLORED, tileIndex } from '@/utils/visibilityUtils';
 import { shallow } from 'zustand/shallow';
 
 export const ShowInteractables = () => {
-  const { doors, determineWallType, visibilityMap, numRows } = useStore(
+  const { doors, determineWallType, visibilityMap, numRows, currentLevel } = useStore(
     (state) => ({
       doors: state.doors,
       determineWallType: state.determineWallType,
       visibilityMap: state.visibilityMap,
       numRows: state.numRows,
+      currentLevel: state.currentLevel,
     }),
     shallow
   );
@@ -29,7 +30,7 @@ export const ShowInteractables = () => {
 
     const visibility =
       visibilityMap[tileIndex(door.position.x, door.position.y, numRows)];
-    const keyName = `door:${door.position.x},${door.position.y}`;
+    const keyName = `door:${currentLevel}:${door.position.x},${door.position.y}`;
     worldDoors.push(
       <VisibleObject
         key={keyName}

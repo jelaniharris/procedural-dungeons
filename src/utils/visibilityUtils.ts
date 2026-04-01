@@ -1,20 +1,24 @@
-import { FloorModifierType, StatusEffectType, TileType } from '@/components/types/GameTypes';
+import {
+  FloorModifierType,
+  StatusEffectType,
+  TileType,
+} from '@/components/types/GameTypes';
 import { Room } from '@/utils/Bounds2d';
 import { Point2D } from '@/utils/Point2D';
 
 // ---------------------------------------------------------------------------
 // Visibility states stored per tile in the Uint8Array visibility map
 // ---------------------------------------------------------------------------
-export const HIDDEN = 0;    // never seen — tile not rendered
-export const EXPLORED = 1;  // seen before but not currently visible — rendered, no entities
-export const VISIBLE = 2;   // currently in sight — rendered normally
+export const HIDDEN = 0; // never seen — tile not rendered
+export const EXPLORED = 1; // seen before but not currently visible — rendered, no entities
+export const VISIBLE = 2; // currently in sight — rendered normally
 
 // ---------------------------------------------------------------------------
 // Visibility radii
 // ---------------------------------------------------------------------------
 export const RADIUS_NORMAL = 10;
-export const RADIUS_DARKNESS = 9;
-export const RADIUS_BLINDNESS = 5;
+export const RADIUS_DARKNESS = 6;
+export const RADIUS_BLINDNESS = 3;
 export const RADIUS_ROOM_CORRIDOR = 4; // fallback radius in corridors under ROOM_DARK
 
 // ---------------------------------------------------------------------------
@@ -168,7 +172,14 @@ function roomBasedVisibility(
   }
 
   // Player is in a corridor or room lookup failed — fall back to radius BFS.
-  bfsVisibility(mapData, origin, corridorRadius, numRows, numCols, visibilityMap);
+  bfsVisibility(
+    mapData,
+    origin,
+    corridorRadius,
+    numRows,
+    numCols,
+    visibilityMap
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -211,13 +222,20 @@ export function computeVisibility({
   }
 
   const isBlind = statusEffects.some(
-    (se) => se.statusEffectType === StatusEffectType.BLINDNESS
+    (se) => se && se.statusEffectType === StatusEffectType.BLINDNESS
   );
   const hasDarkness = floorModifiers.includes(FloorModifierType.DARKNESS);
   const hasRoomDark = floorModifiers.includes(FloorModifierType.ROOM_DARK);
 
   if (isBlind) {
-    bfsVisibility(mapData, playerPosition, RADIUS_BLINDNESS, numRows, numCols, visibilityMap);
+    bfsVisibility(
+      mapData,
+      playerPosition,
+      RADIUS_BLINDNESS,
+      numRows,
+      numCols,
+      visibilityMap
+    );
   } else if (hasRoomDark) {
     roomBasedVisibility(
       mapData,
@@ -229,9 +247,23 @@ export function computeVisibility({
       visibilityMap
     );
   } else if (hasDarkness) {
-    bfsVisibility(mapData, playerPosition, RADIUS_DARKNESS, numRows, numCols, visibilityMap);
+    bfsVisibility(
+      mapData,
+      playerPosition,
+      RADIUS_DARKNESS,
+      numRows,
+      numCols,
+      visibilityMap
+    );
   } else {
-    bfsVisibility(mapData, playerPosition, RADIUS_NORMAL, numRows, numCols, visibilityMap);
+    bfsVisibility(
+      mapData,
+      playerPosition,
+      RADIUS_NORMAL,
+      numRows,
+      numCols,
+      visibilityMap
+    );
   }
 
   markDiagonalWalls(mapData, numRows, numCols, visibilityMap);
