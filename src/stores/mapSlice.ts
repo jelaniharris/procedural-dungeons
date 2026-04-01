@@ -345,8 +345,8 @@ export const createMapSlice: StateCreator<
     get().newStageTriggers();
   },
   resetMap: () => {
-    const mapNumRows = 8 + 4 * get().currentLevel;
-    const mapNumCols = 8 + 4 * get().currentLevel;
+    const mapNumRows = 8 + 3 * get().currentLevel;
+    const mapNumCols = 8 + 3 * get().currentLevel;
 
     const newMap: (TileType | null)[][] = [];
 
@@ -1144,6 +1144,11 @@ export const createMapSlice: StateCreator<
 
       // Do not generate liquids in doors
       if (doorLocations.has(`${point.x},${point.y}`)) {
+        continue;
+      }
+
+      // Do not generate liquids in walls
+      if (get().isBlockWallOrNull(mapData[point.x][point.y])) {
         continue;
       }
 
