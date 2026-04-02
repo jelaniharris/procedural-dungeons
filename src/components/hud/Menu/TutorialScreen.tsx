@@ -220,6 +220,12 @@ const TutorialScreen = () => {
         description:
           'Moves 1 spaces randomly. Gives POISON status on contact. Fades after 5 turns.',
       },
+      {
+        icon: 'BlindnessGasIcon.png',
+        name: 'Blindness Gas',
+        description:
+          'Reduces vision. Gives BLINDNESS status on contact. Fades after 5 turns.',
+      },
     ];
 
     return (
