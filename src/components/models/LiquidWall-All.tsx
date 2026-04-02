@@ -50,7 +50,7 @@ export function LiquidWallAll({ tint, liquidType, wallType, ...props }: LiquidPr
 
   const wallMaterial = useMemo(() => materials.colormap.clone(), [materials.colormap]);
   const spriteMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
-  const spriteGeoRef = useRef<THREE.BufferGeometry>(null);
+  const spriteGeoRef = useRef<THREE.PlaneGeometry>(null);
 
   useEffect(() => {
     const scalar = tint ?? 1.0;
