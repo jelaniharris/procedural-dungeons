@@ -7,7 +7,7 @@ const Y_LERP_SPEED = 0.15;
 
 export function useEnemyMovement<T extends string>(
   ref: RefObject<THREE.Group>,
-  target: THREE.Vector3Like | undefined,
+  target: THREE.Vector3 | undefined,
   yOffset: number,
   movementPoints: unknown[],
   setAnimation: (anim: T) => void,
